@@ -1412,25 +1412,14 @@ const runFX=(function(){
   const origin=row=>{const r=(row.querySelector('.glyph')||row).getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}};
   const rng=s=>()=>(s=(s*16807)%2147483647)/2147483647;
 
-  // LiDAR: pulse rings spread across a tilted ground plane; page edges flash as returns when the pulse reaches them
+  // LiDAR: a few pulse rings spread across a tilted ground plane from the rover, then fade
   function lidar(row){
-    const o=origin(row),TI=.42,pts=[];
-    document.querySelectorAll('h2,h3,.prow>button,.gal .main,.thumbs button,.kv>div,.list li,.stats>div,.pinner p').forEach(el=>{
-      const r=el.getBoundingClientRect();if(r.bottom<0||r.top>H||r.width<8)return;
-      for(let x=r.left;x<=r.right;x+=14)pts.push([x,r.top],[x,r.bottom]);
-      for(let y=r.top;y<=r.bottom;y+=14)pts.push([r.left,y],[r.right,y])});
-    const P=pts.slice(0,2600).map(([x,y])=>[x,y,Math.hypot(x-o.x,(y-o.y)/TI)]);
-    const R=Math.max(400,...P.map(p=>p[2]))+30,T=560,qo=t=>t*(2-t);
-    play(900,e=>{const f=1-out(e,660,900),rad=qo(out(e,0,T))*R;
-      for(let k=0;k<6;k++){const rr=rad-k*55;if(rr<=0)continue;
-        c.strokeStyle=k?`rgba(${BR},${(.5-k*.07)*f})`:`rgba(${CU},${.95*f})`;c.lineWidth=k?1.2:2.6;
+    const o=origin(row),TI=.42,R=Math.hypot(W,H)*1.15;
+    play(850,e=>{const f=1-out(e,560,850),q=out(e,0,620),rad=q*(2-q)*R;
+      for(let k=0;k<4;k++){const rr=rad-k*70;if(rr<=0)continue;
+        c.strokeStyle=k?`rgba(${BR},${(.28-k*.06)*f})`:`rgba(${CU},${.5*f})`;c.lineWidth=k?1:1.6;
         c.beginPath();c.ellipse(o.x,o.y,rr,rr*TI,0,0,Math.PI*2);c.stroke()}
-      if(rad>0){const g=c.createRadialGradient(o.x,o.y,0,o.x,o.y,rad);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.85,`rgba(${HI},0)`);g.addColorStop(1,`rgba(${HI},${.22*f})`);
-        c.save();c.translate(o.x,o.y);c.scale(1,TI);c.translate(-o.x,-o.y);c.fillStyle=g;c.beginPath();c.arc(o.x,o.y,rad,0,Math.PI*2);c.fill();c.restore()}
-      for(const[x,y,d]of P){if(d>rad)continue;const age=(rad-d)/R*T;
-        if(age<80){const a=f*(1-age/80);c.fillStyle=`rgba(${HI},${a*.55})`;c.fillRect(x-4,y-4,8,8);c.fillStyle=`rgba(${WH},${f})`;c.fillRect(x-2,y-2,4,4)}
-        else{c.fillStyle=`rgba(${CU},${.8*f})`;c.fillRect(x-1.4,y-1.4,2.8,2.8)}}
-      c.fillStyle=`rgba(${CU},${f})`;c.beginPath();c.arc(o.x,o.y,5,0,Math.PI*2);c.fill()});
+      c.fillStyle=`rgba(${CU},${.8*f})`;c.beginPath();c.arc(o.x,o.y,3.5,0,Math.PI*2);c.fill()});
   }
 
   // rocket launch: ground flash, a plume that billows out, and a rocket that shrinks as it climbs away
@@ -1475,17 +1464,17 @@ const runFX=(function(){
         c.fillStyle=`rgba(${CU},${fb})`;c.fillRect(x,y-20,tw,20);c.fillStyle=`rgba(${WH},${fb})`;c.fillText(lab,x+6,y-6)}});
   }
 
-  // MAC array: an isometric 12x12 grid; the operand wavefront lifts each cell as it passes
+  // MAC array: a faint isometric 12x12 grid; the operand wavefront lifts each cell as it passes
   function systolic(){
     const n=12,cw=Math.min(W,H)*.058,ox=W/2,oy=H*.5,D=.1;
     play(900,e=>{const f=1-out(e,690,900),ap=ease(out(e,0,180));
       const P=(i,j,z)=>[ox+(i-j)*cw*ap,oy+(i+j-n)*cw*.5*ap-z];
       for(let s=0;s<2*n-1;s++)for(let i=0;i<n;i++){const j=s-i;if(j<0||j>=n)continue;
-        const age=e-(i+j)*22,z=age>0&&age<380?Math.sin(Math.PI*age/380)*cw*1.3:0;
+        const age=e-(i+j)*22,z=age>0&&age<380?Math.sin(Math.PI*age/380)*cw*.9:0;
         const[ax,ay]=P(i+D,j+D,z),[bx,by]=P(i+1-D,j+D,z),[cx,cy]=P(i+1-D,j+1-D,z),[dx,dy]=P(i+D,j+1-D,z);
-        if(z>1){c.fillStyle=`rgba(${CU},${.55*f})`;c.beginPath();c.moveTo(dx,dy);c.lineTo(cx,cy);c.lineTo(cx,cy+z);c.lineTo(dx,dy+z);c.fill();
-          c.fillStyle=`rgba(${WI},${.55*f})`;c.beginPath();c.moveTo(bx,by);c.lineTo(cx,cy);c.lineTo(cx,cy+z);c.lineTo(bx,by+z);c.fill()}
-        c.fillStyle=z>1?`rgba(${HI},${.85*f})`:`rgba(${BR},${.08*f})`;c.strokeStyle=`rgba(${BR},${.5*f})`;c.lineWidth=1;
+        if(z>1){c.fillStyle=`rgba(${CU},${.16*f})`;c.beginPath();c.moveTo(dx,dy);c.lineTo(cx,cy);c.lineTo(cx,cy+z);c.lineTo(dx,dy+z);c.fill();
+          c.fillStyle=`rgba(${WI},${.14*f})`;c.beginPath();c.moveTo(bx,by);c.lineTo(cx,cy);c.lineTo(cx,cy+z);c.lineTo(bx,by+z);c.fill()}
+        c.fillStyle=z>1?`rgba(${HI},${.3*f})`:`rgba(${BR},${.03*f})`;c.strokeStyle=`rgba(${BR},${(z>1?.35:.16)*f})`;c.lineWidth=1;
         c.beginPath();c.moveTo(ax,ay);c.lineTo(bx,by);c.lineTo(cx,cy);c.lineTo(dx,dy);c.closePath();c.fill();c.stroke()}});
   }
 
@@ -1499,20 +1488,16 @@ const runFX=(function(){
       c.strokeStyle=`rgba(${CU},${.55*f})`;c.lineWidth=2;c.strokeRect(cx-hw+1,cy-hh+1,hw*2-2,hh*2-2)});
   }
 
-  // CPU: signals race out of the row along routed traces, like a bus fanning out across a board
+  // CPU: an 8-bit bus leaves the row as eight parallel traces with one 45° jog, a short pulse running along each
   function clock(row){
-    const o=origin(row),rand=rng(3),T=[];
-    for(let k=0;k<28;k++){let x=o.x,y=o.y+(rand()-.5)*18,hz=true;const pts=[[x,y]],dir=rand()<.5?1:-1;
-      for(let s=0;s<7;s++){if(hz)x+=dir*(70+rand()*260);else y+=(rand()-.5)*2*(40+rand()*170);pts.push([x,y]);hz=!hz}
-      const cl=[0];for(let i=1;i<pts.length;i++)cl.push(cl[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));
-      T.push({pts,cl,L:cl[cl.length-1],d:rand()*150,v:1.6+rand()*1.3})}
-    play(900,e=>{const f=1-out(e,660,900);c.lineWidth=1.5;
-      for(const t of T){const l=Math.min(t.L,Math.max(0,(e-t.d)*t.v));if(l<=0)continue;let i=1;while(i<t.pts.length-1&&t.cl[i]<l)i++;
-        const k=(l-t.cl[i-1])/((t.cl[i]-t.cl[i-1])||1),hx=t.pts[i-1][0]+(t.pts[i][0]-t.pts[i-1][0])*k,hy=t.pts[i-1][1]+(t.pts[i][1]-t.pts[i-1][1])*k;
-        c.strokeStyle=`rgba(${BR},${.6*f})`;c.beginPath();c.moveTo(t.pts[0][0],t.pts[0][1]);for(let q=1;q<i;q++)c.lineTo(t.pts[q][0],t.pts[q][1]);c.lineTo(hx,hy);c.stroke();
-        if(l<t.L){c.fillStyle=`rgba(${HI},${.3*f})`;c.beginPath();c.arc(hx,hy,9,0,Math.PI*2);c.fill();c.fillStyle=`rgba(${WH},${f})`;c.beginPath();c.arc(hx,hy,3,0,Math.PI*2);c.fill()}
-        else{c.fillStyle=`rgba(${CU},${f})`;c.fillRect(hx-3.5,hy-3.5,7,7)}}
-      c.fillStyle=`rgba(${CU},${f})`;c.fillRect(o.x-6,o.y-6,12,12)});
+    const o=origin(row),G=7,y0=o.y-G*3.5,jx=o.x+120,drop=Math.min(90,H-o.y-40)>40?60:-60,T=[];
+    for(let k=0;k<8;k++){const y=y0+k*G,x1=jx+k*G*.0,pts=[[o.x+14,y],[x1+(7-k)*G,y],[x1+(7-k)*G+Math.abs(drop),y+drop],[W+20,y+drop]];
+      const cl=[0];for(let i=1;i<pts.length;i++)cl.push(cl[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));T.push({pts,cl,L:cl[3],d:k*18})}
+    const at=(t,l)=>{let i=1;while(i<3&&t.cl[i]<l)i++;const k=(l-t.cl[i-1])/((t.cl[i]-t.cl[i-1])||1);return[t.pts[i-1][0]+(t.pts[i][0]-t.pts[i-1][0])*k,t.pts[i-1][1]+(t.pts[i][1]-t.pts[i-1][1])*k,i]};
+    play(850,e=>{const f=1-out(e,600,850);c.lineCap='round';
+      for(const t of T){const l=Math.min(t.L,Math.max(0,(e-t.d)*2.4));if(l<=0)continue;const[hx,hy,i]=at(t,l);
+        c.strokeStyle=`rgba(${BR},${.32*f})`;c.lineWidth=1.1;c.beginPath();c.moveTo(t.pts[0][0],t.pts[0][1]);for(let q=1;q<i;q++)c.lineTo(t.pts[q][0],t.pts[q][1]);c.lineTo(hx,hy);c.stroke();
+        const tl=Math.max(0,l-70),[tx,ty]=at(t,tl);if(l<t.L){c.strokeStyle=`rgba(${CU},${.75*f})`;c.lineWidth=1.6;c.beginPath();c.moveTo(tx,ty);c.lineTo(hx,hy);c.stroke()}}});
   }
 
   // amplifier: three stages of the same signal, each layer larger and closer
