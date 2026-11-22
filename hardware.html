@@ -50,8 +50,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .ember{color:var(--ember)}.gold{color:var(--gold)}
 
 /* nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:60;transition:background-color .4s,border-color .4s;border-bottom:1px solid transparent}
-.nav.on{background:rgba(243,230,209,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-color:var(--line)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;transition:transform .38s cubic-bezier(.3,.7,.2,1)}
+.nav.hide:not(:focus-within){transform:translateY(calc(-100% - 46px))}
+.nav:before{content:"";position:absolute;left:0;right:0;top:0;height:calc(100% + 40px);pointer-events:none;z-index:-1;opacity:0;transition:opacity .4s;
+ background:linear-gradient(to bottom,rgba(243,230,209,.96) 0%,rgba(243,230,209,.9) 55%,rgba(243,230,209,.55) 75%,rgba(243,230,209,0) 100%);
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+ -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent);mask-image:linear-gradient(to bottom,#000 55%,transparent)}
+.nav.on:before{opacity:1}
 canvas.bits{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 .nav .wrap{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;height:78px;gap:24px}
 .brand{font-family:var(--mono);font-size:16.5px;text-decoration:none;display:flex;align-items:center;gap:11px;white-space:nowrap;padding:8px 14px;margin-left:-14px;border-radius:999px}
@@ -1303,7 +1308,11 @@ const SCR={heroP:0,vel:0};
   let holes=[];
   // clear zones: a padded pill around the name and each tab, so the bits never sit behind text
   function zones(){const nr=nav.getBoundingClientRect();holes=[...nav.querySelectorAll('.brand,.nav ul a')].map(el=>{const r=el.getBoundingClientRect();
-    return[r.left-nr.left-16,r.top-nr.top-9,r.width+32,r.height+18]}).filter(z=>z[2]>32)}
+    return[r.left-nr.left-10,r.top-nr.top-4,r.width+20,r.height+8]}).filter(z=>z[2]>20)}
+  const FADE=30;
+  // signed distance to a pill (rounded rect, radius h/2); 0 inside, rising to 1 over FADE px outside
+  function clearK(px,py){let m=1e9;for(const[x,y,w,h]of holes){const r=h/2,cx=x+w/2,cy=y+h/2,qx=Math.abs(px-cx)-(w/2-r),qy=Math.abs(py-cy)-(h/2-r);
+    const d=Math.hypot(Math.max(qx,0),Math.max(qy,0))+Math.min(Math.max(qx,qy),0)-r;if(d<m)m=d}return Math.max(0,Math.min(1,m/FADE))}
   function size(){const d=Math.min(devicePixelRatio||1,2);W=nav.offsetWidth;H=nav.offsetHeight;cv.width=W*d;cv.height=H*d;c.setTransform(d,0,0,d,0,0);zones()}
   size();addEventListener('resize',size);if(document.fonts)document.fonts.ready.then(zones);setInterval(zones,1500);
   const N=360;
@@ -1316,14 +1325,13 @@ const SCR={heroP:0,vel:0};
     for(const L of lanes){const fs=L.f*sc;L.cw=Math.round(fs*.95);const P=N*L.cw;L.o=(L.o+L.v*boost*dt/1000+P)%P;
       const base=Math.floor(L.o/L.cw),fr=L.o%L.cw,y=L.y*H;c.font=`${fs.toFixed(1)}px JetBrains Mono, monospace`;
       for(let k=-1;k*L.cw<W+L.cw;k++){const i=((base+k)%N+N)%N,x=k*L.cw-fr,tp=L.t[i];if(!tp)continue;
-        const edge=Math.min(1,x/(W*.14),(W-x)/(W*.14));if(edge<=0)continue;const h=L.hot[i];
+        let edge=Math.min(1,x/(W*.14),(W-x)/(W*.14));if(edge<=0)continue;edge*=clearK(x+L.cw/2,y);if(edge<=0)continue;const h=L.hot[i];
         c.fillStyle=h>0?`rgba(156,58,36,${Math.min(1,L.a+.65*h)*edge})`:`rgba(34,23,15,${L.a*edge})`;
         if(tp===1)c.fillText(L.b[i],x,y);
         else{const q=L.f*.42;c.fillRect(x+L.f*.1,y-q/2,q*(L.b[i]?1.6:1),q)}}
       for(let i=0;i<N;i++)if(L.hot[i]>0)L.hot[i]=Math.max(0,L.hot[i]-dt/1100)}
-    c.save();c.globalCompositeOperation='destination-out';c.shadowColor='#000';c.shadowBlur=12;c.fillStyle='#000';
-    for(const[x,y,w,h]of holes){c.beginPath();c.roundRect?c.roundRect(x,y,w,h,h/2):c.rect(x,y,w,h);c.fill()}c.restore()}
-  if(reduce){draw(0,0);return}
+}
+  if(reduce){const once=()=>{zones();draw(0,0)};once();if(document.fonts)document.fonts.ready.then(once);addEventListener("load",once);addEventListener("resize",once);return}
   (function f(now){const dt=Math.min(100,now-lt),dy=Math.abs(scrollY-ly);lt=now;ly=scrollY;
     acc+=dt;if(acc>110){acc=0;const L=lanes[Math.random()*3|0],i=Math.random()*N|0;
       L.b[i]^=1;L.hot[i]=1}
@@ -1894,12 +1902,17 @@ const stretchSets=[];
   function layoutTicks(){const H=document.documentElement.scrollHeight-innerHeight,gh=gauge.offsetHeight;
     secs.forEach((s,i)=>{ticks[i].style.top=(clamp((s.offsetTop-70)/H,0,1)*gh)+'px'})}
   addEventListener('resize',layoutTicks);addEventListener('load',layoutTicks);layoutTicks();
-  let lastY=scrollY,lastT=performance.now(),amt=0,act=-2;
+  let lastY=scrollY,lastT=performance.now(),amt=0,act=-2,navY=scrollY,navDn=0,navUp=0;
   function loop(now){
     const y=scrollY,dt=Math.max(1,now-lastT),v=(y-lastY)/dt*1000;lastY=y;lastT=now;
     SCR.vel+=(v-SCR.vel)*.2;
     const H=document.documentElement.scrollHeight-innerHeight, p=H>0?y/H:0;
     nav.classList.toggle('on',y>20);
+    // the header slides away while reading down the page and comes back on any scroll up
+    {const d=y-navY;navY=y;
+     if(y<90){navDn=navUp=0;nav.classList.remove('hide')}
+     else if(d>0){navDn+=d;navUp=0;if(navDn>24)nav.classList.add('hide')}
+     else if(d<0){navUp-=d;navDn=0;if(navUp>6)nav.classList.remove('hide')}}
     // hero dolly + tilt
     const hp=clamp(y/(hero.offsetHeight*.9),0,1);
     if(Math.abs(hp-SCR.heroP)>.0005){SCR.heroP=hp;
