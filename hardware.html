@@ -352,6 +352,26 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 #ph .rd b{color:#f2c46d;font-weight:500}
 
 /* lightbox */
+.srcclip{cursor:pointer;transition:transform .35s var(--ease),box-shadow .35s}
+.srcclip:hover,.srcclip:focus-visible{transform:rotate(0) scale(1.04);outline:none}
+.srcclip .vwrap{position:relative}
+.srcclip .fc{position:absolute;left:6px;top:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:#e9e2d4;background:rgba(13,12,11,.74);padding:2px 6px;border-radius:4px;font-variant-numeric:tabular-nums}
+.srcclip .fc b{color:#f2c46d;font-weight:500}
+.srcclip .xp{position:absolute;right:6px;top:5px;font-size:12px;line-height:1;color:#e9e2d4;background:rgba(13,12,11,.74);padding:3px 5px;border-radius:4px;opacity:.75;transition:opacity .2s}
+.srcclip:hover .xp{opacity:1}
+.srcclip .pg{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.14)}
+.srcclip .pg i{display:block;height:100%;width:0;background:#f2c46d}
+.srcclip .hint{color:#f2c46d}
+dialog#vp{border:0;padding:0;background:transparent;width:min(96vw,1200px);max-width:none;max-height:96vh;margin:auto;color:#e9e2d4}
+dialog#vp::backdrop{background:rgba(20,15,10,.9);backdrop-filter:blur(4px)}
+dialog#vp video{display:block;width:100%;max-height:78vh;background:#000;border-radius:10px 10px 0 0;cursor:pointer}
+dialog#vp .bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;background:#14120f;border-radius:0 0 10px 10px;font-family:var(--mono);font-size:12px}
+dialog#vp .vb{background:#2a241e;color:#f3e6d1;border:1px solid #3a322a;border-radius:6px;padding:6px 10px;font:inherit;cursor:pointer}
+dialog#vp .vb:hover{background:#3a322a}
+dialog#vp input[type=range]{flex:1;min-width:140px;accent-color:#b8892f}
+dialog#vp .fr{font-variant-numeric:tabular-nums;color:#cfc8ba}
+dialog#vp .fr b{color:#f2c46d;font-weight:500}
+dialog#vp .vcap{text-align:center;font-size:12.5px;color:#b9b2a3;margin-top:10px}
 dialog#lb{border:0;padding:0;background:transparent;max-width:96vw;max-height:96vh;margin:auto;color:#f3eee4}
 dialog#lb::backdrop{background:rgba(20,18,14,.88);backdrop-filter:blur(4px)}
 dialog#lb img{display:block;max-width:96vw;max-height:88vh;width:auto;height:auto;object-fit:contain;border-radius:10px;margin:0 auto}
@@ -663,9 +683,10 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
     <div class="hud br"><div class="scale"><span>0.79 m</span><i></i><span>1.81 m</span></div></div>
     <div class="orbit-hint small" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahA" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahA)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahA)"/></g></svg><span>360° · drag to orbit</span></div>
    </div>
-   <figure class="srcclip" aria-label="Source video the point cloud is computed from">
-    <video id="srcvid" src="assets/video/ohive_clip.mp4" poster="assets/video/ohive_clip.jpg" muted loop playsinline autoplay preload="auto"></video>
-    <figcaption><span>O-HIVE · SOURCE CLIP</span></figcaption>
+   <figure class="srcclip" tabindex="0" role="button" aria-label="Source video the point cloud is computed from. Open the full video, all 706 frames">
+    <div class="vwrap"><video id="srcvid" src="assets/video/ohive_full.mp4" poster="assets/video/ohive_clip.jpg" muted loop playsinline autoplay preload="auto"></video>
+     <span class="fc">frame <b id="fcn">0412</b> / 0705</span><span class="pg"><i id="fcp"></i></span></div>
+    <figcaption><span>O-HIVE · SOURCE</span><span class="hint">open ⤢</span></figcaption>
    </figure>
    <svg class="srclink" viewBox="0 0 100 60" aria-hidden="true"><path d="M2 58 C30 58 40 10 98 4"/></svg>
    </div>
@@ -1137,6 +1158,13 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
 <footer><div class="wrap"><span>© 2026 Zain Usmani</span><span class="mono">Windsor, Ontario</span></div></footer>
 
 <div id="ph" aria-hidden="true"><div class="rt"></div><div class="rd" id="phr"></div></div>
+<dialog id="vp" aria-label="O-Hive source video, all frames">
+ <video id="vpv" src="assets/video/ohive_full.mp4" muted loop playsinline preload="metadata"></video>
+ <div class="bar"><button class="vb" id="vpp">▶ play</button><button class="vb" id="vpb" aria-label="Previous frame">‹ 1</button><button class="vb" id="vpf" aria-label="Next frame">1 ›</button>
+  <input type="range" id="vpr" min="0" max="705" value="0" aria-label="Frame">
+  <span class="fr">frame <b id="vpn">0000</b> / 0705 · <span id="vpt">00.00 s</span></span><button class="vb" id="vpx" aria-label="Close">✕</button></div>
+ <p class="vcap">O-Hive capture: 706 frames at 30 fps, the input to the depth network. Space plays or pauses; arrow keys step one frame.</p>
+</dialog>
 <dialog id="lb"><button aria-label="Close" id="lbx">×</button><img id="lbimg" alt=""><p id="lbcap"></p></dialog>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -1745,6 +1773,35 @@ function slashOpen(row,grp){
       const n=Math.floor(txt.length*e/360);
       h3.textContent=glyph?txt.slice(0,n)+txt.slice(n).replace(/\S/g,glyph):txt.slice(0,n)+'_';requestAnimationFrame(g)})(s0)}
 }
+
+/* ---------- source video: live frame counter on the hero clip, full frame-by-frame player on click ---------- */
+(function(){
+  const v=$('#srcvid');if(!v)return;const fig=v.closest('.srcclip');
+  const FPS=30,LAST=705,pad=n=>String(n).padStart(4,'0'),fr=t=>Math.min(LAST,Math.floor(t*FPS+1e-3));
+  function hook(vid,cb){
+    if('requestVideoFrameCallback' in HTMLVideoElement.prototype){const f=(n,m)=>{cb(m.mediaTime);vid.requestVideoFrameCallback(f)};vid.requestVideoFrameCallback(f)}
+    else (function f(){if(!vid.paused)cb(vid.currentTime);requestAnimationFrame(f)})();
+    vid.addEventListener('seeked',()=>cb(vid.currentTime))}
+  const fcn=$('#fcn'),fcp=$('#fcp');
+  hook(v,t=>{const n=fr(t);fcn.textContent=pad(n);fcp.style.width=(n/LAST*100)+'%'});
+  v.addEventListener('loadedmetadata',()=>{if(v.currentTime<.01)v.currentTime=(412+.5)/FPS},{once:true});
+  const dlg=$('#vp'),pv=$('#vpv'),rng=$('#vpr'),num=$('#vpn'),tc=$('#vpt'),pp=$('#vpp');let scrub=false;
+  hook(pv,t=>{const n=fr(t);num.textContent=pad(n);tc.textContent=t.toFixed(2).padStart(5,'0')+' s';if(!scrub)rng.value=n});
+  const setPP=()=>{pp.textContent=pv.paused?'▶ play':'❚❚ pause'};pv.addEventListener('play',setPP);pv.addEventListener('pause',setPP);
+  const toggle=()=>pv.paused?pv.play().catch(()=>{}):pv.pause();
+  const step=d=>{pv.pause();pv.currentTime=(Math.max(0,Math.min(LAST,fr(pv.currentTime)+d))+.5)/FPS};
+  function open(){pv.currentTime=v.currentTime;v.pause();dlg.showModal();pv.play().catch(()=>{});setPP()}
+  fig.addEventListener('click',open);
+  fig.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+  dlg.addEventListener('close',()=>{pv.pause();v.currentTime=pv.currentTime;if(!reduce)v.play().catch(()=>{})});
+  dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+  pv.addEventListener('click',toggle);pp.onclick=toggle;
+  $('#vpb').onclick=()=>step(-1);$('#vpf').onclick=()=>step(1);$('#vpx').onclick=()=>dlg.close();
+  rng.addEventListener('input',()=>{scrub=true;pv.pause();pv.currentTime=(+rng.value+.5)/FPS;num.textContent=pad(+rng.value);tc.textContent=(+rng.value/FPS).toFixed(2).padStart(5,"0")+" s"});
+  rng.addEventListener('change',()=>{scrub=false});
+  dlg.addEventListener('keydown',e=>{if(e.target===rng&&e.key!==' ')return;
+    if(e.key===' '){e.preventDefault();toggle()}else if(e.key==='ArrowLeft'){e.preventDefault();step(-1)}else if(e.key==='ArrowRight'){e.preventDefault();step(1)}});
+})();
 
 /* ---------- lightbox ---------- */
 const lb=$('#lb');

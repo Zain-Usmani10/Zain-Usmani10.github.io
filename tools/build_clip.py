@@ -4,8 +4,9 @@ Input (O-Hive repo, not committed here):
   DA3/scripts/output_frames/frame_XXXX.png   1920x1080 frames of da3_test_video.mp4
 
 Output:
-  assets/video/ohive_clip.mp4   4 s clip (640x360, H.264, muted)
+  assets/video/ohive_clip.mp4   4 s clip (640x360, H.264, muted)   [legacy, unused]
   assets/video/ohive_clip.jpg   poster frame
+  assets/video/ohive_full.mp4   every frame, 0000-0705 (960x540, 30 fps, H.264, muted), keyframe every 15 frames for scrubbing
 
 Run:  python tools/build_clip.py   (needs ffmpeg on PATH)
 """
@@ -26,4 +27,8 @@ subprocess.run([ff, "-y", "-loglevel", "error", "-framerate", "30", "-start_numb
 cv2.imwrite(str(out / "ohive_clip.jpg"),
             cv2.resize(cv2.imread(str(SRC / f"frame_{START:04d}.png")), (640, 360), interpolation=cv2.INTER_AREA),
             [cv2.IMWRITE_JPEG_QUALITY, 80])
+subprocess.run([ff, "-y", "-loglevel", "error", "-framerate", "30", "-start_number", "0",
+                "-i", str(SRC / "frame_%04d.png"),
+                "-vf", "scale=960:540:flags=lanczos,format=yuv420p", "-c:v", "libx264", "-preset", "slow",
+                "-crf", "27", "-g", "15", "-movflags", "+faststart", "-an", str(out / "ohive_full.mp4")], check=True)
 print("ok")
