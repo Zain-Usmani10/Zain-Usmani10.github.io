@@ -1641,10 +1641,40 @@ const runFX=(function(){
         for(let a=0;a<=72;a++){const th=a/72*Math.PI*2,rr=r*(1+.09*Math.sin(th*3+k)+.05*Math.sin(th*5-k*2));c[a?'lineTo':'moveTo'](o.x+Math.cos(th)*rr,o.y+Math.sin(th)*rr*.7)}
         c.closePath();c.stroke()}});
   }
-  const M={lidar,rocket,fire,systolic,raster,clock,gain,dispense,tokens,contour};
+  // Build Buddy: an engineer in a hard hat walks in with a pickaxe on one shoulder, holds up a permit, and it gets stamped
+  function permit(row){
+    const o=origin(row),k=Math.max(.8,Math.min(1.15,W/1250)),yg=Math.min(H-24,o.y+130*k),xs=o.x-60,xt=Math.min(W-120,o.x+260*k),ink=a=>`rgba(${INK},${a})`;
+    play(1100,e=>{const f=1-out(e,860,1100),w=out(e,0,560),x=xs+(xt-xs)*(1-Math.pow(1-w,2)),ph=w<1?e*.028:0,sw=Math.sin(ph)*.5*(1-w*w),
+      r=ease(out(e,520,660)),st=out(e,660,780);
+      c.translate(x,yg-Math.abs(Math.sin(ph))*2*(1-w));c.scale(k,k);c.lineCap='round';c.lineJoin='round';
+      // ground shadow
+      c.fillStyle=ink(.12*f);c.beginPath();c.ellipse(0,1,22,4,0,0,Math.PI*2);c.fill();
+      // legs
+      c.strokeStyle=ink(f);c.lineWidth=6;
+      [sw,-sw].forEach(a=>{c.beginPath();c.moveTo(0,-36);c.lineTo(Math.sin(a)*34,-36+Math.cos(a)*34);c.stroke()});
+      // pickaxe on the back shoulder
+      c.strokeStyle=`rgba(${BR},${f})`;c.lineWidth=3.5;c.beginPath();c.moveTo(-14,-46);c.lineTo(8,-94);c.stroke();
+      c.strokeStyle=ink(f);c.lineWidth=4;c.beginPath();c.moveTo(-8,-100);c.quadraticCurveTo(8,-104,24,-88);c.stroke();
+      c.lineWidth=5;c.beginPath();c.moveTo(-2,-62);c.lineTo(-11,-50);c.stroke();
+      // torso and vest stripe
+      c.lineWidth=14;c.beginPath();c.moveTo(0,-38);c.lineTo(0,-62);c.stroke();
+      c.strokeStyle=`rgba(${HI},${f})`;c.lineWidth=3;c.beginPath();c.moveTo(-6,-50);c.lineTo(6,-50);c.stroke();
+      // head and hard hat
+      c.fillStyle=ink(f);c.beginPath();c.arc(0,-75,8,0,Math.PI*2);c.fill();
+      c.fillStyle=`rgba(${CU},${f})`;c.beginPath();c.arc(0,-79,10,Math.PI,0);c.fill();c.fillRect(-12,-80,25,3);
+      // front arm and the permit
+      const hx=14+10*r,hy=-46-32*r;c.strokeStyle=ink(f);c.lineWidth=5;c.beginPath();c.moveTo(2,-62);c.lineTo(hx,hy);c.stroke();
+      const px=hx-4,py=hy-30,pw=26,phh=34;
+      c.fillStyle=`rgba(${WH},${f})`;c.strokeStyle=ink(.8*f);c.lineWidth=1.2;c.fillRect(px,py,pw,phh);c.strokeRect(px,py,pw,phh);
+      c.fillStyle=`rgba(${CU},${f})`;c.fillRect(px+4,py+4,12,2.5);c.fillStyle=ink(.4*f);for(let q=0;q<4;q++)c.fillRect(px+4,py+10+q*4.5,q%2?14:18,1.5);
+      if(st>0){const sc=1.7-.7*ease(st),cx=px+pw-7,cy=py+phh-8;c.save();c.translate(cx,cy);c.scale(sc,sc);c.rotate(-.2);
+        c.strokeStyle=`rgba(${CU},${Math.min(1,st*2)*f})`;c.lineWidth=1.6;c.beginPath();c.arc(0,0,7,0,Math.PI*2);c.stroke();
+        c.beginPath();c.moveTo(-3,0);c.lineTo(-.5,2.6);c.lineTo(3.4,-2.4);c.stroke();c.restore()}});
+  }
+  const M={lidar,rocket,fire,systolic,raster,clock,gain,dispense,tokens,contour,permit};
   return(name,row)=>{const f=M[name];if(f)f(row)};
 })();
-const FXMAP={rover:'lidar',mac:'systolic',vga:'raster',cpu:'clock',amp:'gain',avion:'rocket',fire:'fire',fert:'dispense',llm:'tokens',wild:'contour'};
+const FXMAP={rover:'lidar',mac:'systolic',vga:'raster',cpu:'clock',amp:'gain',avion:'rocket',fire:'fire',fert:'dispense',llm:'tokens',wild:'contour',bb:'permit'};
 
 /* ---------- projects ---------- */
 const GROUPS=[['rtl','Digital hardware','RTL, accelerators and analog design'],['emb','Robots and embedded','Firmware, power and the robots they run'],['sw','Software','Web apps and automation']];
