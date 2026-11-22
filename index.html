@@ -459,6 +459,19 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
 .wave .mk rect{fill:var(--fg)}
 .wave .mk text{font-family:var(--mono);font-size:10px;fill:var(--bg)}
 .dark .wave .d{stroke:var(--line2)}.dark .wave .d.bus{stroke:var(--mut)}.dark .wave .d.hot{stroke:#f2c46d}
+#fx{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:60}
+.wave.side,.side-sch{display:none}
+@media (min-width:1400px){
+ .wave.side{display:block;position:absolute;top:150px;left:calc(100% - 34px);width:880px;margin:0;transform:rotate(90deg);transform-origin:0 0;pointer-events:none;opacity:.8;z-index:0}
+ .wave.side .d{transition:none;stroke-dashoffset:calc(1 - var(--p,0))}
+ .wave.side .mk{display:none}
+ .side-sch{display:block;position:absolute;top:760px;left:calc(100% - 26px);width:200px;transform:rotate(90deg);transform-origin:0 0;pointer-events:none;overflow:visible;z-index:0}
+ .side-sch .d{fill:none;stroke:var(--mut);stroke-width:1.2;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p,0))}
+ .side-sch .d.hot{stroke:var(--ember);stroke-width:1.5}
+ .side-sch circle{fill:var(--mut)}
+ .side-sch .lbl{font-family:var(--mono);font-size:11px;fill:var(--mut)}
+ .side-sch .ttl{font-family:var(--mono);font-size:9.5px;fill:var(--dim);letter-spacing:.04em}
+}
 .plink{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ember);text-decoration:none;border-bottom:1px solid currentColor}
 .prow>button{padding:30px 4px}
 
@@ -555,7 +568,7 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
    <div class="roles rv">
     <a href="#interstellar" class="new"><div><b>FPGA Flight Computer</b><br><span>Interstellar · Hack the Nest 2026</span></div><em>Nov 2026</em></a>
     <a href="#ohive"><div><b>FPGA and Hardware Engineering Co-op</b><br><span>O-Hive · depth network to RTL, board bring-up, arm power</span></div><em>Apr – Aug 2026</em></a>
-    <a href="#fsae"><div><b>Autonomous Navigation Lead · Embedded Systems Lead</b><br><span>Formula Electric SAE · drivers, telemetry, autonomy</span></div><em>Dec 2024 – now</em></a>
+    <a href="#fsae"><div><b>Autonomous Navigation Lead · Embedded Systems Developer</b><br><span>Formula Electric SAE · drivers, telemetry, autonomy</span></div><em>Dec 2024 – now</em></a>
     <a href="#research"><div><b>Embedded Systems Research Intern</b><br><span>Micro-Nano Mechatronics Lab · BLE IMU to gait classifier</span></div><em>May – Dec 2025</em></a>
    </div>
    <div class="cta rv">
@@ -825,18 +838,20 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
 
 <!-- ================= FSAE ================= -->
 <section id="fsae">
+ <div class="wave side" data-w="{&quot;t&quot;: &quot;i2c · 400 kHz · temperature read&quot;, &quot;rows&quot;: [{&quot;n&quot;: &quot;scl&quot;, &quot;k&quot;: &quot;clk&quot;}, {&quot;n&quot;: &quot;sda&quot;, &quot;k&quot;: &quot;bus&quot;, &quot;v&quot;: [&quot;START&quot;, &quot;0x48&quot;, &quot;W&quot;, &quot;ACK&quot;, &quot;reg&quot;, &quot;ACK&quot;, &quot;Sr&quot;, &quot;0x48&quot;, &quot;R&quot;, &quot;data&quot;, &quot;NACK&quot;, &quot;STOP&quot;]}, {&quot;n&quot;: &quot;ack&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;000101000010&quot;, &quot;hot&quot;: 1}]}" aria-hidden="true"></div>
+
  <div class="wrap">
   <div class="sec-head">
    <div class="sec-num">03 / Motorsport</div>
    <div>
     <h2 class="kerf">Formula Electric SAE</h2>
     <div class="meta rv"><b>Two roles</b> · Lancer Motorsport, Windsor, ON · December 2024 – present</div>
-    <p class="intro rv">Fully electric race car, 120 km/h. I own the sensor drivers and telemetry, and lead the five-person autonomy team.</p>
+    <p class="intro rv">Fully electric race car, 120 km/h. I own the sensor drivers and telemetry, and lead the autonomy team of five engineering students.</p>
    </div>
   </div>
   <div class="tabs rv" role="tablist" id="tabs">
    <span class="pillbg" id="pillbg"></span>
-   <button role="tab" aria-selected="true" aria-controls="t-emb" id="b-emb">Embedded Systems Lead</button>
+   <button role="tab" aria-selected="true" aria-controls="t-emb" id="b-emb">Embedded Systems Developer</button>
    <button role="tab" aria-selected="false" aria-controls="t-auto" id="b-auto">Autonomous Navigation Lead</button>
   </div>
   <div class="tabpanel" role="tabpanel" id="t-emb" aria-labelledby="b-emb">
@@ -877,7 +892,7 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
     <div class="role">Cone detection to steering control</div>
     <div class="when">Computer vision · C++ control · Linux services</div>
     <ul class="list">
-     <li>Leading a 5-person team in research and development: sourcing and labelling cone datasets, training detection models, benchmarking navigation algorithms before committing to the car.</li>
+     <li>Leading a team of 5 engineering students in research and development: sourcing and labelling cone datasets, training detection models, benchmarking navigation algorithms before committing to the car.</li>
      <li>Python vision that finds the blue and yellow cones marking the track, plus obstacles, from a 30 fps camera: a 33 ms budget per frame.</li>
      <li>Every change runs against simulated sensor data from 30 track scenarios (hairpins, slaloms, missing or knocked-over cones) and only moves forward if nothing regresses.</li>
      <li>Real-time C++ control on a Nano C100 Okdo (quad-core A57, 4 GB) as Linux services that start at boot and restart on crash, commanding steering and braking through vehicle firmware.</li>
@@ -898,7 +913,7 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
      <div class="split"><div class="node"><span>Steering</span></div><div class="node"><span>Braking</span></div></div>
     </div>
     <div class="stats">
-     <div><b>5</b><span>engineers on the autonomy team</span></div>
+     <div><b>5</b><span>engineering students on the autonomy team</span></div>
      <div><b>30</b><span>simulated track scenarios per change</span></div>
      <div><b>33 ms</b><span>per-frame processing budget</span></div>
      <div><b>120 km/h</b><span>vehicle top speed</span></div>
@@ -946,6 +961,19 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
 
 <!-- ================= PROJECTS ================= -->
 <section id="projects">
+ <svg class="side-sch" viewBox="0 0 250 130" aria-hidden="true">
+ <text x="0" y="9" class="ttl">half adder · S = A ⊕ B · C = A · B</text>
+ <g class="d-g">
+  <path class="d" pathLength="1" d="M18 32H100M60 32V92H100M18 112H100M78 112V52H100"/>
+  <path class="d" pathLength="1" d="M100 22q14 20 0 40q34 0 52-20q-18-20-52-20zM94 22q14 20 0 40"/>
+  <path class="d" pathLength="1" d="M100 82h22a20 20 0 0 1 0 40h-22z"/>
+  <path class="d hot" pathLength="1" d="M152 42H230M142 102H230"/>
+ </g>
+ <circle cx="60" cy="32" r="2.4"/><circle cx="78" cy="112" r="2.4"/>
+ <text x="2" y="36" class="lbl">A</text><text x="2" y="116" class="lbl">B</text>
+ <text x="236" y="46" class="lbl">S</text><text x="236" y="106" class="lbl">C</text>
+</svg>
+
  <img class="art art-traces" src="assets/art/traces.svg" alt="" aria-hidden="true">
  <div class="wrap">
   <div class="wave" data-w="{&quot;t&quot;: &quot;8-bit cpu · forwarding into ADD, one-instruction flush after JUMP&quot;, &quot;rows&quot;: [{&quot;n&quot;: &quot;clk&quot;, &quot;k&quot;: &quot;clk&quot;}, {&quot;n&quot;: &quot;instr&quot;, &quot;k&quot;: &quot;bus&quot;, &quot;v&quot;: [&quot;LDI R0&quot;, &quot;LDI R1&quot;, &quot;ADD R0,R1&quot;, &quot;IFEQ&quot;, &quot;JUMP&quot;, &quot;flushed&quot;, &quot;LDI R2&quot;, &quot;HALT&quot;]}, {&quot;n&quot;: &quot;fwd&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;00100000&quot;}, {&quot;n&quot;: &quot;flush&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;00000100&quot;, &quot;hot&quot;: 1}]}" aria-hidden="true"></div>
@@ -1110,6 +1138,7 @@ const SCR={heroP:0,vel:0};
       const i=Math.min(n-1,Math.floor((x-L)/sw)),lab=w.rows.filter(q=>q.k!=='clk').map(q=>q.k==='bus'?`${q.n}=${q.v[i]}`:`${q.n}=${q.v[i]}`).join('  ');
       ln.setAttribute('x1',x);ln.setAttribute('x2',x);tx.textContent=`t${i}  ${lab}`;
       const tw=tx.getComputedTextLength()+12,bx=Math.min(x+6,VW-tw);rc.setAttribute('x',bx);rc.setAttribute('width',tw);tx.setAttribute('x',bx+6)});
+    if(el.classList.contains('side'))return;
     if(reduce||!('IntersectionObserver' in window)){el.classList.add('on');return}
     const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){el.classList.add('on');io.disconnect()}},{threshold:.4});io.observe(el);
   });
@@ -1187,6 +1216,92 @@ const STAGES=[
   addEventListener('resize',()=>place(bs.findIndex(b=>b.getAttribute('aria-selected')==='true')));
   document.fonts&&document.fonts.ready.then(()=>place(0)); place(0);
 })();
+
+/* ---------- project-open effects: a full-screen overlay that never takes input ---------- */
+const runFX=(function(){
+  if(reduce)return()=>{};
+  const cv=document.createElement('canvas');cv.id='fx';cv.setAttribute('aria-hidden','true');document.body.appendChild(cv);
+  const c=cv.getContext('2d');let W=0,H=0,run=0;
+  function size(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;c.setTransform(d,0,0,d,0,0)}
+  size();addEventListener('resize',size);
+  const BR='184,137,47',CU='156,58,36',SA='243,230,209';
+  function play(dur,draw){const id=++run,t0=performance.now();
+    (function f(now){if(id!==run)return;const e=now-t0;c.clearRect(0,0,W,H);
+      if(e<dur){draw(e);requestAnimationFrame(f)}})(t0)}
+  const ease=t=>1-Math.pow(1-t,3);
+  const centre=el=>{const r=el.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}};
+
+  // LiDAR: one sweep around the glyph; returns trace the edges of what's on screen
+  function lidar(row){
+    const o=centre(row.querySelector('.glyph')||row),pts=[];
+    document.querySelectorAll('h2,h3,.prow>button,.gal .main,.thumbs button,.diagram,.kv>div,.pgh,.list li,.stats>div').forEach(el=>{
+      const r=el.getBoundingClientRect();if(r.bottom<0||r.top>H||r.width<8)return;
+      const step=16;for(let x=r.left;x<=r.right;x+=step){pts.push([x,r.top],[x,r.bottom])}
+      for(let y=r.top;y<=r.bottom;y+=step){pts.push([r.left,y],[r.right,y])}});
+    const P=pts.slice(0,1600).map(([x,y])=>{let a=Math.atan2(y-o.y,x-o.x)+Math.PI/2;if(a<0)a+=Math.PI*2;return[x+(Math.random()-.5)*2,y+(Math.random()-.5)*2,a]});
+    const SW=950,R=Math.hypot(W,H);
+    play(SW+750,e=>{const sw=Math.min(1,e/SW),A=sw*Math.PI*2-Math.PI/2,fade=e>SW?1-(e-SW)/750:1;
+      if(sw<1){c.save();c.beginPath();c.moveTo(o.x,o.y);c.arc(o.x,o.y,R,A-.55,A);c.closePath();
+        const g=c.createRadialGradient(o.x,o.y,0,o.x,o.y,R);g.addColorStop(0,`rgba(${BR},.16)`);g.addColorStop(1,`rgba(${BR},0)`);c.fillStyle=g;c.fill();
+        c.strokeStyle=`rgba(${BR},.55)`;c.lineWidth=1;c.beginPath();c.moveTo(o.x,o.y);c.lineTo(o.x+Math.cos(A)*R,o.y+Math.sin(A)*R);c.stroke();c.restore()}
+      c.strokeStyle=`rgba(${BR},${.18*fade})`;[90,200,340].forEach(r=>{c.beginPath();c.arc(o.x,o.y,r*ease(Math.min(1,e/500)),0,Math.PI*2);c.stroke()});
+      for(const [x,y,a] of P){const hit=a/(Math.PI*2)*SW;if(e<hit)continue;const age=e-hit,al=Math.max(0,1-age/900)*fade;if(al<=0)continue;
+        c.fillStyle=age<120?`rgba(${SA},${al})`:`rgba(${CU},${al*.9})`;c.fillRect(x-1.2,y-1.2,2.4,2.4)}
+      c.fillStyle=`rgba(${CU},${fade})`;c.beginPath();c.arc(o.x,o.y,3.5,0,Math.PI*2);c.fill()});
+  }
+  // systolic wavefront: cells light diagonally outward from the row, like operands entering the array
+  function systolic(row){
+    const o=centre(row.querySelector('.glyph')||row),cs=58,cols=Math.ceil(W/cs),rows=Math.ceil(H/cs),oi=Math.floor(o.x/cs),oj=Math.floor(o.y/cs),step=26,life=520;
+    let mx=0;for(let i=0;i<cols;i++)for(let j=0;j<rows;j++)mx=Math.max(mx,Math.abs(i-oi)+Math.abs(j-oj));
+    play(mx*step+life,e=>{for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const age=e-(Math.abs(i-oi)+Math.abs(j-oj))*step;if(age<0||age>life)continue;
+      const al=Math.sin(Math.PI*age/life);c.strokeStyle=`rgba(${(i+j)%3?BR:CU},${al*.42})`;c.lineWidth=1;c.strokeRect(i*cs+7,j*cs+7,cs-14,cs-14);
+      if((i*7+j*3)%5===0){c.fillStyle=`rgba(${BR},${al*.5})`;c.font='10px JetBrains Mono, monospace';c.fillText('×+',i*cs+cs/2-7,j*cs+cs/2+4)}}});
+  }
+  // CRT raster: one beam top to bottom with a fading scanline trail
+  function raster(){
+    play(900,e=>{const t=e/750,y=ease(Math.min(1,t))*H*1.04,fade=t>1?1-(e-750)/150:1;
+      for(let k=0;k<44;k++){const yy=y-k*4;if(yy<0)break;c.fillStyle=`rgba(${BR},${(1-k/44)*.10*fade})`;c.fillRect(0,yy,W,1)}
+      c.fillStyle=`rgba(${CU},${.55*fade})`;c.fillRect(0,y-1,W,1);c.fillStyle=`rgba(${SA},${.8*fade})`;c.fillRect(0,y,W,1.5)});
+  }
+  // clock + bus traces race across at the row's height
+  function clock(row){
+    const y0=centre(row.querySelector('.glyph')||row).y,per=34;
+    play(1150,e=>{const x=ease(Math.min(1,e/700))*W,fade=e>700?1-(e-700)/450:1;
+      c.lineWidth=1.3;c.strokeStyle=`rgba(${BR},${.7*fade})`;c.beginPath();c.moveTo(0,y0-30);
+      for(let k=0;k*per/2<x;k++){const xx=k*per/2,hi=k%2===0;c.lineTo(xx,y0-30);c.lineTo(xx,hi?y0-44:y0-30);c.lineTo(Math.min(x,xx+per/2),hi?y0-44:y0-30)}c.stroke();
+      c.strokeStyle=`rgba(${CU},${.6*fade})`;c.beginPath();
+      for(let k=0;k*per*2<x;k++){const a=k*per*2,b=Math.min(x,a+per*2);c.moveTo(a+4,y0+30);c.lineTo(b-4,y0+30);c.moveTo(a+4,y0+44);c.lineTo(b-4,y0+44);
+        if(b<x){c.moveTo(b-4,y0+30);c.lineTo(b+4,y0+44);c.moveTo(b-4,y0+44);c.lineTo(b+4,y0+30)}}c.stroke()});
+  }
+  // gain: a sine whose amplitude grows as it travels, like a signal through the 3 stages
+  function gain(row){
+    const y0=centre(row.querySelector('.glyph')||row).y;
+    play(1200,e=>{const x1=ease(Math.min(1,e/750))*W,fade=e>750?1-(e-750)/450:1;c.lineWidth=1.4;
+      c.strokeStyle=`rgba(${BR},${.65*fade})`;c.beginPath();for(let x=0;x<=x1;x+=3){const a=3+70*Math.pow(x/W,1.6);c[x?'lineTo':'moveTo'](x,y0+Math.sin(x/22)*a)}c.stroke()});
+  }
+  // rocket: a launch arc from the row off the top of the screen
+  function rocket(row){
+    const o=centre(row.querySelector('.glyph')||row),p1={x:o.x+(W-o.x)*.25,y:-H*.35},p2={x:W*.96,y:-40};
+    const B=t=>({x:(1-t)*(1-t)*o.x+2*(1-t)*t*p1.x+t*t*p2.x,y:(1-t)*(1-t)*o.y+2*(1-t)*t*p1.y+t*t*p2.y});
+    play(1300,e=>{const t=Math.min(1,e/850),fade=e>850?1-(e-850)/450:1;c.setLineDash([3,6]);c.lineWidth=1.3;c.strokeStyle=`rgba(${BR},${.7*fade})`;c.beginPath();
+      for(let k=0;k<=60;k++){const q=B(k/60*t);c[k?'lineTo':'moveTo'](q.x,q.y)}c.stroke();c.setLineDash([]);
+      const h=B(t);const g=c.createRadialGradient(h.x,h.y,0,h.x,h.y,16);g.addColorStop(0,`rgba(${SA},${fade})`);g.addColorStop(.4,`rgba(${CU},${.7*fade})`);g.addColorStop(1,`rgba(${CU},0)`);
+      c.fillStyle=g;c.beginPath();c.arc(h.x,h.y,16,0,Math.PI*2);c.fill()});
+  }
+  // YOLO: a detection box snaps onto the gallery as it opens
+  function yolo(row){
+    play(1500,e=>{const m=row.querySelector('.gal .main');if(!m)return;const r=m.getBoundingClientRect(),k=ease(Math.min(1,e/280)),s=1.18-.18*k,fade=e>1050?1-(e-1050)/450:1;
+      const w=r.width*s,h=r.height*s,x=r.left+(r.width-w)/2,y=r.top+(r.height-h)/2,L=Math.min(w,h)*.14;
+      c.strokeStyle=`rgba(${CU},${fade})`;c.lineWidth=2;c.beginPath();
+      [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]].forEach(([a,b,dx,dy])=>{c.moveTo(a+dx*L,b);c.lineTo(a,b);c.lineTo(a,b+dy*L)});c.stroke();
+      if(k>=1){c.strokeStyle=`rgba(${CU},${.5*fade})`;c.lineWidth=1;c.strokeRect(x,y,w,h);
+        c.font='600 11px JetBrains Mono, monospace';const lab='fire 0.91',tw=c.measureText(lab).width+12;c.fillStyle=`rgba(${CU},${fade})`;c.fillRect(x,y-18,tw,18);
+        c.fillStyle=`rgba(${SA},${fade})`;c.fillText(lab,x+6,y-5)}});
+  }
+  const M={lidar,systolic,raster,clock,gain,rocket,yolo};
+  return(name,row)=>{const f=M[name];if(f)f(row)};
+})();
+const FXMAP={rover:'lidar',mac:'systolic',vga:'raster',cpu:'clock',amp:'gain',avion:'rocket',fire:'yolo'};
 
 /* ---------- projects ---------- */
 const GROUPS=[['rtl','Digital hardware','RTL, accelerators and analog design'],['emb','Robots and embedded','Firmware, power and the machines it runs'],['sw','Software','Web apps and automation']];
@@ -1356,7 +1471,7 @@ const DG={
       <div><ul class="list">${p.l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>${p.kv?`<div class="kv">${p.kv.map(k=>`<div><b>${esc(k[0])}</b><span>${esc(k[1])}</span></div>`).join('')}</div>`:''}<div class="tools"><b>Tools</b> · ${esc(p.tools)}</div>${p.link?`<a class="plink" href="${p.link}" target="_blank" rel="noopener">Devpost ↗</a>`:''}</div></div></div></div>`;
     host.appendChild(row);
     const btn=row.querySelector('button');
-    btn.addEventListener('click',()=>{const o=row.classList.toggle('open');btn.setAttribute('aria-expanded',o);if(o)slashOpen(row)});
+    btn.addEventListener('click',()=>{const o=row.classList.toggle('open');btn.setAttribute('aria-expanded',o);if(o){slashOpen(row);if(FXMAP[p.ic])runFX(FXMAP[p.ic],row)}});
     if(p.m){const g=row.querySelector('.gal'),main=g.querySelector('.main img'),cap=g.querySelector('.gcap');let cur=0;
       g.querySelectorAll('.thumbs button').forEach((t,j)=>t.addEventListener('click',()=>{cur=j;main.style.opacity=0;
         setTimeout(()=>{main.src='assets/img/'+p.m[j][0];main.alt=p.m[j][1];cap.textContent=p.m[j][1];main.style.opacity=1},reduce?0:160);
@@ -1467,7 +1582,7 @@ const stretchSets=[];
 /* ---------- one scroll loop: velocity, hero dolly, gauge, nav ---------- */
 (function(){
   const nav=$('#nav'),links=$$('.nav ul a'),secs=links.map(a=>$(a.getAttribute('href'))),hero=$('#top'),viewer=$('#viewer'),
-        gauge=$('#gauge'),gmk=$('#gmk'),gz=$('#gz');
+        gauge=$('#gauge'),gmk=$('#gmk'),gz=$('#gz'),sideEls=$$('.wave.side,.side-sch');
   // section ticks on the depth gauge
   const ticks=secs.map((s,i)=>{const t=document.createElement('span');t.className='sec';t.textContent=String(i+1).padStart(2,'0');gauge.appendChild(t);return t});
   function layoutTicks(){const H=document.documentElement.scrollHeight-innerHeight,gh=gauge.offsetHeight;
@@ -1483,8 +1598,10 @@ const stretchSets=[];
     const hp=clamp(y/(hero.offsetHeight*.9),0,1);
     if(Math.abs(hp-SCR.heroP)>.0005){SCR.heroP=hp;
       if(!reduce)viewer.style.transform=hp>0?`rotateX(${hp*16}deg) rotateZ(${-hp*2.2}deg) scale(${1-hp*.08})`:''}
+    // side graphics draw as their section scrolls through
+    sideEls.forEach(el=>{const r=el.parentElement.getBoundingClientRect();el.style.setProperty('--p',reduce?1:clamp((innerHeight*.85-r.top)/(r.height*.55),0,1).toFixed(3))});
     // gauge
-    if(gauge.offsetParent){gmk.style.transform=`translateY(${p*gauge.offsetHeight}px)`;gz.textContent=(y/3779.5).toFixed(2)}
+    if(gauge.offsetHeight){gmk.style.transform=`translateY(${p*gauge.offsetHeight}px)`;gz.textContent=(y/3779.5).toFixed(2)}
     let a=-1;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<innerHeight*.4)a=i});
     if(a!==act){act=a;links.forEach((l,i)=>l.classList.toggle('act',i===a));ticks.forEach((t,i)=>t.classList.toggle('on',i===a))}
     // stretch type
