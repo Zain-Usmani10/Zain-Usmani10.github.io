@@ -9,7 +9,9 @@
 <meta property="og:description" content="Monocular 3D mapping, FPGA acceleration and flight computers, autonomous navigation and embedded firmware.">
 <meta property="og:image" content="assets/img/depth_magma.jpg">
 <meta name="theme-color" content="#f3eee4">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2322170f'/%3E%3Crect x='9' y='9' width='14' height='14' rx='2' fill='none' stroke='%23f3e6d1' stroke-width='2'/%3E%3Cpath d='M13 4v5M19 4v5M13 23v5M19 23v5M4 13h5M4 19h5M23 13h5M23 19h5' stroke='%23f3e6d1' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='13' cy='13' r='1.6' fill='%23c9873a'/%3E%3C/svg%3E">
+<link rel="icon" href="assets/favicon.svg?v=2" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png?v=2" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -97,6 +99,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .viewer{position:relative;aspect-ratio:1/1;max-height:620px;width:100%;border-radius:18px;background:radial-gradient(120% 90% at 50% 40%,#1c1814 0%,#0d0c0b 72%);border:1px solid #2b2a26;overflow:hidden;touch-action:pan-y;cursor:grab;transform-origin:50% 0;box-shadow:0 30px 60px -30px rgba(40,25,10,.45),0 2px 0 rgba(255,255,255,.5) inset}
 .viewer:active{cursor:grabbing}
 .viewer canvas{position:absolute;inset:0;width:100%;height:100%}
+.viewer{touch-action:pan-y}
 .hud{position:absolute;font-family:var(--mono);font-size:11px;color:#a29e93;letter-spacing:.04em;pointer-events:none;line-height:1.5}
 .hud.tl{top:16px;left:18px}.hud.tr{top:16px;right:18px;text-align:right}.hud.bl{bottom:14px;left:18px}.hud.br{bottom:14px;right:18px;text-align:right}
 .hud b{color:#f0eee7;font-weight:500}
@@ -390,7 +393,7 @@ button.sw[aria-pressed=true]{background:#b4452f;border-color:#b4452f;color:#fff}
 .demo-grid>*{min-width:0}
 .screen{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0c0806;margin:0}
 .screen canvas{display:block;width:100%;height:100%}
-.s3d{aspect-ratio:4/3;cursor:grab;touch-action:none}.s3d:active{cursor:grabbing}
+.s3d{aspect-ratio:4/3;cursor:grab;touch-action:pan-y}.s3d:active{cursor:grabbing}
 .scap{position:absolute;left:12px;top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:#b9a48b;pointer-events:none}
 .shud{position:absolute;right:10px;top:8px;display:flex;gap:10px;align-items:center;font-family:var(--mono);font-size:11px;color:#eadcc6;pointer-events:none;flex-wrap:wrap;justify-content:flex-end;max-width:70%}
 .banner{position:absolute;left:50%;top:44px;transform:translate(-50%,-8px);max-width:min(420px,86%);background:rgba(28,20,10,.82);border:1px solid rgba(242,196,109,.45);border-radius:10px;padding:9px 14px;font-size:12.5px;line-height:1.45;color:#e9dfca;opacity:0;transition:opacity .35s,transform .35s;pointer-events:none;z-index:2}
@@ -407,15 +410,21 @@ button.sw[aria-pressed=true]{background:#b4452f;border-color:#b4452f;color:#fff}
 .dbar .bo{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(90deg,rgba(159,216,255,.55) 0 4px,transparent 4px 8px);mix-blend-mode:screen}
 .dlab{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:7px;flex-wrap:wrap}
 .dlab .c{color:#9fd8ff}
-.solar{aspect-ratio:16/8;cursor:grab;touch-action:none}.solar:active{cursor:grabbing}
+.solar{aspect-ratio:16/8;cursor:grab;touch-action:pan-y}.solar:active{cursor:grabbing}
 .labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .labels span{position:absolute;left:0;top:0;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#eadcc6;text-shadow:0 1px 4px #000;white-space:nowrap}
 .planetbar{display:flex;gap:4px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px}
 .planetbar button{font-size:12.5px;padding:5px 11px;border-radius:999px;color:var(--mut);transition:all .25s}
 .planetbar button:hover{color:var(--fg)}
 .planetbar button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+.screen.live{box-shadow:0 0 0 1.5px var(--gold)}
+.screen .gate{position:absolute;left:12px;bottom:10px;font-family:var(--mono);font-size:10.5px;color:#b9a48b;pointer-events:none;transition:opacity .3s}
+.screen.live .gate{opacity:0}
 .nogl-msg{display:none;position:absolute;inset:0;place-items:center;text-align:center;padding:20px;color:#b9a48b;font-size:14px}
-.nogl canvas,.nogl .orbit-hint,.nogl .shud{display:none}.nogl .nogl-msg{display:grid}
+.nogl canvas,.nogl .orbit-hint,.nogl .shud{display:none}.nogl .screen.live{box-shadow:0 0 0 1.5px var(--gold)}
+.screen .gate{position:absolute;left:12px;bottom:10px;font-family:var(--mono);font-size:10.5px;color:#b9a48b;pointer-events:none;transition:opacity .3s}
+.screen.live .gate{opacity:0}
+.nogl-msg{display:grid}
 .col-h{font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:-.01em;margin-bottom:16px}
 .photos{display:grid;grid-template-columns:2fr 2fr 1.25fr 2fr 1.25fr;grid-auto-rows:190px;gap:10px;margin-top:40px}
 .photos figure{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000;cursor:zoom-in;margin:0}
@@ -614,7 +623,8 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
      <div class="scap">MISSION CONTROL · LAPTOP</div>
      <div class="shud"><span id="dDate">2026-11-15</span><span id="dDays">—</span><span class="link" id="dLink"><i></i><span id="dLinkT">FPGA · link active</span></span></div>
      <div class="banner" id="dBanner"></div>
-     <div class="orbit-hint" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahB" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahB)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahB)"/></g></svg><span>360° · drag to orbit<br>scroll to zoom · right-drag to pan</span></div>
+     <div class="orbit-hint" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahB" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahB)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahB)"/></g></svg><span>360° · drag to orbit<br>click, then scroll to zoom · right-drag to pan</span></div>
+     <div class="gate">click to zoom · Esc to release</div>
      <div class="nogl-msg">3D view needs WebGL. Photos of the real app are below.</div>
     </figure>
     <figure class="screen vga">
@@ -633,7 +643,8 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
    <figure class="screen solar" id="dsolar">
     <canvas aria-label="Free-roam 3D solar system. Drag to orbit, scroll to zoom, right-drag to pan."></canvas>
     <div class="labels" id="dsolarLabels"></div>
-    <div class="orbit-hint" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahC" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahC)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahC)"/></g></svg><span>360° · drag to orbit<br>scroll to zoom · right-drag to pan</span></div>
+    <div class="orbit-hint" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahC" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahC)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahC)"/></g></svg><span>360° · drag to orbit<br>click, then scroll to zoom · right-drag to pan</span></div>
+    <div class="gate">click to zoom · Esc to release</div>
     <div class="nogl-msg">3D view needs WebGL.</div>
    </figure>
    <p class="ocap">Positions from mean orbital elements (approximate), radii compressed so Saturn fits. The dashed gold arc is an Earth → Mars transfer of the kind the backend solves with Lambert's problem. Planet textures: Solar System Scope, CC BY 4.0.</p>
@@ -1514,7 +1525,7 @@ const stretchSets=[];
   document.addEventListener('pointerleave',()=>ph.classList.remove('on'));
 })();
 addEventListener('load',()=>{if(G)ScrollTrigger.refresh()});
-(function(){const v=$('#viewer'),h=v&&v.querySelector('.orbit-hint');if(!h)return;const off=()=>h.classList.add('gone');['pointerdown','wheel','touchstart'].forEach(e=>v.addEventListener(e,off,{passive:true,once:true}))})();
+(function(){const v=$('#viewer'),h=v&&v.querySelector('.orbit-hint');if(!h)return;const off=()=>h.classList.add('gone');['pointerdown'].forEach(e=>v.addEventListener(e,off,{passive:true,once:true}))})();
 </script>
 </body>
 </html>

@@ -185,8 +185,21 @@ function sizer(R,cam,box){
 function visible(el){let v=false;new IntersectionObserver(es=>{v=es[0].isIntersecting}).observe(el);return()=>v}
 function hint(box){
   const h=box.querySelector('.orbit-hint');if(!h)return;
-  const off=()=>{h.classList.add('gone');['pointerdown','wheel','touchstart'].forEach(e=>box.removeEventListener(e,off))};
-  ['pointerdown','wheel','touchstart'].forEach(e=>box.addEventListener(e,off,{passive:true}));
+  const off=()=>{h.classList.add('gone');box.removeEventListener('pointerdown',off)};
+  box.addEventListener('pointerdown',off,{passive:true});
+}
+/* The canvas never takes the page's scroll or touch by default.
+   Mouse: drag orbits right away; the wheel zooms only after a click inside, released on leave.
+   Touch: a tap hands gestures to the canvas; scrolling away, tapping outside or Esc gives them back. */
+function gate(box,ctl,cv){
+  const coarse=matchMedia('(pointer:coarse)').matches;let live=false;
+  const set=v=>{live=v;ctl.enableZoom=v;if(coarse)ctl.enabled=v;cv.style.touchAction=v?'none':'pan-y';box.classList.toggle('live',v)};
+  set(false);
+  box.addEventListener('click',()=>{if(!live)set(true)});
+  box.addEventListener('pointerleave',e=>{if(live&&e.pointerType==='mouse')set(false)});
+  document.addEventListener('pointerdown',e=>{if(live&&!box.contains(e.target))set(false)},{passive:true});
+  addEventListener('keydown',e=>{if(live&&e.key==='Escape')set(false)});
+  new IntersectionObserver(es=>{if(live&&!es[0].isIntersecting)set(false)}).observe(box);
 }
 function shuttle(THREE){
   const g=new THREE.Group();
@@ -208,7 +221,7 @@ function launchView(THREE){
   const S=new THREE.Scene();S.background=new THREE.Color(0x070b16);
   const cam=new THREE.PerspectiveCamera(42,1,.1,3000);
   const ctl=new THREE.OrbitControls(cam,cv);ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.minDistance=2.5;ctl.maxDistance=400;
-  sizer(R,cam,box);hint(box);
+  sizer(R,cam,box);hint(box);gate(box,ctl,cv);
   S.add(new THREE.AmbientLight(0x50618a,.55));
   const sun=new THREE.DirectionalLight(0xfff1dd,1.45);sun.position.set(-80,40,70);S.add(sun);
   S.add(makeStars(THREE,1600,900));
@@ -290,7 +303,7 @@ function solarView(THREE){
   const S=new THREE.Scene();S.background=new THREE.Color(0x060912);
   const cam=new THREE.PerspectiveCamera(45,1,.1,4000);cam.position.set(0,46,78);
   const ctl=new THREE.OrbitControls(cam,cv);ctl.enableDamping=true;ctl.dampingFactor=.07;ctl.minDistance=3;ctl.maxDistance=420;ctl.screenSpacePanning=true;
-  sizer(R,cam,box);hint(box);
+  sizer(R,cam,box);hint(box);gate(box,ctl,cv);
   S.add(makeStars(THREE,2400,1400));
   S.add(new THREE.AmbientLight(0x404a66,.35));
   const light=new THREE.PointLight(0xfff0d8,2.1,0,0);S.add(light);
