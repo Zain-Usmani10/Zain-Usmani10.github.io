@@ -51,7 +51,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 /* nav */
 .nav{position:fixed;top:0;left:0;right:0;z-index:60;transition:background-color .4s,border-color .4s;border-bottom:1px solid transparent}
-.nav.on{background:rgba(243,238,228,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-color:var(--line)}
+.nav.on{background:rgba(243,230,209,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-color:var(--line)}
 .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:20px}
 .brand{font-family:var(--mono);font-size:13.5px;text-decoration:none;display:flex;align-items:center;gap:9px;white-space:nowrap}
 .brand .chip{width:18px;height:18px;fill:none;stroke:var(--fg);stroke-width:1.3;stroke-linecap:round}.brand .chip circle{fill:var(--ember);stroke:none}
@@ -68,6 +68,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
              repeating-linear-gradient(to bottom,var(--mut) 0 1px,transparent 1px 40px) left/10px 100% no-repeat}
 #gauge .sec{position:absolute;left:14px;font-family:var(--mono);font-size:9.5px;color:var(--dim);transform:translateY(-50%);transition:color .3s}
 #gauge .sec.on{color:var(--ember)}
+#gauge a.sec{pointer-events:auto;text-decoration:none;padding:2px 4px;margin-left:-4px}
+#gauge a.sec:hover{color:var(--fg)}
+#gauge a.sec:after{content:attr(data-n);position:absolute;left:100%;top:50%;transform:translate(6px,-50%);white-space:nowrap;background:var(--fg);color:var(--bg);padding:2px 7px;border-radius:4px;opacity:0;transition:opacity .2s;pointer-events:none}
+#gauge a.sec:hover:after{opacity:1}
 #gauge .mk{position:absolute;left:-4px;width:18px;height:1.5px;background:var(--ember);top:0}
 #gauge .mk:after{content:"";position:absolute;left:-3px;top:-3px;border:4px solid transparent;border-left-color:var(--ember);border-width:4px 0 4px 6px}
 #gauge .z{position:absolute;left:0;top:calc(100% + 10px);font-family:var(--mono);font-size:10px;color:var(--mut);white-space:nowrap;line-height:1.4}
@@ -472,6 +476,42 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
  .side-sch .lbl{font-family:var(--mono);font-size:11px;fill:var(--mut)}
  .side-sch .ttl{font-family:var(--mono);font-size:9.5px;fill:var(--dim);letter-spacing:.04em}
 }
+/* pages: one source, each page shows its subset */
+.phead,.p-about{display:none}
+@media (max-width:520px){.xs-hide{display:none}.nav .brand{font-size:0;gap:0}}
+body:not([data-page=home]) #gauge,body:not([data-page=home]) .sec-num{display:none}
+body:not([data-page=home]) .sec-head{display:block}
+body:not([data-page=home]) .sec-head h2{margin-top:0}
+.phead{padding:130px 0 10px}
+.phead h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,5vw,56px);letter-spacing:-.025em;line-height:1.05;margin:14px 0 14px}
+.phead p{max-width:640px;color:var(--fg2);font-size:17px}
+.phead .jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.phead .jump a{font-size:13px;text-decoration:none;color:var(--fg2);border:1px solid var(--line2);border-radius:999px;padding:6px 13px;transition:background-color .25s,color .25s}
+.phead .jump a:hover{background:var(--fg);color:var(--bg)}
+[data-page=hardware] .ph-hardware,[data-page=robotics] .ph-robotics{display:block}
+[data-page=hardware] :is(.hero,#fsae,#research,#stack,#about,.t-cv),
+[data-page=robotics] :is(#interstellar,.t-hw,#stack,#about),
+[data-page=about] :is(.hero,#interstellar,#ohive,#fsae,#research,#projects){display:none}
+[data-page=hardware] .pgroup:not([data-g=rtl]),[data-page=robotics] .pgroup:not([data-g=emb]){display:none}
+[data-page=hardware] .pgroup,[data-page=robotics] .pgroup{margin-top:8px}
+[data-page=robotics] .hero{min-height:0;padding:30px 0 40px}
+[data-page=robotics] .hero .wrap{grid-template-columns:1fr;max-width:820px}
+[data-page=robotics] .hero .wrap>div:first-child{display:none}
+[data-page=robotics] .art-iso{display:none}
+[data-page=about] #about{display:block;padding-top:130px}
+.about{display:grid;grid-template-columns:300px minmax(0,1fr);gap:56px;align-items:start}
+.about .me{margin:0;position:sticky;top:90px}
+.about .me img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;border:1px solid var(--line2);box-shadow:0 18px 40px -20px rgba(34,23,15,.5)}
+.about .me figcaption{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:10px}
+.about h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,4.6vw,52px);letter-spacing:-.025em;margin:10px 0 12px}
+.about .lead{font-size:19px;color:var(--fg);margin-bottom:22px}
+.about p{color:var(--fg2);font-size:16.5px;max-width:640px;margin-bottom:16px}
+.about .now{margin:26px 0;padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--panel);max-width:640px}
+.about .now b{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.about .now ul{margin:10px 0 0 18px;color:var(--fg2);font-size:15px}
+.about .now li{margin:4px 0}
+.about .cta{display:flex;flex-wrap:wrap;gap:10px}
+@media (max-width:820px){.about{grid-template-columns:minmax(0,1fr);gap:28px}.about>div{min-width:0}.about .me{position:static;max-width:240px}}
 .plink{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ember);text-decoration:none;border-bottom:1px solid currentColor}
 .prow>button{padding:30px 4px}
 
@@ -540,24 +580,38 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
 }
 </style>
 </head>
-<body>
+<body data-page="home">
 <nav class="nav" id="nav">
  <div class="wrap">
-  <a class="brand" href="#top"><svg class="chip" viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="5" width="10" height="10" rx="1.5"/><path d="M8 2v3M12 2v3M8 15v3M12 15v3M2 8h3M2 12h3M15 8h3M15 12h3"/><circle cx="7.6" cy="7.6" r=".9"/></svg>zain.usmani</a>
-  <ul>
-   <li><a href="#interstellar">Interstellar</a></li>
-   <li><a href="#ohive">O-Hive</a></li>
-   <li><a href="#fsae">Formula Electric</a></li>
-   <li><a href="#research">Research</a></li>
-   <li><a href="#projects">Projects</a></li>
-   <li><a href="#stack">Stack</a></li>
-   <li><a href="#contact">Contact</a></li>
+  <a class="brand" href="index.html"><svg class="chip" viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="5" width="10" height="10" rx="1.5"/><path d="M8 2v3M12 2v3M8 15v3M12 15v3M2 8h3M2 12h3M15 8h3M15 12h3"/><circle cx="7.6" cy="7.6" r=".9"/></svg>zain.usmani</a>
+  <ul class="tabs-nav">
+   <li><a href="index.html" class="act" aria-current="page">Home</a></li>
+   <li><a href="hardware.html">Hardware</a></li>
+   <li><a href="robotics.html">Robotics</a></li>
+   <li><a href="about.html">About<span class="xs-hide"> &amp; contact</span></a></li>
   </ul>
  </div>
 </nav>
 
 <div id="gauge" aria-hidden="true"><div class="rule"></div><div class="mk" id="gmk"></div><div class="z">page depth<br><b id="gz">0.00</b> m</div></div>
 
+
+<section class="phead ph-hardware" aria-label="Hardware">
+ <div class="wrap">
+  <div class="tag">Hardware · live demos</div>
+  <h1>FPGA and digital hardware</h1>
+  <p>An FPGA flight computer, a depth network taken to RTL, board bring-up, power distribution, and RTL projects. The demos run in your browser.</p>
+  <div class="jump"><a href="#idemo">Mission demo: 3D + VGA cockpit</a><a href="#dsolar">Solar system explorer</a><a href="#ohive">O-Hive hardware</a><a href="#projects">RTL and analog projects</a></div>
+ </div>
+</section>
+<section class="phead ph-robotics" aria-label="Robotics">
+ <div class="wrap">
+  <div class="tag">Robotics · vision · embedded · live demos</div>
+  <h1>Robotics, vision and embedded</h1>
+  <p>Monocular depth and point clouds, race-car autonomy and sensor drivers, wearable sensing, and robots built at hackathons.</p>
+  <div class="jump"><a href="#top">3D point cloud</a><a href="#ohive">Vision pipeline</a><a href="#fsae">Formula Electric</a><a href="#research">Gait research</a><a href="#projects">Robot projects</a></div>
+ </div>
+</section>
 <header class="hero" id="top">
  <img class="art art-iso" src="assets/art/isodepth.svg" alt="" aria-hidden="true">
  <div class="wrap">
@@ -597,6 +651,23 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
   </div>
  </div>
 </header>
+
+<section id="about" class="p-about">
+ <div class="wrap about">
+  <figure class="me"><img src="assets/img/me.jpg" alt="Zain Usmani" width="600" height="600"><figcaption>Zain Usmani · Windsor, Ontario</figcaption></figure>
+  <div>
+   <div class="tag">About</div>
+   <h1>Zain Usmani</h1>
+   <p class="lead">Third-year Electrical and Computer Engineering student at the University of Windsor, minoring in Computer Science.</p>
+   <p>Hardware is where I start. I like the parts of a system you can put a probe on: RTL on an FPGA, a board powering up for the first time, a bus that only works once the pull-ups are right. The work I'm proudest of is an FPGA flight computer that keeps flying when its link drops, and taking a depth network from a cloud GPU toward synthesizable hardware.</p>
+   <p>Next come computer vision, edge computing and embedded systems, usually where they meet the hardware: depth estimation that has to fit in 4 GB, sensor firmware that can't silently drop samples, autonomy code with a 33 ms budget per frame.</p>
+   <p>I'm drawn to things that are just starting. I'd rather join a new team, a new initiative or an idea nobody has built yet, and help turn it into something that works, than join something already finished.</p>
+   <p>Away from the bench, I play soccer whenever I can.</p>
+   <div class="now"><b>Right now</b><ul><li>Designing a RISC-V matrix accelerator (4×4 INT8 systolic array)</li><li>Finishing an 8-bit pipelined CPU, with a live demo planned for this site</li><li>Formula Electric: autonomy lead and embedded developer</li></ul></div>
+   <div class="cta"><a class="btn pri" href="mailto:zain.usmani10@gmail.com">Email</a><a class="btn" href="https://www.linkedin.com/in/zain-usmani-" target="_blank" rel="noopener">LinkedIn ↗</a><a class="btn" href="https://github.com/Zain-Usmani10" target="_blank" rel="noopener">GitHub ↗</a><a class="btn" href="https://devpost.com/zain-usmani10" target="_blank" rel="noopener">Devpost ↗</a></div>
+  </div>
+ </div>
+</section>
 
 <!-- ================= INTERSTELLAR ================= -->
 <section id="interstellar" class="dark">
@@ -714,13 +785,14 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
    </div>
   </div>
 
-  <div class="stats rv" style="margin-bottom:56px">
+  <div class="stats rv t-hw" style="margin-bottom:56px">
    <div><b><em class="ct" data-count="461920">461,920</em></b><span>logic cells in the synthesized depth-network netlist</span></div>
    <div><b><em class="ct" data-count="162188">162,188</em></b><span>discrete flip-flops (35 %) found where memories should be, and moved to BRAM</span></div>
    <div><b><em class="ct" data-count="92">92</em>×</b><span>fewer parameters: 350M transformer to 3.8M CNN, then INT8 (4× less weight storage)</span></div>
    <div><b><em class="ct" data-count="240">240</em> A</b><span>arm distribution, sized over a 168 A actuator peak on a 48 V bus</span></div>
   </div>
 
+<div class="t-hw">
   <div class="sub-h" style="margin-top:0">
    <h3 class="kerf">Network to RTL</h3>
    <p class="rv">The depth network, shrunk to a pure CNN, quantized and compiled to RTL for a custom-chip gate estimate.</p>
@@ -817,6 +889,8 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
    </div>
   </div>
 
+</div>
+<div class="t-cv">
   <div class="sub-h">
    <h3 class="kerf">Vision pipeline</h3>
    <p class="rv">Calibration to rendering. The point cloud at the top of the page is stage 04.</p>
@@ -833,6 +907,7 @@ section img:not(.art),header img:not(.art){cursor:zoom-in}
    <div class="stage-body" id="stagetext"></div>
    <div class="stage-body" id="stagemedia"></div>
   </div>
+</div>
  </div>
 </section>
 
@@ -1453,7 +1528,7 @@ const DG={
 (function(){
   const list=$('#plist');let n=0;
   GROUPS.forEach(([key,name,sub])=>{
-    const grp=document.createElement('div');grp.className='pgroup';
+    const grp=document.createElement('div');grp.className='pgroup';grp.dataset.g=key;
     grp.innerHTML=`<div class="pgh rv"><h3>${name}</h3><span>${sub}</span></div><div class="plist"></div>`;
     list.appendChild(grp);const host=grp.querySelector('.plist');
     PROJ.filter(p=>p.g===key).forEach(p=>{
@@ -1581,10 +1656,10 @@ const stretchSets=[];
 
 /* ---------- one scroll loop: velocity, hero dolly, gauge, nav ---------- */
 (function(){
-  const nav=$('#nav'),links=$$('.nav ul a'),secs=links.map(a=>$(a.getAttribute('href'))),hero=$('#top'),viewer=$('#viewer'),
+  const nav=$('#nav'),SEC=[['interstellar','Interstellar'],['ohive','O-Hive'],['fsae','Formula Electric'],['research','Research'],['projects','Projects'],['stack','Skills'],['contact','Contact']],secs=SEC.map(q=>$('#'+q[0])),hero=$('#top'),viewer=$('#viewer'),
         gauge=$('#gauge'),gmk=$('#gmk'),gz=$('#gz'),sideEls=$$('.wave.side,.side-sch');
   // section ticks on the depth gauge
-  const ticks=secs.map((s,i)=>{const t=document.createElement('span');t.className='sec';t.textContent=String(i+1).padStart(2,'0');gauge.appendChild(t);return t});
+  const ticks=secs.map((s,i)=>{const t=document.createElement('a');t.className='sec';t.href='#'+SEC[i][0];t.dataset.n=SEC[i][1];t.textContent=String(i+1).padStart(2,'0');gauge.appendChild(t);return t});
   function layoutTicks(){const H=document.documentElement.scrollHeight-innerHeight,gh=gauge.offsetHeight;
     secs.forEach((s,i)=>{ticks[i].style.top=(clamp((s.offsetTop-70)/H,0,1)*gh)+'px'})}
   addEventListener('resize',layoutTicks);addEventListener('load',layoutTicks);layoutTicks();
@@ -1603,7 +1678,7 @@ const stretchSets=[];
     // gauge
     if(gauge.offsetHeight){gmk.style.transform=`translateY(${p*gauge.offsetHeight}px)`;gz.textContent=(y/3779.5).toFixed(2)}
     let a=-1;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<innerHeight*.4)a=i});
-    if(a!==act){act=a;links.forEach((l,i)=>l.classList.toggle('act',i===a));ticks.forEach((t,i)=>t.classList.toggle('on',i===a))}
+    if(a!==act){act=a;ticks.forEach((t,i)=>t.classList.toggle('on',i===a))}
     // stretch type
     if(!reduce){
       const tgt=Math.min(.34,Math.abs(SCR.vel)/7000);amt+=(tgt-amt)*.14;

@@ -1,0 +1,1715 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About | Zain Usmani</title>
+<meta name="description" content="Zain Usmani: third-year Electrical and Computer Engineering student, hardware first, then vision and embedded.">
+<meta property="og:title" content="Zain Usmani | Computer Vision and Embedded Hardware">
+<meta property="og:description" content="Monocular 3D mapping, FPGA acceleration and flight computers, autonomous navigation and embedded firmware.">
+<meta property="og:image" content="assets/img/depth_magma.jpg">
+<meta name="theme-color" content="#f3eee4">
+<link rel="icon" href="assets/favicon.svg?v=2" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png?v=2" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3e6d1; --bg2:#eadabf; --panel:#faf1e2; --panel2:#f0e1c8; --line:#dfcaa9; --line2:#c9ad84;
+  --fg:#22170f; --fg2:#43342a; --mut:#76624f; --dim:#a08a72;
+  --ember:#9c3a24; --gold:#a8792a; --wine:#7a2836; --navy:#121a2e; --navy2:#1b2540;
+  --hot:var(--ember);
+  --grad:linear-gradient(90deg,#4a1486,#8c2981,#d6457a,#fb8a4c,#fcd28a);
+  --warm:linear-gradient(90deg,#7a2836,#9c3a24,#a8792a);
+  --display:"IBM Plex Sans","Inter",system-ui,sans-serif;
+  --serif:var(--display);
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.16,.84,.3,1);
+}
+.dark{
+  --bg:#1e150f; --bg2:#19110c; --panel:#271c14; --panel2:#30231a; --line:#3d2d21; --line2:#56412f;
+  --fg:#f4e9d8; --fg2:#dccbb3; --mut:#b39d84; --dim:#8a7560; --hot:#e9a94a;
+  background:var(--bg2);color:var(--fg);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background-image:radial-gradient(rgba(27,25,21,.07) 1px,transparent 1.2px);background-size:28px 28px}
+img{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--ember);outline-offset:3px;border-radius:3px}
+::selection{background:var(--ember);color:#fff}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.mono{font-family:var(--mono)}
+.tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.it{font:inherit;color:inherit}
+.ember{color:var(--ember)}.gold{color:var(--gold)}
+
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;transition:background-color .4s,border-color .4s;border-bottom:1px solid transparent}
+.nav.on{background:rgba(243,230,209,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:20px}
+.brand{font-family:var(--mono);font-size:13.5px;text-decoration:none;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.brand .chip{width:18px;height:18px;fill:none;stroke:var(--fg);stroke-width:1.3;stroke-linecap:round}.brand .chip circle{fill:var(--ember);stroke:none}
+.nav ul{list-style:none;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav ul::-webkit-scrollbar{display:none}
+.nav ul a{display:block;font-size:13.5px;text-decoration:none;color:var(--mut);padding:6px 11px;border-radius:999px;transition:color .25s,background-color .25s;white-space:nowrap}
+.nav ul a:hover{color:var(--fg)}
+.nav ul a.act{color:var(--bg);background:var(--fg)}
+
+/* depth gauge (fixed margin ruler) */
+#gauge{position:fixed;left:22px;top:22vh;bottom:22vh;width:34px;z-index:50;pointer-events:none;display:none}
+#gauge .rule{position:absolute;left:0;top:0;bottom:0;width:10px;border-left:1px solid var(--line2);
+  background:repeating-linear-gradient(to bottom,var(--line2) 0 1px,transparent 1px 8px) left/6px 100% no-repeat,
+             repeating-linear-gradient(to bottom,var(--mut) 0 1px,transparent 1px 40px) left/10px 100% no-repeat}
+#gauge .sec{position:absolute;left:14px;font-family:var(--mono);font-size:9.5px;color:var(--dim);transform:translateY(-50%);transition:color .3s}
+#gauge .sec.on{color:var(--ember)}
+#gauge a.sec{pointer-events:auto;text-decoration:none;padding:2px 4px;margin-left:-4px}
+#gauge a.sec:hover{color:var(--fg)}
+#gauge a.sec:after{content:attr(data-n);position:absolute;left:100%;top:50%;transform:translate(6px,-50%);white-space:nowrap;background:var(--fg);color:var(--bg);padding:2px 7px;border-radius:4px;opacity:0;transition:opacity .2s;pointer-events:none}
+#gauge a.sec:hover:after{opacity:1}
+#gauge .mk{position:absolute;left:-4px;width:18px;height:1.5px;background:var(--ember);top:0}
+#gauge .mk:after{content:"";position:absolute;left:-3px;top:-3px;border:4px solid transparent;border-left-color:var(--ember);border-width:4px 0 4px 6px}
+#gauge .z{position:absolute;left:0;top:calc(100% + 10px);font-family:var(--mono);font-size:10px;color:var(--mut);white-space:nowrap;line-height:1.4}
+#gauge .z b{color:var(--fg);font-weight:500}
+@media (min-width:1340px){#gauge{display:block}}
+
+/* hero */
+.hero{min-height:100vh;display:flex;align-items:center;padding:96px 0 56px;position:relative}
+.hero .wrap{display:grid;grid-template-columns:1.02fr 1fr;gap:44px;align-items:center;width:100%}
+.hero h1{font-family:var(--display);font-weight:600;font-size:clamp(50px,7.8vw,100px);line-height:.92;letter-spacing:-.035em;margin:18px 0 24px}
+.hero h1 .l1,.hero h1 .l2{display:block;white-space:nowrap}
+.hero h1 .l2{color:var(--wine);margin-top:.02em}
+.st,.si{display:inline-block;transform-origin:50% 88%}
+.st{will-change:transform}
+.lede{font-size:18px;color:var(--fg2);max-width:540px;line-height:1.6}
+.roles{margin-top:30px;border-top:1px solid var(--line)}
+.roles a{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line);text-decoration:none;transition:padding .35s var(--ease)}
+.roles a:hover{padding-left:8px}
+.roles b{font-weight:500;font-size:15px}
+.roles span{font-size:13.5px;color:var(--mut)}
+.roles em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+.roles a.new em{color:var(--ember)}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;text-decoration:none;padding:10px 18px;border-radius:999px;border:1px solid var(--line2);transition:border-color .25s,background-color .25s,color .25s,transform .25s}
+.btn:hover{border-color:var(--fg);transform:translateY(-1px)}
+.btn.pri{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn.pri:hover{background:var(--ember);border-color:var(--ember);color:#fff}
+.stagebox{perspective:1400px}
+.viewer{position:relative;aspect-ratio:1/1;max-height:620px;width:100%;border-radius:18px;background:radial-gradient(120% 90% at 50% 40%,#1c1814 0%,#0d0c0b 72%);border:1px solid #2b2a26;overflow:hidden;touch-action:pan-y;cursor:grab;transform-origin:50% 0;box-shadow:0 30px 60px -30px rgba(40,25,10,.45),0 2px 0 rgba(255,255,255,.5) inset}
+.viewer:active{cursor:grabbing}
+.viewer canvas{position:absolute;inset:0;width:100%;height:100%}
+.viewer{touch-action:pan-y}
+.hud{position:absolute;font-family:var(--mono);font-size:11px;color:#a29e93;letter-spacing:.04em;pointer-events:none;line-height:1.5}
+.hud.tl{top:16px;left:18px}.hud.tr{top:16px;right:18px;text-align:right}.hud.bl{bottom:14px;left:18px}.hud.br{bottom:14px;right:18px;text-align:right}
+.hud b{color:#f0eee7;font-weight:500}
+.hud .fp{color:#f2c46d}
+.corner{position:absolute;width:18px;height:18px;border-color:#3a3833;border-style:solid;pointer-events:none}
+.corner.a{top:8px;left:8px;border-width:1px 0 0 1px}.corner.b{top:8px;right:8px;border-width:1px 1px 0 0}.corner.c{bottom:8px;left:8px;border-width:0 0 1px 1px}.corner.d{bottom:8px;right:8px;border-width:0 1px 1px 0}
+.viewer-cap{font-size:12.5px;color:var(--mut);margin-top:14px;line-height:1.5}
+.vwrap{position:relative}
+.srcclip{position:absolute;left:-22px;bottom:26px;width:38%;max-width:240px;margin:0;border-radius:10px;overflow:hidden;background:#0d0c0b;border:1px solid #3a352d;box-shadow:0 18px 40px -12px rgba(27,25,21,.55),0 0 0 6px var(--bg);z-index:4;transform:rotate(-2deg)}
+.srcclip video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.srcclip figcaption{white-space:nowrap;display:flex;justify-content:space-between;gap:6px;padding:6px 9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:#a29e93;background:#14120f}
+.srcclip .rec{color:#f2c46d;white-space:nowrap}.srcclip .rec i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#b4452f;margin-right:5px;vertical-align:1px}
+.srclink{position:absolute;left:calc(42% - 70px);bottom:150px;width:120px;height:72px;z-index:3;pointer-events:none;overflow:visible}
+.srclink path{fill:none;stroke:#f2c46d;stroke-width:1.2;stroke-dasharray:3 5;animation:flowdash 1.4s linear infinite;opacity:.85}
+@keyframes flowdash{to{stroke-dashoffset:-16}}
+.scale{display:flex;align-items:center;gap:8px}
+.scale i{display:block;width:70px;height:5px;border-radius:3px;background:linear-gradient(90deg,#fcd28a,#fb8a4c,#d6457a,#8c2981,#4a1486)}
+
+/* sections */
+section{position:relative;padding:120px 0}
+.sec-head{display:grid;grid-template-columns:180px 1fr;gap:28px;margin-bottom:56px;align-items:start}
+.sec-num{font-family:var(--mono);font-size:12px;color:var(--mut);padding-top:14px;display:flex;align-items:center;gap:10px}
+.sec-num:before{content:"";width:28px;height:1px;background:var(--warm)}
+.dark .sec-num:before{background:linear-gradient(90deg,#e9a94a,#f2c46d)}
+.sec-head h2,.contact h2{font-family:var(--display);font-weight:600;font-size:clamp(34px,4.8vw,60px);line-height:1.04;letter-spacing:-.03em}
+.sec-head h2 .it,.contact h2 .it{font-size:1.08em}
+.sec-head .meta{margin-top:14px;font-size:15px;color:var(--mut)}
+.sec-head .meta b{color:var(--fg);font-weight:500}
+.sec-head p.intro{margin-top:18px;font-size:17.5px;color:var(--fg2);max-width:720px}
+.band{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+/* registration marks on bands */
+.band:before,.band:after{content:"";position:absolute;width:14px;height:14px;top:18px;background:linear-gradient(var(--line2),var(--line2)) center/100% 1px no-repeat,linear-gradient(var(--line2),var(--line2)) center/1px 100% no-repeat}
+.band:before{left:18px}.band:after{right:18px}
+
+/* kerf cut (heading slash) */
+.kf{display:inline-grid;position:relative;vertical-align:top}
+.kf>.ka,.kf>.kb{grid-area:1/1}
+.kf>.ka{clip-path:polygon(-5% -10%,105% -10%,105% 30%,-5% 70%)}
+.kf>.kb{clip-path:polygon(-5% 70%,105% 30%,105% 110%,-5% 110%)}
+.kf>.kl{position:absolute;left:-2%;top:70%;height:1.5px;background:linear-gradient(90deg,transparent,var(--gold) 12%,var(--gold) 88%,transparent);transform-origin:0 50%;pointer-events:none;opacity:0}
+.dark .kf>.kl{background:linear-gradient(90deg,transparent,#f2c46d 12%,#f2c46d 88%,transparent)}
+
+/* reveals (only hidden once JS confirms it can animate) */
+.js .rv{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.js .rv.in{opacity:1;transform:none}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+.stats>div{padding:20px 20px 18px;border-left:1px solid var(--line)}
+.stats>div:first-child{border-left:0}
+.stats b{display:block;font-family:var(--display);font-weight:600;font-size:clamp(24px,2.6vw,34px);letter-spacing:-.02em;line-height:1.1}
+.stats em.ct{font-style:normal}
+.stats>div>span{display:block;font-size:13px;color:var(--mut);margin-top:6px;line-height:1.45}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative;margin-bottom:22px}
+.pipe:before{content:"";position:absolute;left:10%;right:10%;top:27px;height:1px;background:var(--line2)}
+.pipe .fill{position:absolute;left:10%;top:27px;height:1.5px;background:var(--warm);width:0;transition:width .7s var(--ease)}
+.stage{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:4px 6px 10px}
+.stage .dot{width:54px;height:54px;border-radius:50%;background:var(--bg2);border:1px solid var(--line2);display:grid;place-items:center;font-family:var(--mono);font-size:13px;color:var(--mut);transition:border-color .35s,color .35s,box-shadow .35s,background-color .35s;position:relative;z-index:1}
+.stage b{font-family:var(--display);font-weight:500;font-size:16px;transition:color .3s}
+.stage small{font-size:12px;color:var(--dim);font-family:var(--mono)}
+.stage:hover .dot{border-color:var(--fg);color:var(--fg)}
+.stage[aria-selected=true] .dot{border-color:var(--ember);color:#fff;background:var(--ember);box-shadow:0 0 0 6px rgba(156,58,36,.14)}
+.stage[aria-selected=true] b{color:var(--ember)}
+.stage-panel{display:grid;grid-template-columns:1fr 1.15fr;gap:36px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px;min-height:420px;align-items:center;perspective:1200px}
+.stage-panel h3{font-family:var(--display);font-weight:600;font-size:28px;letter-spacing:-.02em;line-height:1.15;margin:8px 0 16px}
+.stage-panel ul{list-style:none;display:grid;gap:12px}
+.stage-panel li{position:relative;padding-left:20px;color:var(--fg2);font-size:15.5px}
+.stage-panel li:before{content:"";position:absolute;left:0;top:11px;width:8px;height:1.5px;background:var(--ember)}
+.stage-body{transition:opacity .3s,transform .5s var(--ease);transform-origin:0 50%}
+.stage-body.out{opacity:0;transform:rotateY(-9deg) translateX(-10px) scale(.985)}
+#stagemedia.out{transform:rotateY(9deg) translateX(10px) scale(.985);transform-origin:100% 50%}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px}
+.chips span{font-family:var(--mono);font-size:11.5px;padding:4px 9px;border:1px solid var(--line2);border-radius:999px;color:var(--mut)}
+.calib{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.calib img{border-radius:8px;aspect-ratio:4/3;object-fit:cover}
+.formula{font-family:var(--mono);font-size:clamp(14px,1.6vw,19px);line-height:2;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:22px 26px;color:var(--fg)}
+.formula .c{color:var(--dim)}.formula .h{color:var(--ember)}
+.cap{font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.5}
+.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini-stats div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px}
+.mini-stats b{font-family:var(--display);font-size:26px;font-weight:600;display:block;letter-spacing:-.02em}
+.mini-stats span{font-size:12.5px;color:var(--mut);display:block;margin-top:4px;line-height:1.4}
+
+/* compare slider */
+.compare{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1600/888;background:#000;user-select:none;touch-action:pan-y;cursor:ew-resize}
+.compare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.compare .top{clip-path:inset(0 0 0 50%)}
+.compare .handle{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#f3eee4;transform:translateX(-1px);pointer-events:none}
+.compare .handle:after{content:"⟷";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:#f3eee4;color:#1b1915;display:grid;place-items:center;font-size:15px}
+.compare .lab{position:absolute;bottom:10px;font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(0,0,0,.6);color:#fff;pointer-events:none}
+.compare .lab.l{left:10px}.compare .lab.r{right:10px}
+.compare input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:ew-resize;margin:0}
+
+/* silicon chain */
+.sub-h{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:84px 0 22px;flex-wrap:wrap}
+.sub-h h3{font-family:var(--display);font-weight:600;font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;line-height:1.1}
+.sub-h p{color:var(--mut);max-width:520px;font-size:15px}
+.chain{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.chain .lk{flex:1 0 140px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 14px 16px;transition:transform .4s var(--ease),border-color .4s}
+.chain .lk:hover{transform:translateY(-4px);border-color:var(--line2)}
+.chain .lk small{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.06em}
+.chain .lk b{display:block;font-family:var(--display);font-weight:500;font-size:16px;margin:6px 0 4px;line-height:1.2}
+.chain .lk span{font-size:12.5px;color:var(--mut);line-height:1.45;display:block}
+.chain .ar{flex:0 0 26px;display:grid;place-items:center;color:var(--dim);font-family:var(--mono)}
+.chain .lk.hl{border-color:rgba(156,58,36,.5);background:linear-gradient(180deg,rgba(156,58,36,.08),var(--panel) 60%)}
+
+/* fork diagram */
+.fork{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;display:grid;grid-template-columns:1fr 330px;gap:32px;align-items:center}
+.fork svg{width:100%;height:auto}
+.flow{stroke-dasharray:5 7;animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-24}}
+.fork h4{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:-.01em;margin-bottom:12px}
+.fork p{font-size:14.5px;color:var(--fg2);margin-bottom:10px}
+.also{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.also div{border-top:1px solid var(--line2);padding-top:14px}
+.also b{font-family:var(--display);font-weight:500;font-size:16px;display:block;margin-bottom:6px}
+.also p{font-size:14px;color:var(--mut)}
+
+/* ===== Interstellar (dark cold splash) ===== */
+#interstellar{overflow:hidden}
+#interstellar .stars{position:absolute;inset:0;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(1px 1px at 12% 18%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 72% 12%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 38% 64%,#cfd8ff 50%,transparent 51%),radial-gradient(1.4px 1.4px at 88% 52%,#ffe6b0 50%,transparent 51%),radial-gradient(1px 1px at 22% 86%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 58% 38%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 94% 88%,#cfd8ff 50%,transparent 51%),radial-gradient(1px 1px at 6% 52%,#fff 50%,transparent 51%);background-size:420px 420px}
+.mission>*{min-width:0}
+.ocap{font-size:12.5px;color:var(--dim);margin-top:10px;line-height:1.5}
+.dark .stats{background:var(--panel)}
+
+/* tabs (FSAE) */
+.tabs{display:inline-flex;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:26px;max-width:100%}
+.tabs button{position:relative;z-index:1;padding:9px 18px;font-size:14px;font-weight:500;border-radius:999px;color:var(--mut);transition:color .3s;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--bg)}
+.tabs .pillbg{position:absolute;top:4px;bottom:4px;left:4px;border-radius:999px;background:var(--fg);transition:transform .5s var(--ease),width .5s var(--ease)}
+.tabpanel{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:start}
+.tabpanel[hidden]{display:none}
+.tabpanel .role{font-family:var(--display);font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.tabpanel .when{font-family:var(--mono);font-size:12px;color:var(--mut);margin:8px 0 18px}
+.list{list-style:none;display:grid;gap:13px}
+.list li{position:relative;padding-left:22px;color:var(--fg2);font-size:15.5px}
+.list li:before{content:"";position:absolute;left:0;top:9px;width:7px;height:7px;border-radius:1px;border:1px solid var(--hot);transform:rotate(45deg)}
+.dataflow{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+.dataflow .node{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 14px;font-size:14px}
+.dataflow .node em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--mut);text-align:right}
+.dataflow .wire{height:22px;margin-left:26px;border-left:1px dashed var(--line2);position:relative}
+.dataflow .wire:after{content:"";position:absolute;left:-3px;top:0;width:5px;height:5px;border-radius:50%;background:var(--ember);animation:drop 1.6s linear infinite}
+@keyframes drop{from{top:-2px;opacity:0}20%{opacity:1}to{top:20px;opacity:0}}
+.dataflow .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dataflow .title{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.06em;margin-bottom:12px;text-transform:uppercase}
+.tabpanel .stats,.mission .stats{grid-template-columns:repeat(2,1fr);margin-top:14px}
+.tabpanel .stats>div:nth-child(3),.mission .stats>div:nth-child(3){border-left:0}
+.tabpanel .stats>div:nth-child(n+3),.mission .stats>div:nth-child(n+3){border-top:1px solid var(--line)}
+
+/* research */
+.research{display:grid;grid-template-columns:1.25fr 1fr;gap:40px;align-items:start}
+.mosaic{display:grid;grid-template-columns:1.3fr 1fr;grid-template-rows:auto auto;gap:10px}
+.mosaic figure{position:relative;border-radius:12px;overflow:hidden;background:var(--panel)}
+.mosaic img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.mosaic figure:hover img{transform:scale(1.04)}
+.mosaic .tall{grid-row:span 2}
+figcaption.ov{position:absolute;left:10px;bottom:10px;font-family:var(--mono);font-size:10.5px;background:rgba(20,18,14,.66);padding:3px 8px;border-radius:6px;color:#f3eee4}
+
+/* projects */
+.plist{border-top:1px solid var(--line2)}
+.prow{border-bottom:1px solid var(--line2);position:relative}
+.prow.hide{display:none}
+.prow>button{width:100%;display:grid;grid-template-columns:40px 44px 1fr auto 34px;gap:18px;align-items:center;text-align:left;padding:24px 4px;position:relative}
+.prow>button:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(156,58,36,.07),transparent 70%);opacity:0;transition:opacity .35s}
+.prow>button:hover:before,.prow.open>button:before{opacity:1}
+.prow .n{font-family:var(--mono);font-size:13px;color:var(--dim)}
+.prow h3{font-family:var(--display);font-weight:500;font-size:clamp(19px,2.2vw,26px);letter-spacing:-.015em;line-height:1.2;transition:transform .45s var(--ease)}
+.prow>button:hover h3{transform:translateX(6px)}
+.prow .one{font-size:14.5px;color:var(--mut);margin-top:4px;line-height:1.45;display:block}
+.prow .side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.prow .date{font-family:var(--mono);font-size:12px;color:var(--mut);white-space:nowrap}
+.prow .badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid rgba(184,137,47,.55);color:var(--gold);white-space:nowrap}
+.plus{width:30px;height:30px;border-radius:50%;border:1px solid var(--line2);position:relative;transition:transform .5s var(--ease),background-color .3s,border-color .3s}
+.plus:before,.plus:after{content:"";position:absolute;left:50%;top:50%;width:11px;height:1.5px;background:var(--fg);transform:translate(-50%,-50%)}
+.plus:after{transform:translate(-50%,-50%) rotate(90deg)}
+.prow.open .plus{transform:rotate(45deg);background:var(--ember);border-color:var(--ember)}
+.prow.open .plus:before,.prow.open .plus:after{background:#fff}
+.slash{position:absolute;left:-3%;width:106%;top:50%;height:1.5px;pointer-events:none;background:linear-gradient(90deg,transparent,var(--gold) 10%,#e8c46a 50%,var(--gold) 90%,transparent);transform:rotate(-2.2deg) scaleX(0);transform-origin:0 50%;opacity:0;z-index:2;box-shadow:0 0 12px rgba(232,196,106,.6)}
+.pbody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s var(--ease)}
+.prow.open .pbody{grid-template-rows:1fr}
+.pbody>div{overflow:hidden}
+.pinner{display:grid;grid-template-columns:1.15fr 1fr;gap:34px;padding:6px 4px 36px 76px}
+.pinner.noimg{grid-template-columns:1fr 1fr}
+.pinner>*,.stage-panel>*,.tabpanel>*,.research>*,.fork>*{min-width:0}
+.gal .main{border-radius:12px;overflow:hidden;background:#14120f;aspect-ratio:16/10;position:relative;cursor:zoom-in}
+.gal .main img{width:100%;height:100%;object-fit:contain;transition:opacity .3s}
+.gal .thumbs{display:flex;gap:8px;margin-top:8px;overflow-x:auto;padding-bottom:4px}
+.gal .thumbs button{flex:0 0 74px;height:52px;border-radius:7px;overflow:hidden;border:1px solid var(--line);opacity:.55;transition:opacity .25s,border-color .25s}
+.gal .thumbs button[aria-current=true]{opacity:1;border-color:var(--ember)}
+.gal .thumbs img{width:100%;height:100%;object-fit:cover}
+.gal .gcap{font-size:12.5px;color:var(--mut);margin-top:8px;min-height:18px}
+.pinner .tools{font-family:var(--mono);font-size:12px;color:var(--mut);margin-top:18px;line-height:1.7}
+.pinner .tools b{color:var(--fg);font-weight:500}
+.diagram{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;display:grid;place-items:center;min-height:240px}
+.diagram svg{width:100%;height:auto;max-width:520px}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.kv div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.kv b{display:block;font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:-.01em}
+.kv span{font-size:12px;color:var(--mut);line-height:1.35;display:block;margin-top:2px}
+
+/* skills */
+.skills{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.sk{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 22px 24px;transition:border-color .35s}
+.sk:hover{border-color:var(--line2)}
+.sk h3{font-family:var(--display);font-weight:500;font-size:19px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sk h3 i{width:8px;height:8px;border-radius:1px;transform:rotate(45deg)}
+.sk .cl{display:flex;flex-wrap:wrap;gap:6px}
+.sk .cl span{font-size:13px;padding:5px 10px;border-radius:7px;background:var(--bg);border:1px solid var(--line);color:var(--fg2);transition:border-color .25s,color .25s}
+.sk .cl span:hover{border-color:var(--ember);color:var(--fg)}
+.concepts{margin-top:14px;font-size:14px;color:var(--mut);line-height:1.75;border-top:1px solid var(--line);padding-top:18px}
+.concepts b{color:var(--fg);font-weight:500}
+.edu{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 26px;margin-bottom:14px}
+.edu b{font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:-.01em}
+.edu p{color:var(--mut);font-size:14.5px;margin-top:2px}
+.edu .gpa{font-family:var(--display);font-size:34px;font-weight:600;text-align:right;line-height:1}
+.edu .gpa small{display:block;font-family:var(--mono);font-size:11px;color:var(--mut);font-weight:400;margin-top:6px}
+.beyond{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.beyond div{border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.beyond b{display:block;font-weight:500;font-size:15px}
+.beyond em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--dim);display:block;margin:3px 0 8px}
+.beyond p{font-size:13.5px;color:var(--mut);line-height:1.5}
+
+/* contact */
+.contact{padding:140px 0 70px;text-align:left;position:relative;overflow:hidden}
+.contact h2{font-size:clamp(40px,7vw,96px);letter-spacing:-.04em;line-height:1}
+.contact .mail{display:inline-block;margin-top:28px;font-family:var(--display);font-size:clamp(20px,3vw,34px);text-decoration:none;border-bottom:2px solid var(--line2);padding-bottom:4px;transition:border-color .3s,color .3s}
+.contact .mail:hover{border-color:var(--ember);color:var(--ember)}
+.clinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+footer{border-top:1px solid var(--line);padding:24px 0 34px;font-size:13px;color:var(--mut)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.glow{position:absolute;width:760px;height:760px;right:-260px;bottom:-420px;border-radius:50%;background:radial-gradient(circle,rgba(156,58,36,.2),rgba(184,137,47,.1) 40%,transparent 68%);pointer-events:none}
+
+/* pinhole cursor */
+#ph{position:fixed;left:0;top:0;z-index:80;pointer-events:none;opacity:0;transition:opacity .2s;font-family:var(--mono);font-size:10.5px;color:#fff}
+#ph.on{opacity:1}
+#ph .rt{position:absolute;left:-13px;top:-13px;width:26px;height:26px;border:1px solid rgba(255,255,255,.9);border-radius:50%;mix-blend-mode:difference}
+#ph .rt:before,#ph .rt:after{content:"";position:absolute;background:rgba(255,255,255,.9)}
+#ph .rt:before{left:50%;top:-7px;bottom:-7px;width:1px}
+#ph .rt:after{top:50%;left:-7px;right:-7px;height:1px}
+#ph .rd{position:absolute;left:18px;top:14px;white-space:nowrap;background:rgba(20,18,14,.78);padding:2px 7px;border-radius:5px;color:#f3eee4}
+#ph .rd b{color:#f2c46d;font-weight:500}
+
+/* lightbox */
+dialog#lb{border:0;padding:0;background:transparent;max-width:96vw;max-height:96vh;margin:auto;color:#f3eee4}
+dialog#lb::backdrop{background:rgba(20,18,14,.88);backdrop-filter:blur(4px)}
+dialog#lb img{display:block;max-width:96vw;max-height:88vh;width:auto;height:auto;object-fit:contain;border-radius:10px;margin:0 auto}
+dialog#lb p{text-align:center;font-size:13px;color:#cfc8b8;margin-top:10px}
+dialog#lb button{position:fixed;top:16px;right:20px;width:40px;height:40px;border-radius:50%;background:#f3eee4;color:#1b1915;font-size:20px;line-height:1}
+dialog[open]#lb{animation:lbin .35s var(--ease)}
+@keyframes lbin{from{opacity:0;transform:scale(.97)}}
+
+
+/* abstract background art (generated by tools/gen_art.py) */
+.art{position:absolute;pointer-events:none;user-select:none;z-index:0}
+section>.wrap,.hero>.wrap{position:relative;z-index:1}
+.art-iso{right:-4%;top:6%;width:min(980px,78vw);opacity:.11;mix-blend-mode:multiply;transform:rotate(-4deg)}
+.art-orbits{right:-260px;top:-120px;width:900px;opacity:.13}
+.art-traces{right:-120px;top:40px;width:760px;opacity:.07;mix-blend-mode:multiply}
+.art-clock{left:0;right:0;bottom:18px;width:100%;height:96px;object-fit:cover;object-position:left;opacity:.13;mix-blend-mode:multiply}
+
+/* 360 hint over 3D canvases */
+.orbit-hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;color:rgba(255,255,255,.62);z-index:3;transition:opacity .6s,transform .6s;animation:hintfloat 3.2s ease-in-out infinite}
+.orbit-hint svg{width:108px;height:108px;overflow:visible}
+.orbit-hint svg circle,.orbit-hint svg ellipse,.orbit-hint svg path{fill:none;stroke:currentColor;stroke-width:1.4}
+.orbit-hint svg marker path{fill:currentColor;stroke:none}
+.orbit-hint .spin{transform-origin:60px 60px;animation:hintspin 5s linear infinite}
+.orbit-hint .mer{transform-origin:60px 60px;animation:hintmer 2.5s ease-in-out infinite}
+.orbit-hint span{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-align:center;line-height:1.5;background:rgba(20,12,8,.5);padding:5px 10px;border-radius:999px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.orbit-hint.small svg{width:74px;height:74px}
+.orbit-hint.gone{opacity:0;transform:translate(-50%,-50%) scale(.9);animation:none}
+@keyframes hintspin{to{transform:rotate(360deg)}}
+@keyframes hintmer{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.12)}}
+@keyframes hintfloat{0%,100%{margin-top:0}50%{margin-top:-6px}}
+
+/* Interstellar live demos */
+.demo,.explore{margin-top:8px;margin-bottom:64px}
+.demo-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.demo-state{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:-.01em;margin-top:4px}
+.demo-ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn.sm{padding:8px 15px;font-size:13.5px}
+.btn.pri:disabled{opacity:.45;cursor:default;transform:none}
+.dark .btn.pri{background:#f2c46d;border-color:#f2c46d;color:#141008}
+.dark .btn.pri:hover:not(:disabled){background:#fff;border-color:#fff;color:#141008}
+button.sw{font-family:var(--mono);font-size:12px;padding:7px 13px;border-radius:999px;border:1px solid var(--line2);color:var(--mut);transition:all .25s}
+button.sw:hover{color:var(--fg);border-color:var(--fg)}
+button.sw[aria-pressed=true]{background:#b4452f;border-color:#b4452f;color:#fff}
+.demo-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;align-items:stretch}
+.demo-grid>*{min-width:0}
+.screen{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0c0806;margin:0}
+.screen canvas{display:block;width:100%;height:100%}
+.s3d{aspect-ratio:4/3;cursor:grab;touch-action:none}.s3d:active{cursor:grabbing}
+.scap{position:absolute;left:12px;top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:#b9a48b;pointer-events:none}
+.shud{position:absolute;right:10px;top:8px;display:flex;gap:10px;align-items:center;font-family:var(--mono);font-size:11px;color:#eadcc6;pointer-events:none;flex-wrap:wrap;justify-content:flex-end;max-width:70%}
+.banner{position:absolute;left:50%;top:44px;transform:translate(-50%,-8px);max-width:min(420px,86%);background:rgba(28,20,10,.82);border:1px solid rgba(242,196,109,.45);border-radius:10px;padding:9px 14px;font-size:12.5px;line-height:1.45;color:#e9dfca;opacity:0;transition:opacity .35s,transform .35s;pointer-events:none;z-index:2}
+.banner b{display:block;font-family:var(--display);font-size:15px;font-weight:600;color:#fff;margin-bottom:2px}
+.banner.on{opacity:1;transform:translate(-50%,0)}
+.vga{background:#151515;display:flex;flex-direction:column;justify-content:center;padding:18px 18px 34px}
+.bezel{position:relative;border-radius:10px;padding:12px;background:linear-gradient(#262626,#141414);box-shadow:inset 0 0 0 1px #333,0 10px 30px rgba(0,0,0,.5)}
+.bezel canvas{width:100%;height:auto;aspect-ratio:4/3;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:4px;filter:saturate(1.15) contrast(1.05)}
+.bezel:after{content:"";position:absolute;inset:12px;border-radius:4px;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.22) 0 1px,transparent 1px 3px),radial-gradient(120% 100% at 50% 50%,transparent 60%,rgba(0,0,0,.45))}
+.vga .scap{top:auto;bottom:10px;left:18px}
+.dtl{margin-top:14px}
+.dbar{position:relative;height:6px;border-radius:3px;background:var(--panel2);overflow:hidden}
+.dbar i{position:absolute;inset:0;background:linear-gradient(90deg,#9c2f45,#f2c46d);transform-origin:0 50%;transform:scaleX(0)}
+.dbar .bo{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(90deg,rgba(159,216,255,.55) 0 4px,transparent 4px 8px);mix-blend-mode:screen}
+.dlab{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:7px;flex-wrap:wrap}
+.dlab .c{color:#9fd8ff}
+.solar{aspect-ratio:16/8;cursor:grab;touch-action:none}.solar:active{cursor:grabbing}
+.labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.labels span{position:absolute;left:0;top:0;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#eadcc6;text-shadow:0 1px 4px #000;white-space:nowrap}
+.planetbar{display:flex;gap:4px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px}
+.planetbar button{font-size:12.5px;padding:5px 11px;border-radius:999px;color:var(--mut);transition:all .25s}
+.planetbar button:hover{color:var(--fg)}
+.planetbar button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+.nogl-msg{display:none;position:absolute;inset:0;place-items:center;text-align:center;padding:20px;color:#b9a48b;font-size:14px}
+.nogl canvas,.nogl .orbit-hint,.nogl .shud{display:none}.nogl .nogl-msg{display:grid}
+.col-h{font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:-.01em;margin-bottom:16px}
+.photos{display:grid;grid-template-columns:2fr 2fr 1.25fr 2fr 1.25fr;grid-auto-rows:190px;gap:10px;margin-top:40px}
+.photos figure{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000;cursor:zoom-in;margin:0}
+.photos img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.photos figure:hover img{transform:scale(1.04)}
+.photos .p-wide{grid-column:span 2;grid-row:span 2}
+.photos .p-tall{grid-row:span 2}
+
+.link{display:inline-flex;align-items:center;gap:7px;padding:3px 10px;border-radius:999px;border:1px solid var(--line2);font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;background:rgba(20,12,8,.55)}
+.link i{width:7px;height:7px;border-radius:50%;background:#6fd3a0;box-shadow:0 0 8px #6fd3a0}
+.link.lost{color:#f2c46d;border-color:rgba(242,196,109,.5)}.link.lost i{background:#b4452f;box-shadow:0 0 8px #b4452f}
+.link.sync{color:#9fd8ff}.link.sync i{background:#9fd8ff;box-shadow:0 0 8px #9fd8ff}
+.mission{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+.mission .list li{color:var(--fg2)}
+/* project groups, spaced out */
+.pgroup{margin-top:72px}
+.pgroup:first-child{margin-top:8px}
+.pgh{display:flex;align-items:baseline;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.pgh h3{font-family:var(--display);font-weight:600;font-size:clamp(22px,2.4vw,28px);color:var(--fg);letter-spacing:-.015em}
+.pgh span{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+.glyph{width:40px;height:40px;flex:none;fill:none;stroke:var(--mut);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .3s,transform .5s var(--ease)}
+.glyph .g{stroke:var(--ember)}
+.prow:hover .glyph,.prow.open .glyph{stroke:var(--fg2);transform:rotate(-4deg) scale(1.06)}
+section img:not(.art),header img:not(.art){cursor:zoom-in}
+.compare img{cursor:ew-resize}
+.wave{position:relative;margin:-30px 0 70px;color:var(--mut);cursor:crosshair;user-select:none}
+.wave svg{display:block;width:100%;height:auto;overflow:visible}
+.wave .lbl{font-family:var(--mono);font-size:10.5px;fill:var(--dim);letter-spacing:.04em}
+.wave .val{font-family:var(--mono);font-size:10px;fill:var(--fg2)}
+.wave .ttl{font-family:var(--mono);font-size:10.5px;fill:var(--mut);letter-spacing:.05em}
+.wave .d{fill:none;stroke:var(--line2);stroke-width:1.1;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.2s var(--ease)}
+.wave .d.bus{stroke:var(--mut)}
+.wave .d.hot{stroke:var(--ember);stroke-width:1.4}
+.wave.on .d{stroke-dashoffset:0}
+.wave .mk{opacity:0;transition:opacity .2s}
+.wave:hover .mk{opacity:1}
+.wave .mk line{stroke:var(--gold);stroke-width:1}
+.wave .mk rect{fill:var(--fg)}
+.wave .mk text{font-family:var(--mono);font-size:10px;fill:var(--bg)}
+.dark .wave .d{stroke:var(--line2)}.dark .wave .d.bus{stroke:var(--mut)}.dark .wave .d.hot{stroke:#f2c46d}
+#fx{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:60}
+.wave.side,.side-sch{display:none}
+@media (min-width:1400px){
+ .wave.side{display:block;position:absolute;top:150px;left:calc(100% - 34px);width:880px;margin:0;transform:rotate(90deg);transform-origin:0 0;pointer-events:none;opacity:.8;z-index:0}
+ .wave.side .d{transition:none;stroke-dashoffset:calc(1 - var(--p,0))}
+ .wave.side .mk{display:none}
+ .side-sch{display:block;position:absolute;top:760px;left:calc(100% - 26px);width:200px;transform:rotate(90deg);transform-origin:0 0;pointer-events:none;overflow:visible;z-index:0}
+ .side-sch .d{fill:none;stroke:var(--mut);stroke-width:1.2;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p,0))}
+ .side-sch .d.hot{stroke:var(--ember);stroke-width:1.5}
+ .side-sch circle{fill:var(--mut)}
+ .side-sch .lbl{font-family:var(--mono);font-size:11px;fill:var(--mut)}
+ .side-sch .ttl{font-family:var(--mono);font-size:9.5px;fill:var(--dim);letter-spacing:.04em}
+}
+/* pages: one source, each page shows its subset */
+.phead,.p-about{display:none}
+@media (max-width:520px){.xs-hide{display:none}.nav .brand{font-size:0;gap:0}}
+body:not([data-page=home]) #gauge,body:not([data-page=home]) .sec-num{display:none}
+body:not([data-page=home]) .sec-head{display:block}
+body:not([data-page=home]) .sec-head h2{margin-top:0}
+.phead{padding:130px 0 10px}
+.phead h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,5vw,56px);letter-spacing:-.025em;line-height:1.05;margin:14px 0 14px}
+.phead p{max-width:640px;color:var(--fg2);font-size:17px}
+.phead .jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.phead .jump a{font-size:13px;text-decoration:none;color:var(--fg2);border:1px solid var(--line2);border-radius:999px;padding:6px 13px;transition:background-color .25s,color .25s}
+.phead .jump a:hover{background:var(--fg);color:var(--bg)}
+[data-page=hardware] .ph-hardware,[data-page=robotics] .ph-robotics{display:block}
+[data-page=hardware] :is(.hero,#fsae,#research,#stack,#about,.t-cv),
+[data-page=robotics] :is(#interstellar,.t-hw,#stack,#about),
+[data-page=about] :is(.hero,#interstellar,#ohive,#fsae,#research,#projects){display:none}
+[data-page=hardware] .pgroup:not([data-g=rtl]),[data-page=robotics] .pgroup:not([data-g=emb]){display:none}
+[data-page=hardware] .pgroup,[data-page=robotics] .pgroup{margin-top:8px}
+[data-page=robotics] .hero{min-height:0;padding:30px 0 40px}
+[data-page=robotics] .hero .wrap{grid-template-columns:1fr;max-width:820px}
+[data-page=robotics] .hero .wrap>div:first-child{display:none}
+[data-page=robotics] .art-iso{display:none}
+[data-page=about] #about{display:block;padding-top:130px}
+.about{display:grid;grid-template-columns:300px minmax(0,1fr);gap:56px;align-items:start}
+.about .me{margin:0;position:sticky;top:90px}
+.about .me img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:14px;border:1px solid var(--line2);box-shadow:0 18px 40px -20px rgba(34,23,15,.5)}
+.about .me figcaption{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:10px}
+.about h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,4.6vw,52px);letter-spacing:-.025em;margin:10px 0 12px}
+.about .lead{font-size:19px;color:var(--fg);margin-bottom:22px}
+.about p{color:var(--fg2);font-size:16.5px;max-width:640px;margin-bottom:16px}
+.about .now{margin:26px 0;padding:18px 20px;border:1px solid var(--line);border-radius:12px;background:var(--panel);max-width:640px}
+.about .now b{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.about .now ul{margin:10px 0 0 18px;color:var(--fg2);font-size:15px}
+.about .now li{margin:4px 0}
+.about .cta{display:flex;flex-wrap:wrap;gap:10px}
+@media (max-width:820px){.about{grid-template-columns:minmax(0,1fr);gap:28px}.about>div{min-width:0}.about .me{position:static;max-width:240px}}
+.plink{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ember);text-decoration:none;border-bottom:1px solid currentColor}
+.prow>button{padding:30px 4px}
+
+/* responsive */
+@media (max-width:980px){
+  .hero .wrap{grid-template-columns:1fr;gap:36px}
+  .viewer{aspect-ratio:4/3}
+  .srcclip{left:10px;top:10px;bottom:auto;width:38%;transform:none;box-shadow:0 10px 24px -10px rgba(0,0,0,.6)}
+  .srclink{display:none}
+  .srcclip figcaption span:first-child{display:none}
+  .srcclip figcaption{justify-content:flex-end}
+  .viewer .hud.tl{display:none}
+  .sec-head{grid-template-columns:1fr;gap:10px}
+  .sec-num{padding-top:0}
+  .stage-panel,.tabpanel,.research,.fork,.mission{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stats>div:nth-child(3){border-left:0}
+  .stats>div:nth-child(n+3){border-top:1px solid var(--line)}
+  .pinner,.pinner.noimg{grid-template-columns:1fr;padding-left:4px}
+  .also,.beyond{grid-template-columns:1fr}
+  .shots{grid-template-columns:1fr}
+  .demo-grid,.mission{grid-template-columns:1fr}
+  .photos{grid-template-columns:1fr 1fr;grid-auto-rows:150px}
+  .solar{aspect-ratio:4/3}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  section{padding:84px 0}
+  .hero{padding-top:84px}
+  .hero h1{font-size:clamp(46px,15vw,72px)}
+  .nav ul a{padding:6px 8px;font-size:12.5px}
+  .nav .wrap{gap:10px}
+  .brand{font-size:12.5px}
+  .forkscroll{overflow-x:auto;margin:-4px -6px 0;padding:0 6px 6px}
+  .forkscroll svg{min-width:560px}
+  .lede{font-size:16.5px}
+  .pipe{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .stage .dot{width:42px;height:42px;font-size:11px}
+  .pipe:before,.pipe .fill{top:21px}
+  .stage b{font-size:12.5px}
+  .stage small{display:none}
+  .stage-panel{padding:20px}
+  .stage-panel h3{font-size:23px}
+  .skills{grid-template-columns:1fr}
+  .prow>button{grid-template-columns:1fr 30px;gap:12px;padding:20px 2px}
+  .prow .n,.prow .glyph{display:none}
+  .wave{margin:-10px 0 44px}.wave .val{font-size:13px}.wave .lbl,.wave .ttl{font-size:13px}
+  .prow .side{grid-column:1;flex-direction:row;align-items:center;justify-content:flex-start;order:3}
+  .prow .plus{grid-row:1;grid-column:2}
+  .kv{grid-template-columns:1fr 1fr}
+  .edu{grid-template-columns:1fr}
+  .edu .gpa{text-align:left}
+  .tabs{display:flex;width:100%}
+  .tabs button{flex:1 1 auto;padding:8px 8px;font-size:12px;white-space:normal;line-height:1.25}
+  .chain .lk{flex-basis:150px}
+  .stats b{font-size:24px}
+  .lanes{grid-template-columns:1fr 44px 1fr}
+  .band:before,.band:after{display:none}
+  .photos .p-wide{grid-column:span 2;grid-row:span 1}
+  .art-orbits{width:600px;right:-300px}
+  .demo-state{font-size:19px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation:none!important;transition:none!important}
+  .js .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body data-page="about">
+<nav class="nav" id="nav">
+ <div class="wrap">
+  <a class="brand" href="index.html"><svg class="chip" viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="5" width="10" height="10" rx="1.5"/><path d="M8 2v3M12 2v3M8 15v3M12 15v3M2 8h3M2 12h3M15 8h3M15 12h3"/><circle cx="7.6" cy="7.6" r=".9"/></svg>zain.usmani</a>
+  <ul class="tabs-nav">
+   <li><a href="index.html">Home</a></li>
+   <li><a href="hardware.html">Hardware</a></li>
+   <li><a href="robotics.html">Robotics</a></li>
+   <li><a href="about.html" class="act" aria-current="page">About<span class="xs-hide"> &amp; contact</span></a></li>
+  </ul>
+ </div>
+</nav>
+
+<div id="gauge" aria-hidden="true"><div class="rule"></div><div class="mk" id="gmk"></div><div class="z">page depth<br><b id="gz">0.00</b> m</div></div>
+
+
+<section class="phead ph-hardware" aria-label="Hardware">
+ <div class="wrap">
+  <div class="tag">Hardware · live demos</div>
+  <h1>FPGA and digital hardware</h1>
+  <p>An FPGA flight computer, a depth network taken to RTL, board bring-up, power distribution, and RTL projects. The demos run in your browser.</p>
+  <div class="jump"><a href="#idemo">Mission demo: 3D + VGA cockpit</a><a href="#dsolar">Solar system explorer</a><a href="#ohive">O-Hive hardware</a><a href="#projects">RTL and analog projects</a></div>
+ </div>
+</section>
+<section class="phead ph-robotics" aria-label="Robotics">
+ <div class="wrap">
+  <div class="tag">Robotics · vision · embedded · live demos</div>
+  <h1>Robotics, vision and embedded</h1>
+  <p>Monocular depth and point clouds, race-car autonomy and sensor drivers, wearable sensing, and robots built at hackathons.</p>
+  <div class="jump"><a href="#top">3D point cloud</a><a href="#ohive">Vision pipeline</a><a href="#fsae">Formula Electric</a><a href="#research">Gait research</a><a href="#projects">Robot projects</a></div>
+ </div>
+</section>
+<header class="hero" id="top">
+ <img class="art art-iso" src="assets/art/isodepth.svg" alt="" aria-hidden="true">
+ <div class="wrap">
+  <div>
+   <div class="tag rv">FPGA · Digital hardware · Embedded · Vision on silicon</div>
+   <h1 id="name" aria-label="Zain Usmani"><span class="l1">Zain</span><span class="l2">Usmani</span></h1>
+   <p class="lede rv">Electrical and Computer Engineering, University of Windsor. I design and verify digital hardware on FPGAs, bring up boards, buses and power, and run computer vision on that hardware.</p>
+   <div class="roles rv">
+    <a href="#interstellar" class="new"><div><b>FPGA Flight Computer</b><br><span>Interstellar · Hack the Nest 2026</span></div><em>Nov 2026</em></a>
+    <a href="#ohive"><div><b>FPGA and Hardware Engineering Co-op</b><br><span>O-Hive · depth network to RTL, board bring-up, arm power</span></div><em>Apr – Aug 2026</em></a>
+    <a href="#fsae"><div><b>Autonomous Navigation Lead · Embedded Systems Developer</b><br><span>Formula Electric SAE · drivers, telemetry, autonomy</span></div><em>Dec 2024 – now</em></a>
+    <a href="#research"><div><b>Embedded Systems Research Intern</b><br><span>Micro-Nano Mechatronics Lab · BLE IMU to gait classifier</span></div><em>May – Dec 2025</em></a>
+   </div>
+   <div class="cta rv">
+    <a class="btn pri" href="#interstellar">Live demos ↓</a>
+    <a class="btn" href="mailto:zain.usmani10@gmail.com">Email</a>
+    <a class="btn" href="https://www.linkedin.com/in/zain-usmani-" target="_blank" rel="noopener">LinkedIn</a>
+    <a class="btn" href="https://github.com/Zain-Usmani10" target="_blank" rel="noopener">GitHub</a>
+   </div>
+  </div>
+  <div class="rv stagebox"><div class="vwrap">
+   <div class="viewer" id="viewer" aria-label="Interactive 3D point cloud reconstructed from one depth frame. Drag to rotate.">
+    <canvas id="cloud"></canvas>
+    <span class="corner a"></span><span class="corner b"></span><span class="corner c"></span><span class="corner d"></span>
+    <div class="hud tl">O-HIVE · DEPTH NET (RTL-BOUND) → POINT CLOUD<br><b id="npts">0</b> points</div>
+    <div class="hud tr">frame 276<br><span class="fp">focal plane Z = <b id="fz" style="color:#f2c46d">1.30</b> m</span></div>
+    <div class="hud br"><div class="scale"><span>0.79 m</span><i></i><span>1.81 m</span></div></div>
+    <div class="orbit-hint small" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahA" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahA)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahA)"/></g></svg><span>360° · drag to orbit</span></div>
+   </div>
+   <figure class="srcclip" aria-label="Source video the point cloud is computed from">
+    <video id="srcvid" src="assets/video/ohive_clip.mp4" poster="assets/video/ohive_clip.jpg" muted loop playsinline autoplay preload="auto"></video>
+    <figcaption><span>O-HIVE · SOURCE CLIP</span></figcaption>
+   </figure>
+   <svg class="srclink" viewBox="0 0 100 60" aria-hidden="true"><path d="M2 58 C30 58 40 10 98 4"/></svg>
+   </div>
+   <p class="viewer-cap">The clip is the raw O-Hive capture it was reconstructed from. Frames go through the depth network (the one I quantized and compiled to RTL), are back-projected through the calibrated pinhole model, and stitched into a standalone cloud you can orbit. The gold slice is a focal plane sweeping through depth as you scroll.</p>
+  </div>
+ </div>
+</header>
+
+<section id="about" class="p-about">
+ <div class="wrap about">
+  <figure class="me"><img src="assets/img/me.jpg" alt="Zain Usmani" width="600" height="600"><figcaption>Zain Usmani · Windsor, Ontario</figcaption></figure>
+  <div>
+   <div class="tag">About</div>
+   <h1>Zain Usmani</h1>
+   <p class="lead">Third-year Electrical and Computer Engineering student at the University of Windsor, minoring in Computer Science.</p>
+   <p>Hardware is where I start. I like the parts of a system you can put a probe on: RTL on an FPGA, a board powering up for the first time, a bus that only works once the pull-ups are right. The work I'm proudest of is an FPGA flight computer that keeps flying when its link drops, and taking a depth network from a cloud GPU toward synthesizable hardware.</p>
+   <p>Next come computer vision, edge computing and embedded systems, usually where they meet the hardware: depth estimation that has to fit in 4 GB, sensor firmware that can't silently drop samples, autonomy code with a 33 ms budget per frame.</p>
+   <p>I'm drawn to things that are just starting. I'd rather join a new team, a new initiative or an idea nobody has built yet, and help turn it into something that works, than join something already finished.</p>
+   <p>Away from the bench, I play soccer whenever I can.</p>
+   <div class="now"><b>Right now</b><ul><li>Designing a RISC-V matrix accelerator (4×4 INT8 systolic array)</li><li>Finishing an 8-bit pipelined CPU, with a live demo planned for this site</li><li>Formula Electric: autonomy lead and embedded developer</li></ul></div>
+   <div class="cta"><a class="btn pri" href="mailto:zain.usmani10@gmail.com">Email</a><a class="btn" href="https://www.linkedin.com/in/zain-usmani-" target="_blank" rel="noopener">LinkedIn ↗</a><a class="btn" href="https://github.com/Zain-Usmani10" target="_blank" rel="noopener">GitHub ↗</a><a class="btn" href="https://devpost.com/zain-usmani10" target="_blank" rel="noopener">Devpost ↗</a></div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= INTERSTELLAR ================= -->
+<section id="interstellar" class="dark">
+ <div class="stars"></div>
+ <img class="art art-orbits" src="assets/art/orbits.svg" alt="" aria-hidden="true">
+ <div class="wrap">
+  <div class="wave" data-w="{&quot;t&quot;: &quot;uart_rx · one command frame, 115200 baud&quot;, &quot;rows&quot;: [{&quot;n&quot;: &quot;clk&quot;, &quot;k&quot;: &quot;clk&quot;}, {&quot;n&quot;: &quot;rx_byte&quot;, &quot;k&quot;: &quot;bus&quot;, &quot;v&quot;: [&quot;idle&quot;, &quot;A5&quot;, &quot;5A&quot;, &quot;ver&quot;, &quot;type&quot;, &quot;seq&quot;, &quot;seq&quot;, &quot;sess&quot;, &quot;len&quot;, &quot;payload&quot;, &quot;crc&quot;, &quot;crc&quot;, &quot;idle&quot;]}, {&quot;n&quot;: &quot;byte_valid&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;0111111111110&quot;}, {&quot;n&quot;: &quot;crc_ok&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;0000000000011&quot;, &quot;hot&quot;: 1}]}" aria-hidden="true"></div>
+
+  <div class="sec-head">
+   <div class="sec-num">01 / Flight hardware</div>
+   <div>
+    <h2 class="kerf">Interstellar: FPGA flight computer</h2>
+    <div class="meta rv"><b>Interstellar · FPGA flight computer</b> · Hack the Nest 2026 · team of four · November 2026</div>
+    <p class="intro rv">A laptop plans the mission from NASA/JPL Horizons data. An FPGA flies it from a 28-byte plan, including through a deliberate link blackout. I built the flight computer in Verilog, the serial protocol and ESP32S3 bridge, and the Python backend and orbit maths.</p>
+   </div>
+  </div>
+
+  <div class="demo rv" id="idemo">
+   <div class="demo-head">
+    <div><div class="tag">Live demo · mission control and FPGA cockpit</div><div class="demo-state" id="dState">Docked at Earth</div></div>
+    <div class="demo-ctl">
+     <button class="btn pri sm" id="dLaunch">Launch Earth → Mars</button>
+     <button class="sw" id="dSw0" aria-pressed="false" title="Corrupt one of the three copies">SW0</button>
+     <button class="sw" id="dSw1" aria-pressed="false" title="Make all three copies disagree">SW1</button>
+     <button class="sw" id="dReset">Reset</button>
+    </div>
+   </div>
+   <div class="demo-grid">
+    <figure class="screen s3d" id="dl3d">
+     <canvas aria-label="3D view of the shuttle launching from Earth toward Mars. Drag to orbit, scroll to zoom, right-drag to pan."></canvas>
+     <div class="scap">MISSION CONTROL · LAPTOP</div>
+     <div class="shud"><span id="dDate">2026-11-15</span><span id="dDays">—</span><span class="link" id="dLink"><i></i><span id="dLinkT">FPGA · link active</span></span></div>
+     <div class="banner" id="dBanner"></div>
+     <div class="orbit-hint" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahB" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahB)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahB)"/></g></svg><span>360° · drag to orbit<br>scroll to zoom · right-drag to pan</span></div>
+     <div class="nogl-msg">3D view needs WebGL. Photos of the real app are below.</div>
+    </figure>
+    <figure class="screen vga">
+     <div class="bezel"><canvas id="dVga" width="320" height="240" aria-label="Emulated FPGA VGA cockpit showing the board's own state"></canvas></div>
+     <div class="scap">SHUTTLE COMPUTER · DE10-LITE VGA</div>
+    </figure>
+   </div>
+   <div class="dtl"><div class="dbar" id="dBar"><i id="dFill"></i><span class="bo" style="left:calc(25% + 5%*.25);width:calc(75%*.6)"></span></div>
+    <div class="dlab"><span>countdown 5 s</span><span>departure burn</span><span class="c">blackout · 25–85 % of flight</span><span>capture burn</span></div></div>
+   <p class="ocap">Left is what mission control knows: only what the board has reported, and during the blackout just a dashed estimate. Right is the board's own VGA cockpit, which always shows the truth: state, days to arrival, fuel cells, the three memory copies (A B C), the burn record and the tick counter in binary. Flip <b>SW1</b> during the blackout and only the right screen knows, until contact returns. Rebuilt for this page in Three.js and canvas from the real protocol and timing (flight compressed to 15 s); the hackathon app's 3D frontend was a teammate's.</p>
+  </div>
+
+  <div class="explore rv">
+   <div class="demo-head"><div><div class="tag">Live demo · solar system explorer</div><div class="demo-state">Planet positions for today</div></div>
+    <div class="planetbar" id="dsolarBar"><button data-p="Overview" aria-pressed="true">Overview</button><button data-p="Mercury">Mercury</button><button data-p="Venus">Venus</button><button data-p="Earth">Earth</button><button data-p="Mars">Mars</button><button data-p="Jupiter">Jupiter</button><button data-p="Saturn">Saturn</button></div></div>
+   <figure class="screen solar" id="dsolar">
+    <canvas aria-label="Free-roam 3D solar system. Drag to orbit, scroll to zoom, right-drag to pan."></canvas>
+    <div class="labels" id="dsolarLabels"></div>
+    <div class="orbit-hint" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahC" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahC)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahC)"/></g></svg><span>360° · drag to orbit<br>scroll to zoom · right-drag to pan</span></div>
+    <div class="nogl-msg">3D view needs WebGL.</div>
+   </figure>
+   <p class="ocap">Positions from mean orbital elements (approximate), radii compressed so Saturn fits. The dashed gold arc is an Earth → Mars transfer of the kind the backend solves with Lambert's problem. Planet textures: Solar System Scope, CC BY 4.0.</p>
+  </div>
+
+  <div class="mission">
+   <div>
+    <h3 class="col-h rv">On the board · Verilog, DE10-Lite</h3>
+    <ul class="list rv">
+     <li><b>Mission sequencer</b>: a 7-state machine (IDLE, LOADED, ARMED, RUNNING, SAFE, COMPLETE, ABORTED) on an Intel MAX 10, booting from its own flash. Each burn fires at most once, at or after its scheduled tick, and deducts from an integer fuel ledger in grams.</li>
+     <li><b>Triple modular redundancy</b>: state, burn record, fuel and burn ticks stored three times and read through a majority voter. Proven on the real board: SW0 corrupted one copy, it was outvoted and the mission completed; SW1 made all three disagree and the board latched SAFE with no capture burn.</li>
+     <li><b>Autonomy</b>: nothing in flight depends on a message. A link watchdog calls the link lost after 2 s without the twice-a-second keep-alive, and only drives the displays.</li>
+     <li><b>Fixed mission clock</b>: 100 ticks per second for every plan, 5 s countdown, 30 s of flight, 3 s tail. Days to arrival in integer-only arithmetic, so board and laptop agree to the day with no floating point on the FPGA.</li>
+     <li><b>Cockpit</b>: six seven-segment digits plus the 640×480 VGA cockpit emulated above.</li>
+    </ul>
+   </div>
+   <div>
+    <h3 class="col-h rv">On the wire and the ground · protocol, Python</h3>
+    <ul class="list rv">
+     <li><b>Binary protocol</b> at 115200 baud: A5 5A sync, version, type, 16-bit sequence, 32-bit session, length, payload and CRC-16/CCITT-FALSE. A 28-byte plan in, a 40-byte STATUS out ten times a second.</li>
+     <li><b>Stop-and-wait, idempotent commands</b>: one in flight, each answered by a 16-byte ACK; a repeat with the same sequence is acknowledged but never applied twice, so a retry can't fire a burn twice.</li>
+     <li><b>Golden frames</b> shared byte for byte between the Python tests and the Verilog testbenches. The XIAO ESP32S3 bridge only passes bytes and is checked by a link probe before every hardware run.</li>
+     <li><b>Orbit maths</b>: Lambert transfers on Horizons state vectors, burns from patched conics, fuel from the rocket equation; 13 routes and 38 flight options, each re-flown with SciPy DOP853 and Radau to arrive within 10 km.</li>
+     <li><b>Backend</b>: FastAPI and WebSockets with one thread owning the serial port, a board simulator, the 25–85 % blackout with labelled estimates, and over 400 tests.</li>
+    </ul>
+   </div>
+  </div>
+
+  <div class="stats rv" style="margin-top:48px">
+   <div><b>28 B</b><span>mission plan: ticks and fuel only, no planets, no floats</span></div>
+   <div><b>100 Hz</b><span>mission tick, the same for every trip length</span></div>
+   <div><b>3 × 1</b><span>copies of every flight-critical value, one majority vote</span></div>
+   <div><b>400+</b><span>backend tests; 38 flight options re-flown independently</span></div>
+  </div>
+
+  <div class="photos rv">
+   <figure class="p-wide" data-ph data-lb="Demo setup: DE10-Lite driving the VGA cockpit on the monitor, the laptop running mission control."><img src="assets/img/inter_setup.jpg" alt="Demo setup with the FPGA board, a VGA monitor showing the cockpit, and the laptop" loading="lazy"><figcaption class="ov">board, VGA cockpit, mission control</figcaption></figure>
+   <figure class="p-tall" data-ph data-lb="Terasic DE10-Lite with the XIAO ESP32S3 bridge on header JP1 and the VGA cable."><img src="assets/img/inter_fpga_board.jpg" alt="DE10-Lite FPGA board with seven-segment digits lit and a VGA cable" loading="lazy"><figcaption class="ov">DE10-Lite + XIAO bridge</figcaption></figure>
+   <figure data-ph data-lb="Mission control overview: the solar system on 17 March 2027, link active."><img src="assets/img/inter_overview.jpg" alt="Interstellar app overview of the solar system with a transfer path" loading="lazy"><figcaption class="ov">overview · link active</figcaption></figure>
+   <figure data-ph data-lb="During the blackout: contact lost, dashed estimate behind the shuttle, link inactive."><img src="assets/img/inter_blackout.jpg" alt="Interstellar app during blackout with a dashed estimated path" loading="lazy"><figcaption class="ov">blackout · estimate only</figcaption></figure>
+   <figure class="p-tall" data-ph data-lb="Mars selected: NASA facts, the control station and the docked shuttles."><img src="assets/img/inter_mars_surface.jpg" alt="Interstellar app Mars surface view with docked shuttles" loading="lazy"><figcaption class="ov">Mars · docked fleet</figcaption></figure>
+  </div>
+  <div class="cta rv" style="margin-top:22px">
+   <a class="btn" href="https://github.com/Zain-Usmani10/Interstellar" target="_blank" rel="noopener">Source on GitHub ↗</a>
+   <a class="btn" href="https://devpost.com/software/interstellar-dj7zbw" target="_blank" rel="noopener">Devpost ↗</a>
+   <span class="btn" style="border-style:dashed;color:var(--mut)">Verilog · Quartus · MAX 10 · ESP32S3 · Python · FastAPI · SciPy</span>
+  </div>
+ </div>
+</section>
+
+<!-- ================= O-HIVE ================= -->
+<section id="ohive" class="band">
+ <div class="wrap">
+  <div class="wave" data-w="{&quot;t&quot;: &quot;nv12 frame buffer · luminance plane first, chroma after&quot;, &quot;rows&quot;: [{&quot;n&quot;: &quot;clk&quot;, &quot;k&quot;: &quot;clk&quot;}, {&quot;n&quot;: &quot;buf_addr&quot;, &quot;k&quot;: &quot;bus&quot;, &quot;v&quot;: [&quot;Y0&quot;, &quot;Y1&quot;, &quot;Y2&quot;, &quot;Y3&quot;, &quot;…&quot;, &quot;Y(n)&quot;, &quot;U0V0&quot;, &quot;U1V1&quot;, &quot;…&quot;, &quot;UV(n/4)&quot;]}, {&quot;n&quot;: &quot;to_cpu&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;1111110000&quot;}, {&quot;n&quot;: &quot;to_fpga&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;1111111111&quot;, &quot;hot&quot;: 1}]}" aria-hidden="true"></div>
+
+  <div class="sec-head">
+   <div class="sec-num">02 / Industry</div>
+   <div>
+    <h2 class="kerf">O-Hive: depth network to FPGA</h2>
+    <div class="meta rv"><b>FPGA and Hardware Engineering Co-op</b> · O-Hive, Windsor, ON · April – August 2026</div>
+    <p class="intro rv">O-Hive builds humanoid cobot arms. I moved their depth network from a cloud GPU toward on-board hardware: quantized it, generated RTL, fixed synthesis so buffers map to BRAM, brought up the Kria KV260 and camera, and designed the arm power distribution. I also built the vision pipeline. Team of three.</p>
+   </div>
+  </div>
+
+  <div class="stats rv t-hw" style="margin-bottom:56px">
+   <div><b><em class="ct" data-count="461920">461,920</em></b><span>logic cells in the synthesized depth-network netlist</span></div>
+   <div><b><em class="ct" data-count="162188">162,188</em></b><span>discrete flip-flops (35 %) found where memories should be, and moved to BRAM</span></div>
+   <div><b><em class="ct" data-count="92">92</em>×</b><span>fewer parameters: 350M transformer to 3.8M CNN, then INT8 (4× less weight storage)</span></div>
+   <div><b><em class="ct" data-count="240">240</em> A</b><span>arm distribution, sized over a 168 A actuator peak on a 48 V bus</span></div>
+  </div>
+
+<div class="t-hw">
+  <div class="sub-h" style="margin-top:0">
+   <h3 class="kerf">Network to RTL</h3>
+   <p class="rv">The depth network, shrunk to a pure CNN, quantized and compiled to RTL for a custom-chip gate estimate.</p>
+  </div>
+  <div class="chain rv">
+   <div class="lk"><small>MODEL</small><b>FastDepth</b><span>3.8M params, MobileNet + NNConv5, PyTorch</span></div><div class="ar">→</div>
+   <div class="lk"><small>QUANTIZE</small><b>Brevitas INT8</b><span>FP32 → 8-bit weights, 4× less storage, exported to QONNX</span></div><div class="ar">→</div>
+   <div class="lk"><small>GENERATE</small><b>cgra4ml RTL</b><span>SystemVerilog accelerator for the network</span></div><div class="ar">→</div>
+   <div class="lk hl"><small>SYNTHESIZE</small><b>Yosys netlist</b><span>461,920 cells, 162,188 flip-flops, 0 memories inferred</span></div><div class="ar">→</div>
+   <div class="lk hl"><small>FIX</small><b>Buffers → BRAM</b><span>register arrays rewritten as synchronous-read memory macros</span></div><div class="ar">→</div>
+   <div class="lk"><small>ESTIMATE</small><b>UMC 22nm</b><span>credible gate-equivalent area estimate</span></div>
+  </div>
+  <p class="cap rv" style="margin-top:12px">Root cause: the on-chip weight and activation buffers were written as register arrays Yosys could not infer as memory, so every bit became its own flip-flop.</p>
+
+  <div class="sub-h">
+   <h3 class="kerf">Bringing up the Kria KV260</h3>
+   <p class="rv">13 MP camera into one buffer, shared by the FPGA depth accelerator and a CPU tracker.</p>
+  </div>
+  <div class="fork tilt">
+   <div class="forkscroll"><svg viewBox="0 0 640 300" role="img" aria-label="Kria memory fork: AR1335 camera to GStreamer NV12 buffer, split by a C++ memory fork into luminance for SVO tracking on the CPU and RGB for FastDepth on the FPGA.">
+    <defs>
+     <linearGradient id="gA" x1="0" x2="1"><stop offset="0" stop-color="#9c2f45"/><stop offset="1" stop-color="#9c3a24"/></linearGradient>
+    </defs>
+    <g font-family="JetBrains Mono, monospace" font-size="11" fill="#1b1915">
+     <rect x="8" y="122" width="118" height="56" rx="9" fill="#f3eee4" stroke="#c9bca5"/>
+     <text x="67" y="145" text-anchor="middle">AR1335 MIPI</text><text x="67" y="163" text-anchor="middle" fill="#6f675a" font-size="10">13 MP · IAS 0</text>
+     <rect x="160" y="122" width="118" height="56" rx="9" fill="#f3eee4" stroke="#c9bca5"/>
+     <text x="219" y="145" text-anchor="middle">GStreamer</text><text x="219" y="163" text-anchor="middle" fill="#6f675a" font-size="10">NV12 · 12 bpp</text>
+     <rect x="312" y="116" width="120" height="68" rx="9" fill="#f6e7d6" stroke="url(#gA)" stroke-width="1.5"/>
+     <text x="372" y="143" text-anchor="middle" fill="#9c2f45">C++ memory</text><text x="372" y="160" text-anchor="middle" fill="#9c2f45">fork</text>
+     <rect x="470" y="34" width="160" height="64" rx="9" fill="#f3eee4" stroke="#c9bca5"/>
+     <text x="550" y="59" text-anchor="middle">CPU · SVO 2.0</text><text x="550" y="77" text-anchor="middle" fill="#6f675a" font-size="10">grayscale pose tracking</text>
+     <rect x="470" y="202" width="160" height="64" rx="9" fill="#f3eee4" stroke="#c9bca5"/>
+     <text x="550" y="227" text-anchor="middle">FPGA · FastDepth</text><text x="550" y="245" text-anchor="middle" fill="#6f675a" font-size="10">INT8 depth inference</text>
+     <text x="446" y="112" fill="#b8892f" font-size="10">Y plane (2/3)</text>
+     <text x="452" y="196" fill="#9c3a24" font-size="10">RGB</text>
+    </g>
+    <g fill="none" stroke-width="1.6">
+     <path class="flow" d="M126 150 H160" stroke="#9a907f"/>
+     <path class="flow" d="M278 150 H312" stroke="#9a907f"/>
+     <path class="flow" d="M432 140 C455 140 450 66 470 66" stroke="#b8892f"/>
+     <path class="flow" d="M432 160 C455 160 450 234 470 234" stroke="#9c3a24"/>
+    </g>
+   </svg></div>
+   <div>
+    <h4>Shared NV12 buffer</h4>
+    <p>Set up an Ubuntu 22.04 Docker workspace for the cross-compilation toolchain, then brought up the KV260 (quad-core Cortex-A53, 4 GB) and ran the cross-compiled binaries in its embedded Linux.</p>
+    <p>Raw 4208×3120 NV12 frames from the AR1335 failed to capture at first; dmesg and GStreamer debug logs traced it to a mismatch between the format the pipeline requested and what the sensor driver output.</p>
+    <p>NV12 already stores luminance as its own plane, two thirds of every frame. My C++ fork sends that plane straight to the CPU for SVO, and only the FPGA's copy pays for RGB conversion.</p>
+    <div class="chips"><span>4208×3120 NV12</span><span>dmesg · GStreamer debug</span><span>C++ · CMake · Docker</span></div>
+   </div>
+  </div>
+
+  <div class="sub-h">
+   <h3 class="kerf">Arm power distribution</h3>
+   <p class="rv">Distribution and regen-clamp schematics for the cobot arms, reviewed over three rounds.</p>
+  </div>
+  <div class="fork tilt power">
+   <div class="forkscroll"><svg viewBox="0 0 640 300" role="img" aria-label="48 volt bus through a 240 amp main breaker to four actuator branches, each with its own breaker, with an ODrive regen clamp and brake resistor on the bus.">
+    <g font-family="JetBrains Mono, monospace" font-size="11" fill="#1b1915">
+     <rect x="10" y="118" width="96" height="64" rx="9" fill="#f3eee4" stroke="#c9bca5"/>
+     <text x="58" y="145" text-anchor="middle">48 V DC</text><text x="58" y="163" text-anchor="middle" fill="#6f675a" font-size="10">servo bus</text>
+     <rect x="140" y="124" width="92" height="52" rx="9" fill="#f6e7d6" stroke="#9c3a24" stroke-width="1.4"/>
+     <text x="186" y="146" text-anchor="middle" fill="#9c2f45">main</text><text x="186" y="162" text-anchor="middle" fill="#9c2f45">240 A</text>
+     <text x="300" y="138" fill="#6f675a" font-size="10">arm trunk · 240 A</text>
+     <g>
+      <rect x="400" y="22" width="70" height="40" rx="7" fill="#f3eee4" stroke="#c9bca5"/><text x="435" y="46" text-anchor="middle" font-size="10">brkr</text>
+      <rect x="400" y="90" width="70" height="40" rx="7" fill="#f3eee4" stroke="#c9bca5"/><text x="435" y="114" text-anchor="middle" font-size="10">brkr</text>
+      <rect x="400" y="158" width="70" height="40" rx="7" fill="#f3eee4" stroke="#c9bca5"/><text x="435" y="182" text-anchor="middle" font-size="10">brkr</text>
+      <rect x="400" y="226" width="70" height="40" rx="7" fill="#f3eee4" stroke="#c9bca5"/><text x="435" y="250" text-anchor="middle" font-size="10">brkr</text>
+      <rect x="510" y="22" width="120" height="40" rx="7" fill="#fbf8f1" stroke="#c9bca5"/><text x="570" y="46" text-anchor="middle" font-size="10">Robstride 04</text>
+      <rect x="510" y="90" width="120" height="40" rx="7" fill="#fbf8f1" stroke="#c9bca5"/><text x="570" y="114" text-anchor="middle" font-size="10">Robstride 04</text>
+      <rect x="510" y="158" width="120" height="40" rx="7" fill="#fbf8f1" stroke="#c9bca5"/><text x="570" y="182" text-anchor="middle" font-size="10">Robstride 04</text>
+      <rect x="510" y="226" width="120" height="40" rx="7" fill="#fbf8f1" stroke="#c9bca5"/><text x="570" y="250" text-anchor="middle" font-size="10">Robstride 03</text>
+     </g>
+     <rect x="236" y="226" width="130" height="52" rx="9" fill="#eef1f6" stroke="#1b2540"/>
+     <text x="301" y="248" text-anchor="middle" fill="#1b2540">ODrive regen</text><text x="301" y="264" text-anchor="middle" fill="#1b2540" font-size="10">clamp + resistor</text>
+     <text x="16" y="290" fill="#9a907f" font-size="10">peak load 168 A per arm · 1.43× margin</text>
+    </g>
+    <g fill="none" stroke-width="1.6">
+     <path class="flow" d="M106 150 H140" stroke="#9a907f"/>
+     <path d="M232 150 H370" stroke="#9c3a24" stroke-width="2.4"/>
+     <path class="flow" d="M370 150 V42 H400 M370 110 H400 M370 150 V178 H400 M370 178 V246 H400" stroke="#9a907f"/>
+     <path class="flow" d="M470 42 H510 M470 110 H510 M470 178 H510 M470 246 H510" stroke="#9a907f"/>
+     <path class="flow" d="M300 150 V226" stroke="#1b2540"/>
+    </g>
+   </svg></div>
+   <div>
+    <h4>Load sizing and protection</h4>
+    <p>Each arm runs four actuators (three Robstride 04, one Robstride 03) on a 48 V bus. A load table of every actuator's peak current summed to 168 A per arm; I rated the distribution for 240 A, picked the main breaker, and checked the ampacity of every conductor segment.</p>
+    <p>When an arm decelerates or is back-driven by a person, the motors become generators and push energy onto the bus, which a DC supply can't sink. ODrive regen clamps switch in a brake resistor once the bus rises past threshold.</p>
+    <p>One review revision added a breaker per actuator branch, so a single shorted actuator trips only its own branch, not the whole arm.</p>
+    <div class="chips"><span>load table · 168 A peak</span><span>240 A rating</span><span>regen clamp</span><span>branch protection</span></div>
+   </div>
+  </div>
+
+</div>
+<div class="t-cv">
+  <div class="sub-h">
+   <h3 class="kerf">Vision pipeline</h3>
+   <p class="rv">Calibration to rendering. The point cloud at the top of the page is stage 04.</p>
+  </div>
+  <div class="pipe" role="tablist" aria-label="Pipeline stages" id="pipe">
+   <span class="fill" id="pipefill"></span>
+   <button class="stage" role="tab" data-s="0"><span class="dot">01</span><b>Calibrate</b><small>focal length</small></button>
+   <button class="stage" role="tab" data-s="1"><span class="dot">02</span><b>Depth</b><small>per-pixel metres</small></button>
+   <button class="stage" role="tab" data-s="2"><span class="dot">03</span><b>Pose</b><small>camera motion</small></button>
+   <button class="stage" role="tab" data-s="3"><span class="dot">04</span><b>Project</b><small>pixels → points</small></button>
+   <button class="stage" role="tab" data-s="4"><span class="dot">05</span><b>Render</b><small>cloud + splats</small></button>
+  </div>
+  <div class="stage-panel tilt" role="tabpanel" id="stagepanel">
+   <div class="stage-body" id="stagetext"></div>
+   <div class="stage-body" id="stagemedia"></div>
+  </div>
+</div>
+ </div>
+</section>
+
+<!-- ================= FSAE ================= -->
+<section id="fsae">
+ <div class="wave side" data-w="{&quot;t&quot;: &quot;i2c · 400 kHz · temperature read&quot;, &quot;rows&quot;: [{&quot;n&quot;: &quot;scl&quot;, &quot;k&quot;: &quot;clk&quot;}, {&quot;n&quot;: &quot;sda&quot;, &quot;k&quot;: &quot;bus&quot;, &quot;v&quot;: [&quot;START&quot;, &quot;0x48&quot;, &quot;W&quot;, &quot;ACK&quot;, &quot;reg&quot;, &quot;ACK&quot;, &quot;Sr&quot;, &quot;0x48&quot;, &quot;R&quot;, &quot;data&quot;, &quot;NACK&quot;, &quot;STOP&quot;]}, {&quot;n&quot;: &quot;ack&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;000101000010&quot;, &quot;hot&quot;: 1}]}" aria-hidden="true"></div>
+
+ <div class="wrap">
+  <div class="sec-head">
+   <div class="sec-num">03 / Motorsport</div>
+   <div>
+    <h2 class="kerf">Formula Electric SAE</h2>
+    <div class="meta rv"><b>Two roles</b> · Lancer Motorsport, Windsor, ON · December 2024 – present</div>
+    <p class="intro rv">Fully electric race car, 120 km/h. I own the sensor drivers and telemetry, and lead the autonomy team of five engineering students.</p>
+   </div>
+  </div>
+  <div class="tabs rv" role="tablist" id="tabs">
+   <span class="pillbg" id="pillbg"></span>
+   <button role="tab" aria-selected="true" aria-controls="t-emb" id="b-emb">Embedded Systems Developer</button>
+   <button role="tab" aria-selected="false" aria-controls="t-auto" id="b-auto">Autonomous Navigation Lead</button>
+  </div>
+  <div class="tabpanel" role="tabpanel" id="t-emb" aria-labelledby="b-emb">
+   <div>
+    <div class="role">Drivers, telemetry, signal integrity</div>
+    <div class="when">Embedded C · SPI · I2C · Qt · SQLite · CI</div>
+    <ul class="list">
+     <li>Real-time telemetry sampling 11 vehicle-dynamics channels at 50 Hz (550 samples per second on a 20 ms period), logged to onboard storage and shown on a Qt dashboard on RPi OS.</li>
+     <li>Low-level C drivers: SPI at 1 MHz for the 6-axis IMU and the 12-bit ADC on the suspension potentiometers, I2C in 400 kHz fast mode for temperature and pressure.</li>
+     <li>I2C reads failed on the full vehicle harness. On the scope, SDA and SCL rose in about 450 ns, past the 300 ns fast-mode limit: harness capacitance against 10 kΩ pull-ups. Swapped to 2.2 kΩ, measured rise times back under 300 ns, and the errors stopped.</li>
+     <li>Dashboard memory climbed over long sessions: the driver allocated a read buffer per sample and never freed it on the error path. Gave every buffer a single owner, freed on every return path, and memory stayed flat.</li>
+     <li>CI gate: every merge to main must pass 14 hardware unit tests (one per channel, SPI init, I2C init, logging integrity). It caught an SPI configuration change that would have broken IMU reads.</li>
+    </ul>
+   </div>
+   <div>
+    <div class="dataflow">
+     <div class="title">Sensor → report</div>
+     <div class="node"><span>IMU · ADC · temp · pressure</span><em>11 channels</em></div>
+     <div class="wire"></div>
+     <div class="split"><div class="node"><span>SPI</span><em>1 MHz</em></div><div class="node"><span>I2C</span><em>400 kHz</em></div></div>
+     <div class="wire"></div>
+     <div class="node"><span>Custom C drivers</span><em>50 Hz · 20 ms</em></div>
+     <div class="wire"></div>
+     <div class="split"><div class="node"><span>Qt dashboard</span><em>RPi OS</em></div><div class="node"><span>SQLite log</span><em>on-board</em></div></div>
+     <div class="wire"></div>
+     <div class="node"><span>pandas reports</span><em>45 min → 2 min</em></div>
+    </div>
+    <div class="stats">
+     <div><b>450 → &lt;300 ns</b><span>I2C rise time after the pull-up fix</span></div>
+     <div><b>14</b><span>hardware unit tests gate main</span></div>
+     <div><b>550 /s</b><span>samples across 11 channels</span></div>
+     <div><b>&lt;2 min</b><span>per session report, down from ~45</span></div>
+    </div>
+   </div>
+  </div>
+  <div class="tabpanel" role="tabpanel" id="t-auto" aria-labelledby="b-auto" hidden>
+   <div>
+    <div class="role">Cone detection to steering control</div>
+    <div class="when">Computer vision · C++ control · Linux services</div>
+    <ul class="list">
+     <li>Leading a team of 5 engineering students in research and development: sourcing and labelling cone datasets, training detection models, benchmarking navigation algorithms before committing to the car.</li>
+     <li>Python vision that finds the blue and yellow cones marking the track, plus obstacles, from a 30 fps camera: a 33 ms budget per frame.</li>
+     <li>Every change runs against simulated sensor data from 30 track scenarios (hairpins, slaloms, missing or knocked-over cones) and only moves forward if nothing regresses.</li>
+     <li>Real-time C++ control on a Nano C100 Okdo (quad-core A57, 4 GB) as Linux services that start at boot and restart on crash, commanding steering and braking through vehicle firmware.</li>
+     <li>The frame queue grew without bound whenever processing fell behind the camera. Replaced it with a preallocated fixed-size ring buffer that drops stale frames, so control always acts on the newest frame with constant memory.</li>
+    </ul>
+   </div>
+   <div>
+    <div class="dataflow">
+     <div class="title">Perception → actuation</div>
+     <div class="node"><span>Camera</span><em>30 fps · 33 ms budget</em></div>
+     <div class="wire"></div>
+     <div class="node"><span>Ring buffer</span><em>newest frame wins</em></div>
+     <div class="wire"></div>
+     <div class="node"><span>Python CV</span><em>cones + obstacles</em></div>
+     <div class="wire"></div>
+     <div class="node"><span>C++ control service</span><em>Nano C100 · 4× A57</em></div>
+     <div class="wire"></div>
+     <div class="split"><div class="node"><span>Steering</span></div><div class="node"><span>Braking</span></div></div>
+    </div>
+    <div class="stats">
+     <div><b>5</b><span>engineering students on the autonomy team</span></div>
+     <div><b>30</b><span>simulated track scenarios per change</span></div>
+     <div><b>33 ms</b><span>per-frame processing budget</span></div>
+     <div><b>120 km/h</b><span>vehicle top speed</span></div>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= RESEARCH ================= -->
+<section id="research" class="band">
+ <div class="wrap">
+  <div class="wave" data-w="{&quot;t&quot;: &quot;ble notify · a missing sequence number marks the dropped sample&quot;, &quot;rows&quot;: [{&quot;n&quot;: &quot;clk&quot;, &quot;k&quot;: &quot;clk&quot;}, {&quot;n&quot;: &quot;pkt.seq&quot;, &quot;k&quot;: &quot;bus&quot;, &quot;v&quot;: [&quot;40&quot;, &quot;41&quot;, &quot;42&quot;, &quot;43&quot;, &quot;45&quot;, &quot;46&quot;, &quot;47&quot;, &quot;48&quot;, &quot;49&quot;]}, {&quot;n&quot;: &quot;gap&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;000010000&quot;, &quot;hot&quot;: 1}]}" aria-hidden="true"></div>
+
+  <div class="sec-head">
+   <div class="sec-num">04 / Research</div>
+   <div>
+    <h2 class="kerf">Gait classification from a wearable IMU</h2>
+    <div class="meta rv"><b>Embedded Systems Research Intern</b> · Micro-Nano Mechatronics Lab, Windsor · May – December 2025</div>
+   </div>
+  </div>
+  <div class="research">
+   <div class="mosaic rv">
+    <figure class="tall" data-ph><img src="assets/img/gait_shoe.jpg" alt="Running shoe instrumented with an IMU and pressure sensors" loading="lazy"><figcaption class="ov">instrumented shoe</figcaption></figure>
+    <figure data-ph><img src="assets/img/gait_sketch.jpg" alt="Hand-drawn system sketch of the gait device" loading="lazy" style="aspect-ratio:4/3;object-position:center 30%"><figcaption class="ov">system sketch</figcaption></figure>
+    <figure data-ph><img src="assets/img/gait_insole_cad.jpg" alt="CAD model of the sensor insole plate" loading="lazy" style="aspect-ratio:4/3"><figcaption class="ov">insole CAD</figcaption></figure>
+   </div>
+   <div>
+    <p class="intro rv" style="font-size:17px;color:var(--fg2);margin-bottom:22px">IMU firmware, data pipeline and classifier. Co-authoring the biomechanics paper.</p>
+    <ul class="list rv">
+     <li>ESP32 Bluetooth Low Energy firmware in C++ streaming 6-axis IMU data at 50 Hz, one sample every 20 ms.</li>
+     <li>Early recordings had gaps and bursts: when the radio was busy, notifications queued faster than connection events could send them. Added a firmware ring buffer to ride out latency spikes and a sequence number on every packet, so lost samples are detected, not silently stitched over.</li>
+     <li>Recorded 8 participants; Python sanitization used the sequence numbers to flag gaps and dropped readings saturated at full scale (about 5 %).</li>
+     <li>Features from 16,000 samples with pandas and NumPy; XGBoost and KNN reached 78.9 F1 under 5-fold cross-validation, against 61 for a threshold baseline.</li>
+    </ul>
+    <div class="stats rv" style="grid-template-columns:repeat(3,1fr);margin-top:26px">
+     <div><b><em class="ct" data-count="78.9">78.9</em></b><span>F1 (baseline 61)</span></div>
+     <div><b><em class="ct" data-count="16000">16,000</em></b><span>sensor samples</span></div>
+     <div><b>50 Hz</b><span>BLE IMU stream</span></div>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ================= PROJECTS ================= -->
+<section id="projects">
+ <svg class="side-sch" viewBox="0 0 250 130" aria-hidden="true">
+ <text x="0" y="9" class="ttl">half adder · S = A ⊕ B · C = A · B</text>
+ <g class="d-g">
+  <path class="d" pathLength="1" d="M18 32H100M60 32V92H100M18 112H100M78 112V52H100"/>
+  <path class="d" pathLength="1" d="M100 22q14 20 0 40q34 0 52-20q-18-20-52-20zM94 22q14 20 0 40"/>
+  <path class="d" pathLength="1" d="M100 82h22a20 20 0 0 1 0 40h-22z"/>
+  <path class="d hot" pathLength="1" d="M152 42H230M142 102H230"/>
+ </g>
+ <circle cx="60" cy="32" r="2.4"/><circle cx="78" cy="112" r="2.4"/>
+ <text x="2" y="36" class="lbl">A</text><text x="2" y="116" class="lbl">B</text>
+ <text x="236" y="46" class="lbl">S</text><text x="236" y="106" class="lbl">C</text>
+</svg>
+
+ <img class="art art-traces" src="assets/art/traces.svg" alt="" aria-hidden="true">
+ <div class="wrap">
+  <div class="wave" data-w="{&quot;t&quot;: &quot;8-bit cpu · forwarding into ADD, one-instruction flush after JUMP&quot;, &quot;rows&quot;: [{&quot;n&quot;: &quot;clk&quot;, &quot;k&quot;: &quot;clk&quot;}, {&quot;n&quot;: &quot;instr&quot;, &quot;k&quot;: &quot;bus&quot;, &quot;v&quot;: [&quot;LDI R0&quot;, &quot;LDI R1&quot;, &quot;ADD R0,R1&quot;, &quot;IFEQ&quot;, &quot;JUMP&quot;, &quot;flushed&quot;, &quot;LDI R2&quot;, &quot;HALT&quot;]}, {&quot;n&quot;: &quot;fwd&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;00100000&quot;}, {&quot;n&quot;: &quot;flush&quot;, &quot;k&quot;: &quot;bit&quot;, &quot;v&quot;: &quot;00000100&quot;, &quot;hot&quot;: 1}]}" aria-hidden="true"></div>
+
+  <div class="sec-head">
+   <div class="sec-num">05 / Projects</div>
+   <div>
+    <h2 class="kerf">Projects</h2>
+    <p class="intro rv">Grouped by discipline. Open a row for details.</p>
+   </div>
+  </div>
+  <div id="plist"></div>
+ </div>
+</section>
+
+<!-- ================= STACK ================= -->
+<section id="stack" class="band">
+ <img class="art art-clock" src="assets/art/clock.svg" alt="" aria-hidden="true">
+ <div class="wrap">
+  <div class="sec-head">
+   <div class="sec-num">06 / Stack</div>
+   <div><h2 class="kerf">Skills and education</h2></div>
+  </div>
+  <div class="edu rv">
+   <div><b>University of Windsor</b><p>BASc Electrical and Computer Engineering, Co-op stream · Minor in Computer Science · expected 2028</p></div>
+   <div class="gpa">3.7<small>GPA / 4.0</small></div>
+  </div>
+  <div class="skills" id="skills"></div>
+  <p class="concepts rv"><b>Concepts:</b> RTL microarchitecture, finite state machines, pipelining, operand forwarding and hazard handling, BRAM inference, static timing, triple modular redundancy and fault injection, watchdog timers, CRC error detection, stop-and-wait protocols, golden-reference testing, fixed-point and integer arithmetic, memory-mapped I/O, DMA, AXI4, ring buffers and buffer ownership, signal integrity, power distribution and ampacity, branch protection, regenerative braking and back EMF, isolated power rails, small-signal MOSFET and BJT design, frequency response and the Miller effect, negative feedback, orbital mechanics (Lambert, patched conics, rocket equation), sensor fusion, camera calibration, PID control.</p>
+  <div class="beyond">
+   <div class="rv"><b>Campus Tour Ambassador</b><em>University of Windsor · Dec 2024 – present</em><p>Weekly campus tours for groups of up to 50 prospective engineering students and families.</p></div>
+   <div class="rv"><b>ECE Student Representative</b><em>Dept. of ECE · Sep 2024 – present</em><p>Advocates for undergraduate safety and academic interests at monthly departmental council meetings.</p></div>
+   <div class="rv"><b>Naval Reserve Sailor</b><em>Royal Canadian Navy · Feb – Nov 2024</em><p>Ten months of strict operational-security and physical-safety protocols in maritime environments.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="contact" id="contact">
+ <div class="glow"></div>
+ <div class="wrap">
+  <div class="tag rv">07 / Contact</div>
+  <h2 id="contactH" style="margin-top:18px" aria-label="Contact"><span class="cl1">Contact</span></h2>
+  <a class="mail rv" href="mailto:zain.usmani10@gmail.com">zain.usmani10@gmail.com</a>
+  <div class="clinks rv">
+   <a class="btn" href="tel:+12267876794">(226) 787-6794</a>
+   <a class="btn" href="https://www.linkedin.com/in/zain-usmani-" target="_blank" rel="noopener">LinkedIn ↗</a>
+   <a class="btn" href="https://github.com/Zain-Usmani10" target="_blank" rel="noopener">GitHub ↗</a>
+   <span class="btn" style="border-style:dashed;color:var(--mut)">Ontario, Canada</span>
+  </div>
+ </div>
+</section>
+<footer><div class="wrap"><span>© 2026 Zain Usmani</span><span class="mono">Windsor, Ontario</span></div></footer>
+
+<div id="ph" aria-hidden="true"><div class="rt"></div><div class="rd" id="phr"></div></div>
+<dialog id="lb"><button aria-label="Close" id="lbx">×</button><img id="lbimg" alt=""><p id="lbcap"></p></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="assets/js/interstellar-demo.js" defer></script>
+<script>
+const CLOUD={"w": 168, "h": 94, "zmin": 0.79, "zmax": 1.81, "z": "dHV1dnd3eHh4eXp6e3x8fX5+f3+AgICBgYKCg4OEhYWGh4iIiYmKiouLjIyNjo+PkJGSk5SVlpiZm52foaOlqKqtr7O1srCvr6+vr66urq+vr66qqKalpKOjoqKio6SkpaSko5uJfXl5enx9fX19fn5/f4CBgYKDg4SEhYWGhoaGhYWFhYWFhoeIhn99enh1dXZ4eXh2dXRycnFwb25tbGtqaWdmZGNhcHFxcnJzc3R0dXV2d3d4eXl6e3t8fH19fn5/f4CBgYKDhISFhoaHh4iIiYqKi4yNjo+QkZKUlZeYmpyfoaOlp6qtsLO1rampqamoqKioqKioqaimpaSjoqGhoaCgoaKioaCfmn5zcnNzdHV2dnd3eHh5eXp7e3x9fX5+f3+AgIGBgYGCgoKCgoOFg399e3l3dnd5eXh2dXRzcnFxcG9ubWtqaWhmZWNhbG1ubm9vb3BwcXFyc3N0dHV2dnd3eHl5eXp7e3x9fn5/gIGBgoODhISFhoeHiImKi4yOj5GSlJWYmpyeoKOlp6qtsLS1rKinpqWkpKOioqKjo6OioqGgoJ+fn56en5+fnp2cjHBtbG1tbW5vcHBwcXJyc3R0dXV2dnd4eHl6enp6ent7fHx8fX6AgH59e3l5eHl5eXl3dXV0c3JxcG9ubWxqaWhmZWNhaWlqamtrbGxsbW1ub29wcHFycnNzdHR1dnZ3d3h5ent7fH1+f3+AgYGCg4SFhYeIiYqMjo+RkpWXmZueoKOlqKqtsbS2ramopqWko6Kgn56fnp+enp6enZ2dnZ2dnZ2cm5uZfWppaGhoaGhpampra2xtbW5ub29wcHFycnNzdHR0dHV1dnZ2d3l6e3t7enp5eXl5eXh4dnV1c3JvbWtpaGhqaWhnZWRhZWVmZmdnaGhoaWlqa2tsbG1ubm9vcHBxcnJzc3R1dnd3eHl6e3t9fX5/gIGCg4SFh4iKjI6PkpSWmZueoKOmqKuusbS3r6qop6alo6KhoJ+enZycm5ubm5ubm5ubm5uamZmVd2tpaGZlZGRkZWVlZmdnaGhpaWpqa2tsbG1tbW1ubm9vcHBwcnN0dXV1dXV1dnZ2dnZ2dXV0c29paGZmZWZnaGhnZmNhYGFiYmNjZGRlZWZmZ2doaWlqa2tsbG1tbm9vcHFxcnN0dXV2d3h5ent8fX5/gYKEhoeJi42PkZSWmZueoaSmqayvsra4sayqqKempaSjoaCfnp2cm5qamZmYmJiZmZmZmJeSc2tqaWdmZWRjY2NiYmNjY2RkZWVlZWZmZ2dnaGhoaGlqampsbW5ub29vb3BwcHBwcXFycnJycGtoZmVkZGNjZGZnZWNhXV1eX19gYGFhYWJiY2RkZWZmZ2doaGlqa2tsbW1ub3BwcXJzdHV2d3h5e3x9f4GDhYeIio2PkZSWmZyfoqSnqq2ws7e6s62rqqmop6Wko6KhoJ+enZuamZiXl5aWlpaWlpaRc2xramloZ2ZlZGNiYWFgYGBgYGBhYWFiYmJjY2NjY2RkZWZoaGlpaWpqampra2tra2xsbG1sa2lnZmVkY2JiYmNlZGJhWVpbW1xcXV1eXl5fX2BhYWJjY2RkZWZmZ2hpaWprbG1tbm9wcXJ0dXV3eXp8foCChIaIioyPkZSXmpyfoqWoq66xtLi8uK6trKupqKempKOioaCfnpybmpmYl5aVlZSUk5OOc21sa2loZ2dmZWRkYmFgX15eXV1dXV1eXl5eXl5fX19gYWJjZGRkZGVlZWVlZmZmZmZnZ2dmZmVlZGRiYmJhYWNkY2JgVldXV1hZWVpaWltbXF1eXl9fYGBhYmJjZGVlZmdoaWprbGxtb3BxcnR1d3l6fX+Bg4WIioyPkZSXmp2go6apq66ytbm9vLGvrqyrqqmnpqWjoqGgn52cm5qZmJiXlpWUk5KLc25ta2ppaGdmZmVkY2JhYF9eXVxbWlpaWltbW1tbW1tcXl5eX19fX19fX2BgYGBgYWFhYWFhYWFhYGBgYGBgYGFhYWFfU1NUVFVWVldXV1dYWVlaW1tcXV1eXl9gYWFiY2RlZmdoaWprbG1vcHFzdXd5e36Ag4WHio2PkpWYm56hpKeprK+ztrq9vbKwsK6trKupqKalpKOhoJ+dnJuampmYl5eWlZOKcW9ubGtqaWhnZmZlZGNiYWBfXl1cW1paWVhYWFhXWFhaWlpbW1tbW1taWlpaWlpbW1xcXFxcXFxcXFtbW1xcXFxcXFxcUFBRUVJTU1NUVFVVVldXWFhZWVpbW1xdXl9gYWJiY2RmZ2hpamxtb3BydHZ5e32Ag4WIio2PkpWYm56hpKeqrbCzt7u+vrSxsbCvrayrqqinpaSjoaCfnp2cm5qZmZiXlpSJcm9vbWxramloZ2ZmZWRjYmFgX15dXFtaWllYV1dWV1hbW1paWVhYV1dWVlZWVlZWVldXV1dXV1dXV1dXV1dXV1dXV1dXTU1OTk9PUFBRUVJTU1RUVVZWV1dYWVpaW1xeXl9gYWJkZWZnaWpsbW9xc3V4e32Ag4WIi42Qk5aZnJ+ipairrrG0uLzAv7WzsrGwr66sq6qop6ako6Khn56dnJubmpmYl5aIcnBvbm1sa2ppaGdmZWRjYmFgYF9eXl1cW1paWVdXWFtdXFtbWlhXVlRUU1NSUlJRUlJSUlJSUlJSUlJSU1NTU1NTU1NSSkpKS0xMTU1OTk9QUFFSUlNUVFVWV1dYWVpbXF5eX2FiY2VmaGlrbG5wc3V4e36Ag4aIi46Rk5eanaCjpqmrr7K1ub3Bv7a0tLKxsK+urKuqqKempaOioaCfnp2cm5qZmJaDc3Fwb21sa2tqaWhnZmVkY2JhYWBfXl5dXFtbWllYWl1eXl1cW1pYVlRTUlBPTk5OTU1OTU1NTU1NTU1NTU1OTk5OTU1NR0dHSElJSkpLTExNTk5PUFFRUlNUVFVWV1hZWltdXl9gYmNlZmhqbG5wc3V4e36BhIaJjI+RlJibnqGkp6mtsLO3ur7Cwri2tbSzsrCvrq2rqqmnpqWko6KhoJ+enZybmZeCdHJxcG9ubGxramloZ2ZmZWRjYmFgX15eXVxcW1paW15fX15eXVtaWFZUUlBOTExMS0pKSUlJSEhISEhISUlJSUlJSUlJRERFRUZHR0hISUlKS0xMTU5PUFFRUlNUVVdXWVpbXF5fYGJkZmdpa21wc3Z5e36BhIeJjI+SlZmcn6Klp6qusbW4vL/Exru3trW0s7Kxr66trKqpqKelpKOioaCfnp2cm5iAdXRycW9ubWxsa2ppaGdmZmVkY2JhYF9fXl5dXFpaXWBhYF9fXl5eYm1iV1BOTEtLSklIR0ZFRUVEREREREVFRUREREREQUFCQkNEREVGRkdISUlKS0xNTk9PUFJTVFVWV1haW11eX2FjZWdpa25wdHZ5fH+ChIeKjZCTlpmdoKOlqKuvsra6vcHHy7y5uLe2tbOysbCurayrqainpqWko6KhoJ+dnJd+dnVzcnFwb25tbGtramloZ2ZlZGNiYWBgX15eXVtcX2FiYWFhYWJlhKOdjnVcUExLSklIRkVEQ0JBQUFBQUFBQEA/Pz8/Pj8/QEFBQkNDREVGRkdISUpLTE1OT1BRUlRVVldYWltdX2FjZWdpa25xdHd6fX+ChYiLjpGUl5qdoKOmqa2ws7e7v8PL0L67uri3trW0srGwr62sq6qpp6alpKOioaCfnZd+eHZ1c3JxcG9ubWxsa2ppaGdmZWRjYmFhYF9eXl1eYWNjY2NjZGyBn6qpqKWahm1aTUpIR0VDQkA/Pj0+PT08PDs7Ozs6Ozw8PT4/QEBBQkNEREVGR0hJSktMTU5QUVJUVVdXWVpcXmBiZWdpbG5xdXh6fYCDhYiLj5KVmJueoaSnqq2xtbi8wMbR0r+8u7q5uLa1tLOxsK+urKuqqainpaSjoqGgn5R8eXd1dXNycXBubWxra2pqaWhnZmVkY2JiYWBfX15gY2RlZWVlaoqhqaurqqmnpaOZhG1aS0ZEQkA+PDs6OTk4ODc3NjY2ODk6Ozw8PT4/QEBBQkNERUZHSElKTE1OT1FSVFZXWFpcXmBiZWdqbG9ydXh7foGDhomMj5OWmZyfoqWoq66ytrm9wsvX1cG+vbu6ubi3tbSzsrCvrq2rqqmop6alpKOioZN+enl3dXRzcnBvbm1sa2pqaWhnZ2ZlZGNjYmFhYGBhZGZmZmdpfaCpra2sq6qpp6alpKGYfFdGQ0E+PDk4NjU0NDQzMjIxNjc3ODk6Ojs8PT4/QEFCQ0RFR0hJSkxNTlBSU1RWWFpcXmBjZWdqbW9ydnl8f4GEh4qNkJOXmp2go6aprK+zt7rAyNPa18K/vr28u7q4t7a1s7KxsK6trKuqqainpaSjopB+fHp2cnV1c3Jwb25tbGtqaWloZ2dmZWRkY2JiYWFkZmdoaGlzlqesrq6trKuqqainpaSjoY9gSENAPTk3NTMyMTEwMDAuNDU1Njc4ODk6Ozw9Pj9BQkNERUZISUtMTk9RU1RWWFpcXmBjZWhrbXBzd3p8f4KFh4qOkZSXmp2gpKeprbC0uLzE0djd2MPBwL++vbu6ubi2tbSysbCvrayrqqmop6alpI9/fXxVO2d1dHNxcG9ubWxramlpaGdnZmVlZGNjYmNmaGlqam6Hoaqvr6+urq2rqqmop6alo6KYdlVDPjo3NTMxLy4uLS0sMjMzNDU2Njc4OTo7PD4/QEFDREVHSEpLTU9RUlRWWFpcXmFjZmlrbnF0d3p9gIKFiIuOkpWYm56hpKeqrrG1ub/L1tvg2MTC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MiAdGxsbHBwcHBUSExwgHx8dGxoaGhoaGxscHR4eHyAhIiMkJic6e4aGhoWGhoaGhoaGhoaGhFUwLiwrRVRiZmdnZ2dnaGhoaGlpaWpqa2tsbG1tbW5ubm5ub29vb29wcHBwcHBwcXFxcXFxcXFycnJycnNzc3NzdHR0dHR0dHV1dXV1dnZ2dnd3d3d3eHh4eHh5eXl5eXdpaXl+fn59b299fn5+fn59UyIcGhoaGhoaGBMTFx0eHh4dHBsaGhsbGxwdHh8fICEiIyQmKTtog4ODg4ODg4ODg4ODg4ODdTsvLSwrXGNkZGRlZWVlZWVmZmdnaGhpaWlqampra2tsbGxsbGxtbW1tbW5ubm5ubm5ub29vb29vb29wcHBwcHBxcXFxcXFycnJycnNzc3N0dHR0dHV1dXV1dnZ2dnZ3d3Jpb3l6ent7dGh2e3t7e3t7cC8cGhkYGBkZFhQVGh0eHh4eHRwbHB0dHh4fICEiJSgxNjhGW3aAgYGAgICAgICAgICAgIB/VjEvLSwrYWFiYmJiYmNjY2NkZGVlZmZnZ2doaGhpaWlpampqampqa2tra2trbGxsbGxsbGxsbG1tbW1tbW5ubm5ubm5vb29vb3BwcHBwcXFxcXFycnJycnNzc3N0dHR0c25qcnd3eHh4d2pseHh4eHl5eFIiGhkYGBgYFhUYHR8fHx8fHx8eHyEkJS0yPklPYGhzeHh8f39+fn5+fn19fX19fX19fX10PjAvLSwrX2BgYGBgYGFhYWJiY2NkZGRlZWVlZmZmZmdnZ2doaGhoaGhpaWlpaWlpaWpqampqampqamtra2tra2tsbGxsbGxtbW1tbW5ubm5ub29vb29vcHBwcHBxcXFxcG1tc3R0dXV1dnBnc3Z2dnZ2dnNHIBoZGRgYFhYbICEiIyMjIignIzVcY25zdnl6enx8e3x8fHx8e3t7enp6enp6enp6enpeNDAvLi0rXl5eXl9fX19fX2BgYWFiYmJjY2NjY2RkZGVlZWVlZWZmZmZmZmdnZ2dnZ2dnZ2doaGhoaGhoaWlpaWlpaWlqampqamtra2trbGxsbGxtbW1tbW1ubm5ub29vbm5ucHFxcnJzc3Noa3Nzc3N0dHRxUjMkHhoYFyAzP0ZQWlxTMDM4Jzpwdnd3d3h4eXl5eXl5eXl5eXh4eHh3d3d3d3d3d3JEMTAvLi0sXVxcXV1dXV5eXl5fX19gYGBgYWFhYWFiYmJjY2NjY2NkZGRkZGRkZWVlZWVlZWVlZWVmZmZmZmZmZ2dnZ2dnZ2hoaGhoaWlpaWlqampqampra2tra2xsbGxsbG1tbm5vb29wcHFrZW9wcHBxcXFycmxhVSUZHlFvcnRzcnFwUi8zKC5jdHV1dXV2dnZ2dnZ2dnZ2dnV1dXV1dXR0dHR1dV82MTAvLi0tWlpbW1tbW1xcXF1dXl5eXl5fX19fX2BgYGBgYWFhYWFhYWJiYmJiYmJjY2NjY2NjY2NjY2RkZGRkZGRkZWVlZWVmZmZmZmZnZ2dnZ2hoaGhoaGlpaWlpampqampra2xsbG1tbm5tZGlubm5ubm9vbm5uWiAZNmtwcHBwb29vaDosKilPcnJzc3NzdHR0c3Nzc3Nzc3Nzc3JycnJycnJyb0gzMTAvLy4uWVlZWVpaWlpaW1tbXFxcXFxcXV1dXV5eXl5eX19fX19fX2BgYGBgYGBgYWFhYWFhYWFhYWJiYmJiYmJiY2NjY2NjZGRkZGRlZWVlZWZmZmZmZmZnZ2dnaGhoaGhoaWlqampra2xsZ2NrbGtrbGxsbGtqPRofVm1tbW1tbW1tbVYuKSk3aXFxcXFxcXFxcXFxcXBxcXFxcHBwcHBvb29vYDkzMTEwLy8vV1dXV1hYWFhZWVlaWlpaWlpaWltbW1tcXFxcXF1dXV1dXl5eXl5eXl5eXl9fX19fX19fX2BgYGBgYGBgYGFhYWFhYmJiYmJiY2NjY2NkZGRkZGRkZWVlZWZmZmZmZ2dnaGhoaWlpaGBmaWlpaWlpaWlcJBkzZ2tra2tra2tsbGlBKSksV29vb29vb29vb25ubm5ubm5ubm5ubW1tbW1sSzQyMjEwMC8wVlZWVldXV1dXV1dXWFhYWFhYWFlZWVlaWlpaWlpbW1tbW1tbW1xcXFxcXFxdXV1dXV1dXl5eXl5eXl5eXl5fX19fX2BgYGBgYGFhYWFhYWJiYmJiYmNjY2NkZGRkZGVlZWZmZ2dnZ2JgZmdnZ2dnZ2Y9GR1PaGlpaWlpaWpqampeMiopPWptbW1tbW1sbGxsbGxsbGxsbGxra2tra2tiPDQyMjExMDAxVFRUVFVVVVVWVlZWVlZWVldXV1dXV1dYWFhYWFhZWVlZWVlaWlpaWlpaWlpaWltbW1tbW1tbW1xcXFxcXFxdXV1dXl5eXl5eXl5fX19fX19gYGBgYGBhYWFhYmJiYmNjY2RkZGRlZWNcYmVlZWRlZVkiFzFiZmdnZ2dnZ2hoaGloSi0qLltra2tqampqamppaWpqampqamlpaWloaGhPNjQzMjIyMTExUlJTU1NUVFRUVFRUVFRUVFVVVVVVVVZWVlZWVldXV1dXV1dXWFhYWFhYWFlZWVlZWVlZWVpaWlpaWlpaWlpaW1tbW1tbXFxcXF1dXV1dXl5eXl5eXl5fX19fX2BgYGFhYWFiYmJiYmJcXWNjY2JiYT0ZGkpkZGRkZGRkZWVlZmZmYj4rKkpoaWhoaGhoaGdnZ2dnaGhoZ2dnZ2ZmZl8+NTQzMzMzMjIyUVFRUVJSUlJSUlJSUlNTU1NTU1NUVFRUVFRUVFVVVVVVVVZWVlZWVlZXV1dXV1dXV1dXV1dYWFhYWFhYWFlZWVlZWVpaWlpaWlpaW1tbW1tbXFxcXF1dXV1eXl5eXl9fX19fYGBgYGBdWV9hYWFgViQYK1xhYmJiYmJiYmNjY2NkZFYxKzdhZmZmZmZmZWVlZWVlZWVlZWVlZGRkZFI3NTQ0MzQzMzMyT09PUFBQUFBQUFBQUFFRUVFRUVJSUlJSUlJTU1NTU1NUVFRUVFRUVFRVVVVVVVVVVVVVVlZWVlZWVldXV1dXV1dXV1hYWFhYWVlZWVlZWVpaWlpaWlpaW1tbW1xcXF1dXV1eXl5eXl5eWVpfX15dPBobRmBgYGBgYGBgYGFhYWFhYmBELC5SZGRkZGRkY2NjY2NjY2NjY2NiYmJiX0I1NTQ0NDQ0NDMzTU1NTk5OTk5OTk5OT09PT09PT1BQUFBQUFBRUVFRUVFSUlJSUlJTU1NTU1NTU1NUVFRUVFRUVFRUVFRVVVVVVVVWVlZWVldXV1dXV1dXV1hYWFhYWFhZWVlZWlpaWlpbW1tbW1tbW1xcWVVbXV1TJhsqWF5eXl5eXl5eXl9fX19fX19YMys8X2JiYmJiYWFhYWFhYWFhYWFgYGBgUjk2NTU1NTU1NDQzS0tMTExMTExMTExMTU1NTU1NTk5OTk5OTk5PT09PT09QUFBQUFBRUVFRUVFRUVFSUlJSUlJSUlJTU1NTU1NTVFRUVFRUVFRVVVVVVVZWVlZWVlZWV1dXV1dXV1hYWFhYWVlZWVlZWVlZWVNVWlo+IB9FW1xcXFxcXF1dXV1dXV1dXV1dRCwwVWBgYGBfX19fX19fX19fX19eXl5cQjY2NTU1NjY2NTU0SkpKSkpKSkpKSkpLS0tLS0tLTExMTExMTE1NTU1NTU5OTk5OTk5PT09PT09PT09QUFBQUFBQUFFRUVFRUVFSUlJSUlJTU1NTU1NUVFRUVFRUVFRUVFVVVVVVVlZWVlZXV1dXV1dXV1dXV1VRV1ErIC5VWlpaWlpaWlpaWlpaWlpbW1tbUzIsQ15eXl5eXl1dXV1dXV1dXV1dXFxSOTY2NjY2NjY2NjY1SEhISEhJSUlJSUlJSUlJSUlKSkpKSkpKS0tLS0tLS0xMTExMTE1NTU1NTU1NTk5OTk5OTk5OT09PT09PT1BQUFBQUFFRUVFRUVJSUlJSUlJSUlNTU1NTU1RUVFRUVFRUVVVVVVVVVVVWVlVQUj4kJUZYWFhYWFhYWFhYWFhYWFhYWFlZWD8tNldcXFxcW1tbW1tbW1tbW1tbWllFNzc2Njc3Nzc3NzY1RkZGRkdHR0dHR0dHR0dHR0hISEhISEhJSUlJSUlJSkpKSkpKS0tLS0tLS0xMTExMTExMTE1NTU1NTU1NTk5OTk5OT09PT09PUFBQUFBQUFBQUVFRUVFRUVJSUlJSUlJTU1NTU1NTU1NTU1RSSy0lMlNXV1dXV1dXV1dXV1dXV1dXV1dXV08xLkhaWlpaWlpaWVlZWVlZWVlZWFE8Nzc3Nzc4ODg4ODc2REREREVFRUVFRUVFRUVGRkZGRkZGRkdHR0dHR0dISEhISElJSUlJSUlJSkpKSkpKSkpKS0tLS0tLS0tMTExMTExNTU1NTU1OTk5OTk5OTk9PT09PT09PT1BQUFBQUFBQUVFRUVFRUVFRUVFRPCcoRFRUVFRUVFRUVFRUVFRVVFRVVVVVVVU+LTZUWVhYWFhYV1dXV1dXV1dXVkU5ODg4ODg5OTk5OTg2Q0NDQ0NDQ0NDQ0NDREREREREREVFRUVFRUVFRkZGRkZGR0dHR0dHR0hISEhISEhISUlJSUlJSUlKSkpKSkpKS0tLS0tLTExMTExMTExNTU1NTU1NTU1NTk5OTk5OTk5PT09PT09PT09PT09LLycyT1NTU1NTUlNTUlJSUlNTU1NTU1NTVFRLMDBHV1dXV1dWVlZWVlZWVlVVTz05OTg4ODk6Ojo6OTg2QUFBQUJCQkJCQkJCQkJCQkNDQ0NDQ0NERERERERERUVFRUVGRkZGRkZGRkZGR0dHR0dHR0hISEhISEhISUlJSUlJSUpKSkpKSktLS0tLS0tLS0tLTExMTExMTE1NTU1NTU1NTk5OTk5OTk4/KSlAUVFRUVFRUVFRUVBQUVFRUVFRUVFSUlJQOC45U1VUVFRUVFRUVFRUVFNTRzs6Ojk5OTo7PDw8Ojg1Pz9AQEBAQEBAQEBAQEBBQUFBQUFBQkJCQkJCQkNDQ0NDQ0REREREREREREVFRUVFRUVFRkZGRkZGRkdHR0dHR0dHSEhISEhISUlJSUlJSUlKSkpKSkpKSkpKSktLS0tLS0tMTExMTExMTEoyKDFLT09PT09PT09PT05OT09PT09PT09QUFBQRC8zTFNTU1NTU1JSUlJSUlJNPzs6Ojk5Ojs8PDw8Ojc1Pj4+Pj8/Pz8/Pz8/Pz8/QEBAQEBAQUFBQUFBQUFBQUJCQkJCQ0NDQ0NDQ0NDRERERERERERFRUVFRUVFRUVGRkZGRkZGR0dHR0dHR0hISEhISEhISEhISUlJSUlJSUlKSkpKSktLS0tLS0EuLDxNTk5OTU1NTU1NTU1NTU1OTk5OTk9PT09QSzQwQVJSUlFRUVFQUFFRUVBHPTw7Ojo6Ojw8PDw8Ojc1", "l": "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CAgJFB0gICEhISIjIyQjISIkKS4wMjY2Nzc3NjU1MSogGBgX09PT1NTQy8nHwby3t7y3rq61tbaupqqmoKuipqSfoKGioqS0vKyUrLKos7Ono6Gjmp6hqp2sp5ySnpKUiTwOCwwNEBARDw4NDQ4PDw8QERIUFhITFBUXFhUVFRYYGRkYExITFBQTEg0RJjhBKxgVFRMTEhMTExISEREREA4MCwsLCwsKCAgLGB0fHx4eHiAhICAfICEjKS4xMzY2ODg5Nzg4NzYtHRQR09PU0c/MwcK/uLSztrizrK+xs62jpKicoaylp6Ken6Klo6u7uaCWtLGqta2rpqegmZ6ro56on5SUoYiIRRELDA4PDxAQEBEQEA8PDxARERESExMTExcXFRUUFRYXGBkXEhETFBMUExAOGSw9PSEVFBMSExMTExIREhERDw4LCwsLCwoJCAoOGh0dGxsbHB0eHhwcHR8jKS4wMzY3ODg5OTk6OTg3Lx4Uzs/Py8nDu726tLGytbeyqq2trqaio5uYqrCop6GeoKSmprK9s5WhtLCwt7KsqKmcmaSsnJ+klpCXnXFSEwwMDg8ODw8OEBETFBQTEhERERISExQVExQUFRQVFhYXFxcVERIUFBQUFBMOEyIyPTMbFBISExMTExEREREREA4LDAsMCwkJCgoSGhwbGRgXGRoaGRgZGx0iKC0wMjY4ODg4ODk6Ojk4NzEix8vIxMK6ubq4s7Cys7SrpqirrqagmpWfsq2rpqCdoqekrLm8qJWqsLG1u7Sqq6WXmaisk6Cdk46afzEWDQ4ODw8PDw8NDg8QEhQVFRUUFBQTExMTExMTFBMUFhYXFxcVERITFBQUFBQQEh0rMzkoFxQTExISEREREREQDw0LCw0NCgoKCw0VGhoZFxYWFxcXFRYXGB0iJSswNDY4ODo6OTs6Ojo5ODgzv8XCvbq1tbO0sK6vr6ynpqmtrZ+XlZussqurpKCcpaals7q1oJ6rsLO4urCtrJ+PmqupjaWUk4yHOxIPEBAQEBAQEBANDQ0ODxASEhQWGBgWFRQTFBQTExMTFBUWFhYUERQTExQUFBQTEx0pLjQyHxQTExMTEhISERERDwwKCwwMCgwNDhEXGhkYFxYVFRUUFBQVFhseIyouMjU4OTk6OTw7Ozs6Ojo6vr69uLWxr6ywrKmsr6imqayvqZSUmquv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"};
+document.documentElement.classList.add('js');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const finePtr=matchMedia('(pointer:fine)').matches;
+const G=(window.gsap&&window.ScrollTrigger)?window.gsap:null;
+if(G)G.registerPlugin(ScrollTrigger);
+const anim=!!G&&!reduce;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const SCR={heroP:0,vel:0};
+
+/* ---------- point cloud + focal plane ---------- */
+(function(){
+  const cv=$('#cloud'),ctx=cv.getContext('2d'),box=$('#viewer'),fzEl=$('#fz');
+  const W=CLOUD.w,H=CLOUD.h,zr=CLOUD.zmax-CLOUD.zmin;
+  const zb=Uint8Array.from(atob(CLOUD.z),c=>c.charCodeAt(0)), lb=Uint8Array.from(atob(CLOUD.l),c=>c.charCodeAt(0));
+  const f=W*0.82,cx=W/2,cy=H/2,N=W*H;
+  const P=new Float32Array(N*3),C=new Uint8Array(N),S=new Float32Array(N),T=new Float32Array(N),FX=new Float32Array(N*3);
+  let zm=0;
+  for(let v=0,i=0;v<H;v++)for(let u=0;u<W;u++,i++){
+    const t=zb[i]/255, Z=CLOUD.zmin+t*zr;
+    const ju=u+(Math.random()-.5)*.9,jv=v+(Math.random()-.5)*.9;P[i*3]=(ju-cx)*Z/f; P[i*3+1]=(jv-cy)*Z/f; P[i*3+2]=Z; zm+=Z;
+    C[i]=Math.min(31,Math.floor((1-t)*31.99)); T[i]=t;
+    S[i]=Math.random();
+  }
+  zm/=N; for(let i=0;i<N;i++)P[i*3+2]-=zm;
+  const stops=[[74,20,134],[140,41,129],[214,69,122],[251,138,76],[252,210,138]];
+  const cols=[];for(let k=0;k<32;k++){const x=k/31*(stops.length-1),a=Math.floor(x),b=Math.min(a+1,stops.length-1),m=x-a;
+    const c=stops[a].map((q,j)=>Math.round(q+(stops[b][j]-q)*m));cols.push(`rgb(${c[0]},${c[1]},${c[2]})`)}
+  const buckets=Array.from({length:32},()=>[]);for(let i=0;i<N;i++)buckets[C[i]].push(i);
+  $('#npts').textContent=N.toLocaleString();
+  let yaw=-0.4,pitch=0.16,tyaw=yaw,tpitch=pitch,drag=null,auto=!reduce,t0=performance.now(),vis=true,ft=.5,lastFz='';
+  let aS=1;function size(){const r=box.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);cv.width=r.width*d;cv.height=r.height*d;aS=Math.min(1,Math.max(.45,r.width/560))}
+  size();addEventListener('resize',size);
+  const BAND=.03;
+  function frame(now){
+    if(!vis){requestAnimationFrame(frame);return}
+    const el=(now-t0)/1000, build=reduce?1:Math.min(1,el/2.2), e=1-Math.pow(1-build,3);
+    if(auto&&!drag)tyaw+=0.0022;
+    yaw+=(tyaw-yaw)*.08;pitch+=(tpitch-pitch)*.08;
+    // focal plane: drifts gently at rest, sweeps near -> far as you scroll out of the hero
+    const hp=SCR.heroP, idle=.5+.36*Math.sin(el*.32), k=Math.min(1,hp*3.5);
+    const tgt=reduce?.5:idle*(1-k)+(.04+hp*.92)*k; ft+=(tgt-ft)*.08;
+    const yw=yaw+hp*.9, D=2.6+hp*1.4;
+    const w=cv.width,h=cv.height,sc=Math.min(w,h)*0.95,cy_=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+    ctx.clearRect(0,0,w,h);ctx.globalCompositeOperation='lighter';
+    const ps=Math.max(1.4,w/430);let fc=0;
+    for(let kk=0;kk<32;kk++){
+      ctx.fillStyle=cols[kk];const B=buckets[kk];
+      for(let j=0;j<B.length;j++){const i=B[j];
+        const local=Math.min(1,Math.max(0,(e*1.35-S[i]*0.35)));
+        let x=P[i*3],y=P[i*3+1],z=P[i*3+2]*local+(1-local)*(S[i]-.5)*3;
+        const x1=x*cy_+z*sy, z1=-x*sy+z*cy_;
+        const y1=y*cp-z1*sp, z2=y*sp+z1*cp;
+        const q=D/(D+z2); if(q<=0)continue;
+        const X=w/2+x1*sc*q*0.56, Y=h/2+y1*sc*q*0.56, s=ps*q;
+        const dd=Math.abs(T[i]-ft);
+        if(dd<BAND&&local>.95){FX[fc*3]=X;FX[fc*3+1]=Y;FX[fc*3+2]=s*(1.15+.5*(1-dd/BAND));fc++;continue}
+        ctx.globalAlpha=(0.36+lb[i]/255*0.55)*local*aS;
+        ctx.fillRect(X,Y,s,s);
+      }
+    }
+    if(fc){ctx.fillStyle='#ffd98a';ctx.globalAlpha=.85*aS+.15;
+      for(let j=0;j<fc;j++){const s=FX[j*3+2];ctx.fillRect(FX[j*3],FX[j*3+1],s,s)}}
+    ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+    const fz=(CLOUD.zmin+ft*zr).toFixed(2);if(fz!==lastFz){fzEl.textContent=fz;lastFz=fz}
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  const vid=$('#srcvid');if(vid&&reduce){vid.removeAttribute('autoplay');vid.pause()}
+  new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vid&&!reduce){if(vis)vid.play().catch(()=>{});else vid.pause()}}).observe(box);
+  box.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,yaw:tyaw,pitch:tpitch};box.setPointerCapture(e.pointerId)});
+  box.addEventListener('pointermove',e=>{if(!drag)return;tyaw=drag.yaw+(e.clientX-drag.x)*0.008;tpitch=Math.max(-0.9,Math.min(0.9,drag.pitch+(e.clientY-drag.y)*0.006))});
+  const end=()=>{drag=null};box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end);
+})();
+
+
+/* ---------- timing-diagram strips (GTKWave-style, hover for values) ---------- */
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  document.querySelectorAll('.wave').forEach(el=>{
+    const w=JSON.parse(el.dataset.w),bus=w.rows.find(r=>r.k==='bus'),n=bus.v.length;
+    const VW=1200,L=96,RH=26,top=22,H=top+w.rows.length*RH+4,sw=(VW-L)/n,hi=6,lo=18;
+    let g=`<text class="ttl" x="${L}" y="11">${w.t}</text>`;
+    w.rows.forEach((r,ri)=>{const y=top+ri*RH;
+      g+=`<text class="lbl" x="0" y="${y+lo-3}">${r.n}</text>`;
+      let d='';
+      if(r.k==='clk'){d=`M${L} ${y+lo}`;for(let i=0;i<n*2;i++){const x=L+i*sw/2;d+=` L${x} ${y+lo} L${x} ${y+hi} L${x+sw/4} ${y+hi} L${x+sw/4} ${y+lo}`}d+=` L${VW} ${y+lo}`}
+      else if(r.k==='bus'){for(let i=0;i<n;i++){const x=L+i*sw,e=x+sw,c=4;
+          d+=`M${x+c} ${y+hi} L${e-c} ${y+hi} M${x+c} ${y+lo} L${e-c} ${y+lo} M${e-c} ${y+hi} L${e+c} ${y+lo} M${e-c} ${y+lo} L${e+c} ${y+hi} `;
+          if(i===0)d+=`M${x} ${(y+hi+y+lo)/2} L${x+c} ${y+hi} M${x} ${(y+hi+y+lo)/2} L${x+c} ${y+lo} `;
+          g+=`<text class="val" x="${x+sw/2}" y="${y+lo-3.5}" text-anchor="middle">${r.v[i]}</text>`}}
+      else{let py=null;for(let i=0;i<n;i++){const x=L+i*sw,yy=r.v[i]==='1'?y+hi:y+lo;d+=py===null?`M${x} ${yy}`:` L${x} ${py} L${x} ${yy}`;d+=` L${x+sw} ${yy}`;py=yy}}
+      g+=`<path class="d${r.k==='bus'?' bus':''}${r.hot?' hot':''}" pathLength="1" d="${d}"/>`;
+    });
+    g+=`<g class="mk"><line y1="${top-4}" y2="${H}"/><rect rx="3" height="16" y="${top-21}"/><text y="${top-9.5}"></text></g>`;
+    el.innerHTML=`<svg viewBox="0 0 ${VW} ${H}" preserveAspectRatio="xMinYMin meet">${g}</svg>`;
+    const svg=el.firstChild,mk=svg.querySelector('.mk'),ln=mk.querySelector('line'),rc=mk.querySelector('rect'),tx=mk.querySelector('text');
+    el.addEventListener('pointermove',e=>{const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*VW;
+      if(x<L){mk.style.display='none';return}mk.style.display='';
+      const i=Math.min(n-1,Math.floor((x-L)/sw)),lab=w.rows.filter(q=>q.k!=='clk').map(q=>q.k==='bus'?`${q.n}=${q.v[i]}`:`${q.n}=${q.v[i]}`).join('  ');
+      ln.setAttribute('x1',x);ln.setAttribute('x2',x);tx.textContent=`t${i}  ${lab}`;
+      const tw=tx.getComputedTextLength()+12,bx=Math.min(x+6,VW-tw);rc.setAttribute('x',bx);rc.setAttribute('width',tw);tx.setAttribute('x',bx+6)});
+    if(el.classList.contains('side'))return;
+    if(reduce||!('IntersectionObserver' in window)){el.classList.add('on');return}
+    const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){el.classList.add('on');io.disconnect()}},{threshold:.4});io.observe(el);
+  });
+})();
+
+/* ---------- pipeline stages ---------- */
+const STAGES=[
+ {k:'Stage 01 · Calibrate',t:'Focal length calibration',
+  l:['Every later stage depends on the focal length in pixels, so I built two routes to it: OpenCV checkerboard calibration (12×7 board, 14.8 mm squares, at least 10 detected views) and a 35 mm-equivalent conversion, f<sub>px</sub> = f<sub>35</sub> · w / 36.',
+     'The 35 mm route shipped as 68 phone presets, so the pipeline works on video from cameras I can\'t calibrate.',
+     'FastDepth underestimated distance by 4.6×: it learned metric scale tied to its training camera’s focal length, not the AR1335’s. Rescaling by the ratio of the two focal lengths removed the error.'],
+  c:['OpenCV','camera intrinsics K','68 device presets'],
+  m:`<div class="calib" data-ph><img src="assets/img/calib_1.jpg" alt="Checkerboard calibration frame" loading="lazy"><img src="assets/img/calib_2.jpg" alt="Checkerboard calibration frame, tilted" loading="lazy"><img src="assets/img/calib_3.jpg" alt="Checkerboard calibration frame, close" loading="lazy"></div><p class="cap">Real calibration frames: the checkerboard shot from varying angles and distances. Hover for pixel coordinates.</p><div class="formula" style="margin-top:14px">K = [ f<sub>x</sub> 0 c<sub>x</sub> ; 0 f<sub>y</sub> c<sub>y</sub> ; 0 0 1 ]<br><span class="c">depth</span> × <span class="h">f<sub>x</sub> / 300</span> <span class="c">→ true metres</span></div>`},
+ {k:'Stage 02 · Depth',t:'From a 350M transformer to a 3.8M CNN',
+  l:['Started on the 350M-parameter Depth Anything 3 metric transformer: one RGB frame in, a 280×504 depth map in metres out, at about 77 ms per forward pass on a Tesla T4.',
+     'The robot needs depth on board, on a 4 GB KV260, and a 350M transformer is far too large for it. I replaced it with a 3.8M-parameter FastDepth CNN (MobileNet encoder, NNConv5 decoder): 92× fewer parameters, and pure convolutions that map cleanly onto hardware.'],
+  c:['Depth Anything 3','FastDepth','PyTorch','CUDA'],
+  m:`<div class="compare" id="cmp"><img src="assets/img/depth_input_matched.jpg" alt="Input RGB frame of a room with a chair"><img class="top" id="cmptop" src="assets/img/depth_magma.jpg" alt="Metric depth map of the same frame"><div class="handle" id="cmph"></div><span class="lab l">RGB frame</span><span class="lab r">depth · 0.79–1.81 m</span><input type="range" min="0" max="100" value="50" aria-label="Compare RGB frame and depth map"></div><p class="cap">Frame 276 and its depth map. Drag across to compare; brighter is closer.</p>`},
+ {k:'Stage 03 · Pose',t:'Camera pose with SVO 2.0',
+  l:['v1 tracked about 1,000 corner features with pyramidal Lucas-Kanade optical flow, back-projected them with depth, and solved each step of camera motion with PnP RANSAC.',
+     'Chaining frame-to-frame motion compounds error, and a smaller depth model made it worse. I replaced the dead-reckoning tracker with SVO 2.0 (semi-direct visual odometry), adding local bundle adjustment and keyframing for robust pose estimation.'],
+  c:['Lucas-Kanade','PnP RANSAC','SVO 2.0','Sophus'],
+  m:`<div class="diagram"><svg viewBox="0 0 460 250" font-family="JetBrains Mono, monospace" font-size="11">
+    <path d="M30 210 C110 200 160 150 230 130 S360 70 430 40" fill="none" stroke="#9a907f" stroke-dasharray="4 6"/>
+    <path d="M30 210 C100 205 150 175 220 165 S350 140 430 120" fill="none" stroke="#c9bca5" stroke-width="1.2"/>
+    <path d="M30 210 C110 200 170 180 230 172 S360 168 430 150" fill="none" stroke="url(#gB)" stroke-width="2.4"/>
+    <defs><linearGradient id="gB" x1="0" x2="1"><stop offset="0" stop-color="#9c2f45"/><stop offset="1" stop-color="#b8892f"/></linearGradient></defs>
+    <g fill="#9c3a24">${[[30,210],[130,195],[230,172],[330,165],[430,150]].map(p=>`<rect x="${p[0]-5}" y="${p[1]-5}" width="10" height="10" transform="rotate(45 ${p[0]} ${p[1]})"/>`).join('')}</g>
+    <text x="300" y="52" fill="#9a907f">drift (chained LK)</text>
+    <text x="300" y="195" fill="#b8892f">SVO 2.0 + keyframes</text>
+    <text x="30" y="238" fill="#9a907f">◆ keyframe · local bundle adjustment</text>
+   </svg></div><p class="cap">Schematic: frame-to-frame chaining drifts; keyframes with local bundle adjustment pull the trajectory back.</p>`},
+ {k:'Stage 04 · Project',t:'Pinhole back-projection',
+  l:['With metric depth Z and the intrinsics, every pixel (u, v) is back-projected with the pinhole model, then moved from camera space to world space by the pose matrix.',
+     'Each frame is voxel-downsampled at 2 cm and the merged map at 5 cm, with depth past 10 m discarded indoors.',
+     'The cloud at the top of this page is exactly this step, run on one frame.'],
+  c:['Open3D','NumPy','pinhole model'],
+  m:`<div class="formula">X = (u − <span class="h">c<sub>x</sub></span>) · Z / <span class="h">f<sub>x</sub></span><br>Y = (v − <span class="h">c<sub>y</sub></span>) · Z / <span class="h">f<sub>y</sub></span><br>Z = Z<br><span class="c">p<sub>world</sub> = T<sub>pose</sub> · p<sub>camera</sub></span></div><div class="mini-stats" style="margin-top:12px"><div><b>2 cm</b><span>per-frame voxel grid</span></div><div><b>5 cm</b><span>merged map voxel grid</span></div></div>`},
+ {k:'Stage 05 · Render',t:'Gaussian splat rendering',
+  l:['Per-scene 3D Gaussian Splatting needed about 30,000 training iterations: roughly 50 minutes for a 25-second clip.',
+     'Migrated the cloud rendering stage to AnySplat feed-forward models, which build the scene in one pass instead of per-scene optimization: real-time 15 fps inside a 14 GB Tesla T4 VRAM ceiling.',
+     'v2 of the pipeline moves data between stages in RAM only, removing the disk round-trips that bottlenecked v1.'],
+  c:['AnySplat','3D Gaussian Splatting','Flask','WebGL'],
+  m:`<div class="mini-stats"><div><b>15 fps</b><span>feed-forward splat generation</span></div><div><b>14 GB</b><span>Tesla T4 VRAM ceiling</span></div><div><b>~50 min</b><span>per-scene 3DGS training it replaced</span></div><div><b>RAM-only</b><span>v2 data path between stages</span></div></div>`}
+];
+(function(){
+  const btns=$$('#pipe .stage'),txt=$('#stagetext'),med=$('#stagemedia'),fill=$('#pipefill');
+  let cur=-1;
+  function bindCompare(){const c=$('#cmp');if(!c)return;const r=c.querySelector('input'),top=$('#cmptop'),hd=$('#cmph');
+    const set=v=>{top.style.clipPath=`inset(0 0 0 ${v}%)`;hd.style.left=v+'%'};r.addEventListener('input',()=>set(r.value));set(50)}
+  function show(i){ if(i===cur)return; const first=cur===-1; cur=i;
+    btns.forEach((b,j)=>b.setAttribute('aria-selected',j===i));
+    fill.style.width=(i/4*80)+'%';
+    const s=STAGES[i];
+    [txt,med].forEach(el=>el.classList.add('out'));
+    setTimeout(()=>{
+      txt.innerHTML=`<div class="tag">${s.k}</div><h3>${s.t}</h3><ul>${s.l.map(x=>`<li>${x}</li>`).join('')}</ul><div class="chips">${s.c.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`;
+      med.innerHTML=s.m; bindCompare();
+      requestAnimationFrame(()=>requestAnimationFrame(()=>[txt,med].forEach(el=>el.classList.remove('out'))));
+    },first||reduce?0:260);
+  }
+  btns.forEach((b,i)=>b.addEventListener('click',()=>show(i)));
+  $('#pipe').addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const n=(cur+(e.key==='ArrowRight'?1:4))%5;show(n);btns[n].focus()}});
+  show(1);
+})();
+
+/* ---------- FSAE tabs ---------- */
+(function(){
+  const bs=[$('#b-emb'),$('#b-auto')],ps=[$('#t-emb'),$('#t-auto')],bg=$('#pillbg');
+  function place(i){const b=bs[i];bg.style.width=b.offsetWidth+'px';bg.style.transform=`translateX(${b.offsetLeft-4}px)`}
+  function sel(i){bs.forEach((b,j)=>b.setAttribute('aria-selected',j===i));ps.forEach((p,j)=>p.hidden=j!==i);place(i);
+    ps[i].querySelectorAll('.rv').forEach(x=>x.classList.add('in'));
+    if(anim)G.fromTo(ps[i],{clipPath:'polygon(0% 0%,0% 0%,-12% 100%,-12% 100%)'},{clipPath:'polygon(0% 0%,112% 0%,100% 100%,-12% 100%)',duration:.7,ease:'expo.out',clearProps:'clipPath'})}
+  bs.forEach((b,i)=>b.addEventListener('click',()=>sel(i)));
+  addEventListener('resize',()=>place(bs.findIndex(b=>b.getAttribute('aria-selected')==='true')));
+  document.fonts&&document.fonts.ready.then(()=>place(0)); place(0);
+})();
+
+/* ---------- project-open effects: a full-screen overlay that never takes input ---------- */
+const runFX=(function(){
+  if(reduce)return()=>{};
+  const cv=document.createElement('canvas');cv.id='fx';cv.setAttribute('aria-hidden','true');document.body.appendChild(cv);
+  const c=cv.getContext('2d');let W=0,H=0,run=0;
+  function size(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;c.setTransform(d,0,0,d,0,0)}
+  size();addEventListener('resize',size);
+  const BR='184,137,47',CU='156,58,36',SA='243,230,209';
+  function play(dur,draw){const id=++run,t0=performance.now();
+    (function f(now){if(id!==run)return;const e=now-t0;c.clearRect(0,0,W,H);
+      if(e<dur){draw(e);requestAnimationFrame(f)}})(t0)}
+  const ease=t=>1-Math.pow(1-t,3);
+  const centre=el=>{const r=el.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}};
+
+  // LiDAR: one sweep around the glyph; returns trace the edges of what's on screen
+  function lidar(row){
+    const o=centre(row.querySelector('.glyph')||row),pts=[];
+    document.querySelectorAll('h2,h3,.prow>button,.gal .main,.thumbs button,.diagram,.kv>div,.pgh,.list li,.stats>div').forEach(el=>{
+      const r=el.getBoundingClientRect();if(r.bottom<0||r.top>H||r.width<8)return;
+      const step=16;for(let x=r.left;x<=r.right;x+=step){pts.push([x,r.top],[x,r.bottom])}
+      for(let y=r.top;y<=r.bottom;y+=step){pts.push([r.left,y],[r.right,y])}});
+    const P=pts.slice(0,1600).map(([x,y])=>{let a=Math.atan2(y-o.y,x-o.x)+Math.PI/2;if(a<0)a+=Math.PI*2;return[x+(Math.random()-.5)*2,y+(Math.random()-.5)*2,a]});
+    const SW=950,R=Math.hypot(W,H);
+    play(SW+750,e=>{const sw=Math.min(1,e/SW),A=sw*Math.PI*2-Math.PI/2,fade=e>SW?1-(e-SW)/750:1;
+      if(sw<1){c.save();c.beginPath();c.moveTo(o.x,o.y);c.arc(o.x,o.y,R,A-.55,A);c.closePath();
+        const g=c.createRadialGradient(o.x,o.y,0,o.x,o.y,R);g.addColorStop(0,`rgba(${BR},.16)`);g.addColorStop(1,`rgba(${BR},0)`);c.fillStyle=g;c.fill();
+        c.strokeStyle=`rgba(${BR},.55)`;c.lineWidth=1;c.beginPath();c.moveTo(o.x,o.y);c.lineTo(o.x+Math.cos(A)*R,o.y+Math.sin(A)*R);c.stroke();c.restore()}
+      c.strokeStyle=`rgba(${BR},${.18*fade})`;[90,200,340].forEach(r=>{c.beginPath();c.arc(o.x,o.y,r*ease(Math.min(1,e/500)),0,Math.PI*2);c.stroke()});
+      for(const [x,y,a] of P){const hit=a/(Math.PI*2)*SW;if(e<hit)continue;const age=e-hit,al=Math.max(0,1-age/900)*fade;if(al<=0)continue;
+        c.fillStyle=age<120?`rgba(${SA},${al})`:`rgba(${CU},${al*.9})`;c.fillRect(x-1.2,y-1.2,2.4,2.4)}
+      c.fillStyle=`rgba(${CU},${fade})`;c.beginPath();c.arc(o.x,o.y,3.5,0,Math.PI*2);c.fill()});
+  }
+  // systolic wavefront: cells light diagonally outward from the row, like operands entering the array
+  function systolic(row){
+    const o=centre(row.querySelector('.glyph')||row),cs=58,cols=Math.ceil(W/cs),rows=Math.ceil(H/cs),oi=Math.floor(o.x/cs),oj=Math.floor(o.y/cs),step=26,life=520;
+    let mx=0;for(let i=0;i<cols;i++)for(let j=0;j<rows;j++)mx=Math.max(mx,Math.abs(i-oi)+Math.abs(j-oj));
+    play(mx*step+life,e=>{for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const age=e-(Math.abs(i-oi)+Math.abs(j-oj))*step;if(age<0||age>life)continue;
+      const al=Math.sin(Math.PI*age/life);c.strokeStyle=`rgba(${(i+j)%3?BR:CU},${al*.42})`;c.lineWidth=1;c.strokeRect(i*cs+7,j*cs+7,cs-14,cs-14);
+      if((i*7+j*3)%5===0){c.fillStyle=`rgba(${BR},${al*.5})`;c.font='10px JetBrains Mono, monospace';c.fillText('×+',i*cs+cs/2-7,j*cs+cs/2+4)}}});
+  }
+  // CRT raster: one beam top to bottom with a fading scanline trail
+  function raster(){
+    play(900,e=>{const t=e/750,y=ease(Math.min(1,t))*H*1.04,fade=t>1?1-(e-750)/150:1;
+      for(let k=0;k<44;k++){const yy=y-k*4;if(yy<0)break;c.fillStyle=`rgba(${BR},${(1-k/44)*.10*fade})`;c.fillRect(0,yy,W,1)}
+      c.fillStyle=`rgba(${CU},${.55*fade})`;c.fillRect(0,y-1,W,1);c.fillStyle=`rgba(${SA},${.8*fade})`;c.fillRect(0,y,W,1.5)});
+  }
+  // clock + bus traces race across at the row's height
+  function clock(row){
+    const y0=centre(row.querySelector('.glyph')||row).y,per=34;
+    play(1150,e=>{const x=ease(Math.min(1,e/700))*W,fade=e>700?1-(e-700)/450:1;
+      c.lineWidth=1.3;c.strokeStyle=`rgba(${BR},${.7*fade})`;c.beginPath();c.moveTo(0,y0-30);
+      for(let k=0;k*per/2<x;k++){const xx=k*per/2,hi=k%2===0;c.lineTo(xx,y0-30);c.lineTo(xx,hi?y0-44:y0-30);c.lineTo(Math.min(x,xx+per/2),hi?y0-44:y0-30)}c.stroke();
+      c.strokeStyle=`rgba(${CU},${.6*fade})`;c.beginPath();
+      for(let k=0;k*per*2<x;k++){const a=k*per*2,b=Math.min(x,a+per*2);c.moveTo(a+4,y0+30);c.lineTo(b-4,y0+30);c.moveTo(a+4,y0+44);c.lineTo(b-4,y0+44);
+        if(b<x){c.moveTo(b-4,y0+30);c.lineTo(b+4,y0+44);c.moveTo(b-4,y0+44);c.lineTo(b+4,y0+30)}}c.stroke()});
+  }
+  // gain: a sine whose amplitude grows as it travels, like a signal through the 3 stages
+  function gain(row){
+    const y0=centre(row.querySelector('.glyph')||row).y;
+    play(1200,e=>{const x1=ease(Math.min(1,e/750))*W,fade=e>750?1-(e-750)/450:1;c.lineWidth=1.4;
+      c.strokeStyle=`rgba(${BR},${.65*fade})`;c.beginPath();for(let x=0;x<=x1;x+=3){const a=3+70*Math.pow(x/W,1.6);c[x?'lineTo':'moveTo'](x,y0+Math.sin(x/22)*a)}c.stroke()});
+  }
+  // rocket: a launch arc from the row off the top of the screen
+  function rocket(row){
+    const o=centre(row.querySelector('.glyph')||row),p1={x:o.x+(W-o.x)*.25,y:-H*.35},p2={x:W*.96,y:-40};
+    const B=t=>({x:(1-t)*(1-t)*o.x+2*(1-t)*t*p1.x+t*t*p2.x,y:(1-t)*(1-t)*o.y+2*(1-t)*t*p1.y+t*t*p2.y});
+    play(1300,e=>{const t=Math.min(1,e/850),fade=e>850?1-(e-850)/450:1;c.setLineDash([3,6]);c.lineWidth=1.3;c.strokeStyle=`rgba(${BR},${.7*fade})`;c.beginPath();
+      for(let k=0;k<=60;k++){const q=B(k/60*t);c[k?'lineTo':'moveTo'](q.x,q.y)}c.stroke();c.setLineDash([]);
+      const h=B(t);const g=c.createRadialGradient(h.x,h.y,0,h.x,h.y,16);g.addColorStop(0,`rgba(${SA},${fade})`);g.addColorStop(.4,`rgba(${CU},${.7*fade})`);g.addColorStop(1,`rgba(${CU},0)`);
+      c.fillStyle=g;c.beginPath();c.arc(h.x,h.y,16,0,Math.PI*2);c.fill()});
+  }
+  // YOLO: a detection box snaps onto the gallery as it opens
+  function yolo(row){
+    play(1500,e=>{const m=row.querySelector('.gal .main');if(!m)return;const r=m.getBoundingClientRect(),k=ease(Math.min(1,e/280)),s=1.18-.18*k,fade=e>1050?1-(e-1050)/450:1;
+      const w=r.width*s,h=r.height*s,x=r.left+(r.width-w)/2,y=r.top+(r.height-h)/2,L=Math.min(w,h)*.14;
+      c.strokeStyle=`rgba(${CU},${fade})`;c.lineWidth=2;c.beginPath();
+      [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]].forEach(([a,b,dx,dy])=>{c.moveTo(a+dx*L,b);c.lineTo(a,b);c.lineTo(a,b+dy*L)});c.stroke();
+      if(k>=1){c.strokeStyle=`rgba(${CU},${.5*fade})`;c.lineWidth=1;c.strokeRect(x,y,w,h);
+        c.font='600 11px JetBrains Mono, monospace';const lab='fire 0.91',tw=c.measureText(lab).width+12;c.fillStyle=`rgba(${CU},${fade})`;c.fillRect(x,y-18,tw,18);
+        c.fillStyle=`rgba(${SA},${fade})`;c.fillText(lab,x+6,y-5)}});
+  }
+  const M={lidar,systolic,raster,clock,gain,rocket,yolo};
+  return(name,row)=>{const f=M[name];if(f)f(row)};
+})();
+const FXMAP={rover:'lidar',mac:'systolic',vga:'raster',cpu:'clock',amp:'gain',avion:'rocket',fire:'yolo'};
+
+/* ---------- projects ---------- */
+const GROUPS=[['rtl','Digital hardware','RTL, accelerators and analog design'],['emb','Robots and embedded','Firmware, power and the machines it runs'],['sw','Software','Web apps and automation']];
+const PROJ=[
+ {ic:'mac',g:'rtl',t:'RISC-V Matrix Accelerator',d:'In progress',b:'MAC hardware',
+  s:'A 4×4 INT8 systolic array of multiply-accumulate units, attached to a PicoRV32 RISC-V core.',
+  tools:'SystemVerilog, C, PicoRV32, Verilator, RISC-V GCC',dg:'mac',
+  l:['Designing a 4×4 systolic array of INT8 multiply-accumulate units with 32-bit accumulators: 16 MACs per clock.',
+     'Attaching it to a PicoRV32 soft core as a memory-mapped peripheral: operand, result, control and status registers, plus a done interrupt.',
+     'Writing a bare-metal C driver with RISC-V GCC: operands written through volatile pointers, start bit set, then sleep until the done interrupt.',
+     'Verification: a Verilator C++ testbench runs the firmware on the simulated core and checks every result against a C reference model on randomized 8-bit matrices.',
+     'Benchmark: firmware reads the RISC-V cycle counter to compare the accelerator with a pure-C triple loop. Target after simulation: the DE10-Lite.'],
+  kv:[['16','MACs per clock'],['INT8 → 32','operand → accumulator bits'],['MMIO','registers + done IRQ']]},
+ {ic:'cpu',g:'rtl',t:'8-Bit Pipelined Processor Core',d:'Sep 2026',
+  s:'A 3-stage SystemVerilog CPU for a 10-instruction ISA, with forwarding and branch flush.',
+  tools:'SystemVerilog, Icarus Verilog, Verilator, Slang, GTKWave',dg:'cpu',
+  l:['8-bit datapath, four registers (R0–R3) and a 10-instruction ISA on a 4-bit opcode: NOP, ADD, SUB, AND, OR, XOR, LDI, HALT, IFEQ, JUMP.',
+     '3-stage pipeline in a single clock domain: Fetch, Execute (read registers and compute), Writeback.',
+     'Data hazards: forwarding from Writeback into Execute, so back-to-back dependent instructions run with 0 stalls.',
+     'Control hazards: a taken JUMP or IFEQ flushes the one instruction Fetch already grabbed.',
+     'Three self-checking testbenches (ALU, register file, full CPU). The ALU bench checks all 65,536 operand pairs for every ALU opcode; the CPU bench runs basic, hazard and branch programs covering all 10 opcodes.',
+     'One command runs Verilator --lint-only -Wall and Slang elaboration before every testbench, so each regression is gated on 0 warnings.'],
+  kv:[['65,536','operand pairs per ALU op'],['0','stalls with forwarding'],['0','-Wall warnings, gated']]},
+ {ic:'vga',g:'rtl',t:'FPGA Video Engine',d:'Apr 2026',
+  s:'A Verilog VGA controller and dual-port BRAM frame buffer on a MAX 10 FPGA.',
+  tools:'Verilog, Intel Quartus, MAX 10 (DE10-Lite), Icarus Verilog, GTKWave',dg:'vga',
+  l:['VGA timing for 640×480 at 60 Hz: 25.175 MHz pixel clock, an 800×525 total frame, 160 pixels of horizontal and 45 lines of vertical blanking.',
+     '25 MHz pixel clock by dividing the 50 MHz board oscillator by 2: 0.7 % below nominal and inside monitor tolerance.',
+     'A full 640×480 12-bit frame needs about 3.7 Mbit, more than the on-chip RAM. Built a dual-port M9K frame buffer at 320×240 (921,600 bits) scaled 2×, one port for drawing and one for video.',
+     'The first image was shifted one pixel with a stray edge column: block RAM returns data a clock after the address. Delayed sync and blanking by one clock and forced colour to 0 during blanking, and the monitor locked cleanly.',
+     'Verified sync widths and memory read timing in Icarus Verilog and GTKWave, and met timing in Quartus at 50 MHz.'],
+  kv:[['4,096','colours (12-bit)'],['921,600','bits of BRAM frame'],['1 clk','sync realigned to RAM']]},
+ {ic:'amp',g:'rtl',t:'CMOS and BJT Amplifiers',d:'Sep 2026',
+  s:'Biasing, small-signal design and a 3-stage amplifier simulated in LTspice.',
+  tools:'LTspice, MOSFET and BJT, Electronics I and II',dg:'amp',
+  l:['Biased NMOS/PMOS and NPN/PNP stages from a 5 V supply with DC operating-point simulations, then derived gm, output and input resistance from the small-signal models.',
+     'Raising the drain resistor made gain collapse instead of rise: VDS had fallen below the overdrive voltage, pushing the MOSFET into triode. Rebalanced resistor and bias current to keep every device in saturation or forward-active with swing headroom.',
+     'Compared common-source/emitter, common-gate/base and follower stages, sweeping load resistors to show the gain versus input/output-resistance trade-off.',
+     'Designed a 3-stage amplifier (differential pair, common-source gain stage, source follower) reaching about 40 dB midband gain.',
+     'AC sweeps from 10 Hz to 100 MHz traced the lower corner to coupling and bypass capacitors and the upper corner to Miller multiplication of CGD; negative feedback cut gain 20 dB and extended bandwidth about 10×.'],
+  kv:[['~40 dB','midband gain'],['10 Hz–100 MHz','AC sweep'],['~10×','bandwidth with feedback']]},
+ {ic:'avion',g:'emb',t:'Rocket Avionics Bay and Recovery',b:'Launch Canada · 14th',
+  s:'Flight computers, GPS and deployment electronics for a 10,000 ft competition rocket.',
+  tools:'Featherweight Blue Raven, RRC3 altimeter, Featherweight GPS, e-matches, CAD',
+  m:[['avbay_photo.jpg','The finished avionics sled: flight computers, batteries and switches.'],['avbay_schematic.png','Avionics wiring: Blue Raven primary, RRC3 backup, drogue and main e-match channels.'],['rocket_launch.jpg','UWindsor\'s rocket leaving the rail at Launch Canada.'],['avbay_cad.jpg','Avionics bay CAD: bulkheads, threaded rods and the electronics sled.'],['rocket_body.png','Rocket layout showing where the avionics bay sits.']],
+  l:['Responsible for all electrical systems on the avionics bay and their integration with flight software.',
+     'Dual-deploy recovery: Featherweight Blue Raven primary with an RRC3 backup altimeter, firing e-matches and black powder for drogue and main parachutes.',
+     'Separate 9 V and 3.3 V sources; Featherweight GPS for tracking after launch.',
+     'Flew to 10,000 ft at Launch Canada and was recovered with minimal damage and fully functional; the team placed 14th and earned the Boy Scout Award.'],
+  kv:[['10,000 ft','launch altitude'],['14th','Launch Canada'],['2 altimeters','primary + backup']]},
+ {ic:'rover',g:'emb',t:'RouteScout Rover',d:'Jan 2026',b:'McHacks 13',link:'https://devpost.com/software/the-holeymoley-routescout',
+  s:'Passive road inspection in miniature: pothole detection tagged onto a live LiDAR SLAM map.',
+  tools:'ESP32, Raspberry Pi, ROS 2, micro-ROS, SLAM Toolbox, RPLIDAR, YOLOv4-Tiny, OpenCV, Flask, React',
+  m:[['rover_side.jpg','The rover: Raspberry Pi, ESP32 and LiDAR on one chassis.'],['rover_dashboard.jpg','The RoadWatch console: live SLAM map, teleop and logged potholes.'],['rover_architecture.jpg','System architecture: ESP32 firmware, Raspberry Pi with ROS 2, laptop LAN server.'],['rover_front.jpg','Front view with the webcam used for pothole detection.'],['rover_top.jpg','Top-down wiring between the ESP32 layer and the Raspberry Pi.'],['rover_lidar.jpg','Slamtec RPLIDAR used for SLAM.'],['rover_slam_map.jpg','SLAM map streamed to the frontend.'],['rover_demo.jpg','Demo run at McGill.']],
+  l:['Built in 24 hours by a team of four at McGill, coming in with no practical SLAM, ROS 2 or LiDAR experience. Indoors GPS was unreliable, so pose came from LiDAR SLAM, wheel odometry and IMU.',
+     'Architected the 3-tier topology: ESP32 firmware for motors and sensors, a Raspberry Pi running ROS 2, SLAM and vision, and a laptop LAN server for the Flask backend and React dashboard.',
+     'Skid-steer base driven over I2C with encoder feedback; Twist commands converted to left and right track velocities from the track width. Odometry fuses IMU yaw so heading survives wheel slip, published at 50 Hz.',
+     'The rover drifted sideways when driving straight (light chassis, imperfect wheel alignment that encoders can\'t see). A yaw-hold PID on the IMU heading straightened the path and made the SLAM map noticeably more consistent.',
+     'YOLOv4-Tiny through OpenCV DNN lagged seconds behind the camera; a capture thread that keeps only the latest frame removed it. A 0.7 confidence floor, oversized-box rejection and a centroid tracker log each pothole once.',
+     'ROS 2 discovery failed on campus Wi-Fi because DDS relies on UDP multicast. Flashed a router with OpenWRT for a dedicated LAN, after which discovery worked every time.'],
+  kv:[['24 h','team of 4'],['50 Hz','odometry'],['3 tiers','ESP32 · Pi · laptop']]},
+ {ic:'fire',g:'emb',t:'SMAZ Rover · Autonomous Fire Extinguisher',d:'Feb 2026',b:'MakeUofT 2026',link:'https://devpost.com/software/fireguard-rover',
+  s:'A rover that confirms flames with on-board vision and actuates a suppression mechanism.',
+  tools:'Raspberry Pi 4B, Arduino, L298N, RPi Camera, YOLOv4-tiny, power electronics, CAD',
+  m:[['fire_rover.jpg','The rover: battery pack, Arduino and motor driver on the chassis.'],['fire_detect.jpg','YOLOv4-tiny flagging a flame on the Raspberry Pi.'],['fire_bench.jpg','Bench bring-up: battery packs, drivers and motors.'],['fire_cad_chassis.jpg','Chassis CAD.'],['fire_cad_motors.jpg','Drive motor and wheel CAD.']],
+  l:['Built with a teammate at MakeUofT: detect a flame, navigate to it, and actuate suppression, the full autonomy loop on consumer parts.',
+     'Main pack of 12 AA cells in 6S2P: 9 V with roughly 5000 mAh (about 45 Wh), sized from a load budget of about 35 W peak (RPi 4B at 15 W plus four drive motors at about 1 A stall each).',
+     'With the Pi and motors on one 5 V rail, motor start-up dragged it low enough to reboot the Pi. Split the design into 3 isolated power domains: a Pi rail, a motor rail, and a separate 9 V battery through a buck converter for the Arduino.',
+     'L298N dual H-bridge at 2 A per channel, two motors per channel inside the rating; CAD for an automated dispensing trailer within the payload limit.',
+     'YOLOv4-tiny at 416×416 on the RPi 4B detects fire and sends actuation triggers to the Arduino over serial.'],
+  kv:[['6S2P','~45 Wh pack'],['3','isolated power domains'],['~35 W','peak load budget']]},
+ {ic:'fert',g:'emb',t:'Autonomous Fertilizer Dispenser',d:'Apr 2025',
+  s:'An Arduino car that runs an obstacle course and dispenses from a 3D-printed trailer.',
+  tools:'Arduino Uno, C, L298N, NMOS driver, ultrasonic + IR sensors, AutoCAD, 3D printing',
+  m:[['fert_car.jpg','The car with its fertilizer-dispensing trailer.'],['fert_cad.jpg','Trailer CAD: houses the driver and the dispensing wheel.'],['fert_trailer_print.jpg','The 3D-printed trailer.'],['fert_wheel.jpg','Spin-wheel dispenser on the trailer.'],['fert_circuit.jpg','Dispensing circuit: Arduino PWM through an NMOS low-side driver.'],['fert_sketch.jpg','Wiring plan for the L298N motor driver.'],['fert_dispenser.jpg','Dispenser test.'],['fert_wiring.jpg','Wiring harness on the trailer.']],
+  l:['Five DC motors: four drive motors through an L298N (2 A per channel, two per channel) and the dispenser through a custom NMOS low-side driver, all speed-controlled by PWM.',
+     'A flyback diode across the dispensing motor clamps the inductive spike when the NMOS switches off.',
+     'Mapped the Uno\'s 14 digital I/O lines, reserving PWM pins for the L298N enables and the NMOS gate, and built the harness to both drivers.',
+     'Main loop in C polls one ultrasonic and two IR sensors and updates 8-bit PWM duty values.',
+     'It stopped at random: single spurious ultrasonic echoes read as obstacles. Requiring 3 consecutive readings under 20 cm before stopping ended the false stops.'],
+  kv:[['5 motors','4 drive + 1 dispenser'],['3 reads','debounced obstacle check'],['flyback','diode on the NMOS stage']]},
+ {ic:'llm',g:'sw',t:'LLM Resume Generation Pipeline',d:'Oct 2026',
+  s:'A headless 3-stage pipeline that turns a job listing into a compiled one-page LaTeX resume.',
+  tools:'Python, Anthropic Claude API, LaTeX, PowerShell, regex',dg:'llm',
+  l:['Python and PowerShell automation calling the Claude API in three stages: role analysis, resume generation, metadata extraction.',
+     'Role analysis produces a JSON brief validated against 8 required fields, with a fallback so a bad brief never stops a run.',
+     'Early outputs broke compilation on unescaped LaTeX characters; fixed at the source with prompt rules, a 27-line page budget and a 103-character line limit.',
+     'pdflatex sometimes hung forever: MiKTeX was waiting on an invisible install prompt. Running it with stdin closed and a 120 s timeout makes failures clean.',
+     'A regex router sanitizes company names and files each PDF, source, listing and brief into an archive.']},
+ {ic:'wild',g:'sw',t:'Canadian Wildfire Risk Tracker',
+  s:'A web app that rates wildfire risk anywhere in Canada from live NASA fire data and wind.',
+  tools:'Python, Flask, JavaScript/HTML/CSS, NASA EONET + FIRMS APIs, Weather API, SQLite',
+  m:[['wild_home.jpg','Location search and the live map.'],['wild_risk.jpg','Ignition-risk score for the selected location.'],['wild_nearby.jpg','Nearby wildfires from NASA EONET.'],['wild_emergency.jpg','Emergency resources for the selected province.'],['wild_alerts.jpg','Global alert board backed by SQLite.'],['wild_weather.jpg','Current conditions and 3-day forecast.']],
+  l:['Predicts wildfire risk at any Canadian location from nearby fires and wind vector fields.',
+     'Real-time fire data from NASA\'s EONET and FIRMS APIs, plus live weather and a 3-day forecast.',
+     'Quick links to emergency resources close to the user.',
+     'Global alert system where users post location alerts, stored in SQLite so they persist across refreshes.']},
+ {ic:'bb',g:'sw',t:'Build Buddy',b:'Innovate with AI',link:'https://devpost.com/software/build-buddy-bot',
+  s:'An AI permit assistant for Ontario renovations and construction.',
+  tools:'Next.js, React, TypeScript, Tailwind, Genkit, Google AI, Google Maps and Places, OpenWeatherMap, Firebase',
+  m:[['bb_home.jpg','Home dashboard with the AI permit assistant and document checklist.'],['bb_map.jpg','Pin the project location to get rules for that city.'],['bb_weather.jpg','7-day construction weather forecast by Ontario city.']],
+  l:['Team of three. Permit rules vary by municipality, and incorrect applications add weeks of review.',
+     'A chatbot explains permit requirements, takes project details conversationally, and flags missing or incorrect information.',
+     'Pin a location on Google Maps to get rules for that exact city, plus a 7-day construction weather forecast.',
+     'A dashboard tracks active and pending permits and builds a personalized document checklist.']}
+];
+const GLYPH={'mac':'<rect x="6" y="6" width="9" height="9"/><rect x="18" y="6" width="9" height="9"/><rect x="30" y="6" width="9" height="9"/><rect x="6" y="18" width="9" height="9"/><rect x="18" y="18" width="9" height="9" class="g"/><rect x="30" y="18" width="9" height="9"/><rect x="6" y="30" width="9" height="9"/><rect x="18" y="30" width="9" height="9"/><rect x="30" y="30" width="9" height="9" class="g"/><path d="M1 10.5h4M1 22.5h4M1 34.5h4M10.5 1v4M22.5 1v4M34.5 1v4"/>', 'cpu':'<rect x="2" y="15" width="11" height="14" rx="2"/><rect x="17" y="15" width="11" height="14" rx="2" class="g"/><rect x="32" y="15" width="11" height="14" rx="2"/><path d="M13 22h4M28 22h4"/><path d="M37.5 29c0 9-15 9-15 1" class="g"/><path d="M4 9h3V5h3v4h3V5h3v4h3V5h3v4h3V5h3v4h3V5h3v4h3"/>', 'vga':'<rect x="3" y="6" width="38" height="28" rx="2"/><path d="M8 12h28M8 17h28M8 22h28M8 27h20" class="g"/><path d="M16 39h12M22 34v5"/>', 'amp':'<path d="M3 36V6M3 36h38"/><path d="M5 30c4-12 7-16 12-16h10c5 0 8 6 12 16" class="g"/><path d="M11 6v30M33 6v30" stroke-dasharray="2 3"/>', 'avion':'<path d="M4 40C10 14 30 6 40 40" stroke-dasharray="2 3"/><circle cx="22" cy="17" r="2.2" class="g"/><path d="M15 26c0-4 3-6 7-6s7 2 7 6"/><path d="M15 26l7 6 7-6"/>', 'rover':'<circle cx="22" cy="22" r="3" class="g"/><path d="M22 22L40 10A21 21 0 0 1 40 34Z" stroke-dasharray="2 2.5"/><circle cx="34" cy="14" r="1"/><circle cx="37" cy="22" r="1"/><circle cx="33" cy="30" r="1"/><path d="M4 34h10M4 38h14"/>', 'fire':'<path d="M22 41c-9 0-14-6-14-13 0-8 7-11 8-20 5 4 6 9 6 12 2-2 3-4 3-7 6 5 11 9 11 15 0 7-5 13-14 13Z"/><path d="M22 41c-4 0-6-3-6-6 0-4 4-6 5-10 4 4 7 6 7 10 0 3-2 6-6 6Z" class="g"/>', 'fert':'<path d="M3 38h38"/><rect x="8" y="22" width="16" height="10" rx="2"/><circle cx="12" cy="35" r="2.5"/><circle cx="21" cy="35" r="2.5"/><path d="M24 27h6"/><circle cx="33" cy="27" r="3" class="g"/><path d="M36 31l2 3M33 32v3M30 31l-1 3" class="g"/>', 'llm':'<path d="M10 4h18l8 8v28H10Z"/><path d="M28 4v8h8"/><path d="M15 18h16M15 23h16M15 28h10" class="g"/><path d="M4 30l4-4-4-4"/>', 'wild':'<path d="M5 30c6-8 12-4 18-10s14-6 17 0"/><path d="M5 37c6-6 14-3 20-8s12-4 15 0"/><path d="M5 23c7-9 12-6 17-12s12-5 17 0"/><circle cx="26" cy="18" r="2.5" class="g"/>', 'bb':'<path d="M5 20L22 6l17 14v19H5Z"/><path d="M5 28h14v11M19 20v8"/><path d="M31 15c-3 0-5 2-5 5 0 4 5 9 5 9s5-5 5-9c0-3-2-5-5-5Z" class="g"/>'};
+const BOX='#f3eee4',STR='#c9bca5',INK='#1b1915',MUT='#6f675a',DIM='#9a907f',EMB='#9c3a24',GLD='#b8892f';
+const DG={
+ mac:`<svg viewBox="0 0 460 260" font-family="JetBrains Mono, monospace" font-size="10">
+   <rect x="10" y="70" width="92" height="120" rx="9" fill="${BOX}" stroke="${STR}"/><text x="56" y="100" text-anchor="middle" fill="${INK}">PicoRV32</text><text x="56" y="116" text-anchor="middle" fill="${DIM}">RISC-V core</text>
+   <text x="56" y="150" text-anchor="middle" fill="${GLD}">MMIO regs</text><text x="56" y="166" text-anchor="middle" fill="${DIM}">done IRQ</text>
+   <path class="flow" d="M102 130 H140" stroke="${DIM}" stroke-width="1.4" fill="none"/>
+   ${Array.from({length:16},(_,i)=>{const r=i>>2,c=i&3,x=170+c*62,y=40+r*52;return `<rect x="${x}" y="${y}" width="44" height="34" rx="6" fill="${BOX}" stroke="${(r+c)%3===0?EMB:STR}"/><text x="${x+22}" y="${y+21}" text-anchor="middle" fill="${INK}">MAC</text>`}).join('')}
+   ${[0,1,2,3].map(r=>`<path class="flow" d="M140 ${57+r*52} H${170+3*62+44}" stroke="${EMB}" stroke-width="1" fill="none" opacity=".7"/>`).join('')}
+   ${[0,1,2,3].map(c=>`<path class="flow" d="M${192+c*62} 22 V${40+3*52+34}" stroke="${GLD}" stroke-width="1" fill="none" opacity=".7"/>`).join('')}
+   <text x="170" y="250" fill="${DIM}">A (INT8) flows right · B flows down · 32-bit accumulate in place</text>
+  </svg>`,
+ cpu:`<svg viewBox="0 0 460 210" font-family="JetBrains Mono, monospace" font-size="12">
+   ${['FETCH','EXECUTE','WRITEBACK'].map((n,i)=>`<rect x="${20+i*150}" y="60" width="120" height="64" rx="9" fill="${BOX}" stroke="${i==1?EMB:STR}"/><text x="${80+i*150}" y="97" text-anchor="middle" fill="${INK}">${n}</text>`).join('')}
+   <path class="flow" d="M140 92 H170 M290 92 H320" stroke="${DIM}" stroke-width="1.5" fill="none"/>
+   <path d="M380 124 C380 175 230 175 230 128" fill="none" stroke="${GLD}" stroke-width="1.5" stroke-dasharray="4 5"/>
+   <path d="M224 134 l6 -8 6 8" fill="none" stroke="${GLD}" stroke-width="1.5"/>
+   <text x="305" y="190" fill="${GLD}" font-size="11">forwarding</text>
+   <text x="20" y="38" fill="${DIM}" font-size="11">clk</text><path d="M50 40 ${Array.from({length:16},()=>`h12 v-12 h12 v12`).join(' ')}" fill="none" stroke="${DIM}" stroke-width="1"/>
+  </svg>`,
+ vga:`<svg viewBox="0 0 460 210" font-family="JetBrains Mono, monospace" font-size="11">
+   <rect x="20" y="20" width="300" height="170" fill="none" stroke="${STR}"/>
+   <rect x="20" y="20" width="240" height="136" fill="url(#gV)" opacity=".92"/>
+   <defs><linearGradient id="gV" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b2540"/><stop offset=".55" stop-color="#9c2f45"/><stop offset="1" stop-color="#e9a94a"/></linearGradient></defs>
+   <text x="140" y="92" text-anchor="middle" fill="#fff" font-size="13">640 × 480 visible</text>
+   <text x="290" y="92" text-anchor="middle" fill="${MUT}" transform="rotate(90 290 92)">h-blank 160</text>
+   <text x="140" y="176" text-anchor="middle" fill="${MUT}">v-blank 45</text>
+   <text x="340" y="40" fill="${INK}">MAX 10 FPGA</text><text x="340" y="60" fill="${DIM}">25 MHz pixel clk</text><text x="340" y="80" fill="${DIM}">HSYNC / VSYNC</text><text x="340" y="110" fill="${GLD}">M9K dual-port</text><text x="340" y="128" fill="${DIM}">320×240 → 2×</text>
+  </svg>`,
+ amp:`<svg viewBox="0 0 460 210" font-family="JetBrains Mono, monospace" font-size="11">
+   <path d="M40 160 H420" stroke="${STR}"/><path d="M40 160 V20" stroke="${STR}"/>
+   <path d="M40 120 C70 60 90 50 130 50 H230 C270 50 290 60 320 100 S390 160 420 165" fill="none" stroke="url(#gC)" stroke-width="2.4"/>
+   <defs><linearGradient id="gC" x1="0" x2="1"><stop offset="0" stop-color="${GLD}"/><stop offset="1" stop-color="#9c2f45"/></linearGradient></defs>
+   <path d="M92 40 V160 M270 40 V160" stroke="${DIM}" stroke-dasharray="3 5"/><text x="98" y="36" fill="${MUT}">f_L</text><text x="276" y="36" fill="${MUT}">f_H · Miller</text>
+   <text x="140" y="44" fill="${INK}">~40 dB midband</text><text x="360" y="182" fill="${DIM}">log f</text>
+   <text x="44" y="190" fill="${DIM}">AC sweep 10 Hz – 100 MHz · schematic</text>
+  </svg>`,
+ llm:`<svg viewBox="0 0 460 210" font-family="JetBrains Mono, monospace" font-size="11">
+   ${[['job post','raw text',10],['Claude API','3 stages',125],['pdflatex','stdin closed',240],['archive','by company',355]].map((n,i)=>`<rect x="${n[2]}" y="70" width="98" height="64" rx="9" fill="${BOX}" stroke="${i==1?EMB:STR}"/><text x="${n[2]+49}" y="98" text-anchor="middle" fill="${INK}">${n[0]}</text><text x="${n[2]+49}" y="116" text-anchor="middle" fill="${DIM}">${n[1]}</text>`).join('')}
+   <path class="flow" d="M108 102 H125 M223 102 H240 M338 102 H355" stroke="${DIM}" stroke-width="1.5" fill="none"/>
+  </svg>`
+};
+(function(){
+  const list=$('#plist');let n=0;
+  GROUPS.forEach(([key,name,sub])=>{
+    const grp=document.createElement('div');grp.className='pgroup';grp.dataset.g=key;
+    grp.innerHTML=`<div class="pgh rv"><h3>${name}</h3><span>${sub}</span></div><div class="plist"></div>`;
+    list.appendChild(grp);const host=grp.querySelector('.plist');
+    PROJ.filter(p=>p.g===key).forEach(p=>{
+    const idx=n++;
+    const row=document.createElement('article');row.className='prow';
+    const id='pb'+idx;
+    let media='';
+    if(p.m){media=`<div class="gal" data-i="${idx}"><div class="main" role="button" tabindex="0" aria-label="Enlarge image" data-ph><img src="assets/img/${p.m[0][0]}" alt="${esc(p.m[0][1])}" loading="lazy"></div>
+      <div class="thumbs">${p.m.map((m,j)=>`<button aria-label="Show image ${j+1}" aria-current="${j===0}"><img src="assets/img/${m[0]}" alt="" loading="lazy"></button>`).join('')}</div><div class="gcap">${esc(p.m[0][1])}</div></div>`}
+    else media=`<div><div class="diagram">${DG[p.dg]}</div><p class="cap">Illustration of the design, not a capture.</p></div>`;
+    row.innerHTML=`<i class="slash" aria-hidden="true"></i><button aria-expanded="false" aria-controls="${id}"><span class="n">${String(idx+1).padStart(2,'0')}</span><svg class="glyph" viewBox="0 0 44 44" aria-hidden="true">${GLYPH[p.ic]||''}</svg>
+      <span><h3>${esc(p.t)}</h3><span class="one">${esc(p.s)}</span></span>
+      <span class="side">${p.d?`<span class="date">${p.d}</span>`:''}${p.b?`<span class="badge">${esc(p.b)}</span>`:''}</span><span class="plus" aria-hidden="true"></span></button>
+      <div class="pbody" id="${id}"><div><div class="pinner${p.m?'':' noimg'}">${media}
+      <div><ul class="list">${p.l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>${p.kv?`<div class="kv">${p.kv.map(k=>`<div><b>${esc(k[0])}</b><span>${esc(k[1])}</span></div>`).join('')}</div>`:''}<div class="tools"><b>Tools</b> · ${esc(p.tools)}</div>${p.link?`<a class="plink" href="${p.link}" target="_blank" rel="noopener">Devpost ↗</a>`:''}</div></div></div></div>`;
+    host.appendChild(row);
+    const btn=row.querySelector('button');
+    btn.addEventListener('click',()=>{const o=row.classList.toggle('open');btn.setAttribute('aria-expanded',o);if(o){slashOpen(row);if(FXMAP[p.ic])runFX(FXMAP[p.ic],row)}});
+    if(p.m){const g=row.querySelector('.gal'),main=g.querySelector('.main img'),cap=g.querySelector('.gcap');let cur=0;
+      g.querySelectorAll('.thumbs button').forEach((t,j)=>t.addEventListener('click',()=>{cur=j;main.style.opacity=0;
+        setTimeout(()=>{main.src='assets/img/'+p.m[j][0];main.alt=p.m[j][1];cap.textContent=p.m[j][1];main.style.opacity=1},reduce?0:160);
+        g.querySelectorAll('.thumbs button').forEach((x,k)=>x.setAttribute('aria-current',k===j))}));
+      const open=()=>openLB('assets/img/'+p.m[cur][0],p.m[cur][1]);
+      g.querySelector('.main').addEventListener('click',open);
+      g.querySelector('.main').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+    }
+    });
+  });
+  const first=list.querySelector('.prow');first.classList.add('open');first.querySelector('button').setAttribute('aria-expanded','true');
+  // Interstellar photo grid opens in the lightbox too
+  document.querySelectorAll('[data-lb]').forEach(f=>{f.tabIndex=0;f.setAttribute('role','button');
+    const o=()=>openLB(f.querySelector('img').getAttribute('src'),f.dataset.lb);
+    f.addEventListener('click',o);f.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();o()}})});
+})();
+/* slash-open: a gold cut across the row, then a diagonal wipe reveals the body */
+function slashOpen(row){
+  if(!anim)return;
+  const sl=row.querySelector('.slash'),pin=row.querySelector('.pinner'),btn=row.querySelector('button');
+  G.set(sl,{top:btn.offsetHeight/2});
+  G.timeline()
+   .fromTo(sl,{scaleX:0,rotation:-2.2,opacity:1},{scaleX:1,duration:.34,ease:'power3.in'})
+   .to(sl,{opacity:0,duration:.45,ease:'power1.out'},'+=.04')
+   .fromTo(pin,{clipPath:'polygon(0% 0%,0% 0%,-15% 100%,-15% 100%)'},{clipPath:'polygon(0% 0%,115% 0%,100% 100%,-15% 100%)',duration:.85,ease:'expo.out',clearProps:'clipPath'},.22)
+   .fromTo(btn.querySelector('h3'),{skewX:-8},{skewX:0,duration:.6,ease:'expo.out',clearProps:'transform'},.3);
+}
+
+/* ---------- lightbox ---------- */
+const lb=$('#lb');
+function openLB(src,cap){$('#lbimg').src=src;$('#lbimg').alt=cap;$('#lbcap').textContent=cap;lb.showModal()}
+lb.addEventListener('click',e=>{if(e.target===lb||e.target.id==='lbimg')lb.close()});
+// every content image opens full-window, unless it already has its own handler
+document.addEventListener('click',e=>{const im=e.target.closest('img');if(!im||lb.open)return;
+  if(im.closest('.art,.thumbs,.compare,[data-lb],.gal .main,#lb,nav,.srcclip'))return;
+  if(!im.closest('section,header'))return;
+  openLB(im.currentSrc||im.src,im.alt||'')});
+$('#lbx').onclick=()=>lb.close();lb.addEventListener('click',e=>{if(e.target===lb)lb.close()});
+
+/* ---------- skills ---------- */
+const SK=[
+ ['RTL design and verification','#9c2f45','Verilog, SystemVerilog, finite state machines, pipelining, TMR and majority voting, Intel Quartus, AMD Vivado, Yosys, Icarus Verilog, Verilator, Slang, GTKWave, cgra4ml, Brevitas, QONNX, UMC 22nm'],
+ ['Boards, buses and bring-up','#9c3a24','Terasic DE10-Lite (MAX 10), AMD Kria KV260, PicoRV32, STM32, ESP32, ESP32S3 (XIAO), Raspberry Pi, Arduino, Nano C100, AR1335 MIPI, UART, SPI, I2C, AXI4, DMA, BLE, GStreamer, embedded Linux, oscilloscopes'],
+ ['Power and analog','#b8892f','power distribution, load tables and ampacity, breakers and branch protection, ODrive regen clamps, Robstride actuators, isolated rails, buck converters, battery pack sizing, L298N, NMOS drivers, LTspice, MOSFET and BJT amplifiers'],
+ ['Firmware and software','#1b2540','Embedded C, bare-metal C, C++, Python, RISC-V GCC, CMake, Bash, PowerShell, Git, Docker, ROS 2, micro-ROS, FastAPI, Flask, SQLite, NumPy, SciPy, pandas, pytest'],
+ ['Vision and ML','#6b2d5c','metric depth estimation, FastDepth, Depth Anything, point clouds, SVO 2.0, Lucas-Kanade, PnP RANSAC, camera calibration, 3D Gaussian Splatting, AnySplat, YOLOv4-Tiny, OpenCV, PyTorch, CUDA, XGBoost, KNN']
+];
+$('#skills').innerHTML=SK.map(s=>`<div class="sk rv"><h3><i style="background:${s[1]}"></i>${s[0]}</h3><div class="cl">${s[2].split(', ').map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>`).join('');
+
+/* ---------- reveals, counters ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15,rootMargin:'0px 0px -6% 0px'});
+$$('.rv').forEach(el=>io.observe(el));
+const fmt=(v,dec)=>dec?v.toFixed(dec):Math.round(v).toLocaleString();
+const co=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;co.unobserve(e.target);
+  const el=e.target,to=parseFloat(el.dataset.count),dec=(el.dataset.count.split('.')[1]||'').length;if(reduce){el.textContent=fmt(to,dec);return}
+  const t0=performance.now(),dur=1400;(function st(t){const k=Math.min(1,(t-t0)/dur),v=to*(1-Math.pow(1-k,4));el.textContent=fmt(v,dec);if(k<1)requestAnimationFrame(st)})(t0)}),{threshold:.6});
+$$('[data-count]').forEach(el=>co.observe(el));
+
+/* ---------- kerf cut: headings drawn twice, split on a diagonal, slid shut by a gold slash ---------- */
+(function(){
+  if(!anim)return;
+  $$('.kerf').forEach(h=>{
+    const html=h.innerHTML;
+    h.innerHTML=`<span class="kf"><span class="ka">${html}</span><span class="kb" aria-hidden="true">${html}</span><i class="kl" aria-hidden="true"></i></span>`;
+    const kf=h.firstElementChild,ka=kf.children[0],kb=kf.children[1],kl=kf.children[2];
+    let ux=1,uy=0;
+    const geo=()=>{const w=kf.offsetWidth,hh=kf.offsetHeight,dx=w*1.04,dy=-.4*hh,len=Math.hypot(dx,dy);
+      ux=dx/len;uy=dy/len;G.set(kl,{width:len,rotation:Math.atan2(dy,dx)*180/Math.PI})};
+    geo();ScrollTrigger.addEventListener('refreshInit',geo);
+    const S=Math.min(46,Math.max(22,kf.offsetWidth*.05));
+    G.set(ka,{x:-ux*S,y:-uy*S,opacity:0});G.set(kb,{x:ux*S,y:uy*S,opacity:0});G.set(kl,{scaleX:0,opacity:1});
+    G.timeline({scrollTrigger:{trigger:h,start:'top 86%',once:true}})
+     .to(kl,{scaleX:1,duration:.42,ease:'power3.inOut'})
+     .to([ka,kb],{opacity:1,duration:.25,ease:'none'},.12)
+     .to([ka,kb],{x:0,y:0,duration:1,ease:'expo.out'},.18)
+     .to(kl,{opacity:0,duration:.6,ease:'power1.out'},.55)
+     .eventCallback('onComplete',()=>G.set([ka,kb],{clearProps:'transform,opacity'}));
+  });
+})();
+
+/* ---------- panels tilt flat as they scroll in ---------- */
+if(anim)$$('.tilt').forEach(el=>{
+  G.fromTo(el,{rotateX:9,y:20,transformPerspective:1300,transformOrigin:'50% 100%'},
+    {rotateX:0,y:0,ease:'none',scrollTrigger:{trigger:el,start:'top 100%',end:'top 52%',scrub:.6}});
+});
+
+/* ---------- stretch type: letters stretch from the baseline with scroll velocity ---------- */
+const stretchSets=[];
+(function(){
+  function split(el){const out=[];
+    [...el.childNodes].forEach(n=>{
+      if(n.nodeType===3){const frag=document.createDocumentFragment();
+        [...n.textContent].forEach(ch=>{if(ch===' '){frag.appendChild(document.createTextNode(' '));return}
+          const s=document.createElement('span');s.className='st';s.setAttribute('aria-hidden','true');
+          const i=document.createElement('span');i.className='si';i.textContent=ch;s.appendChild(i);frag.appendChild(s);out.push(s)});
+        n.replaceWith(frag)}
+      else if(n.nodeType===1&&n.tagName!=='BR')out.push(...split(n));
+    });return out}
+  const name=split($('#name')),contact=split($('#contactH'));
+  stretchSets.push({box:$('#name'),els:name},{box:$('#contactH'),els:contact});
+  stretchSets.forEach(s=>s.w=s.els.map((_,i)=>.55+.45*(((i*7)%5)/4)));
+  if(anim){
+    G.fromTo('#name .si',{scaleY:0,opacity:0},{scaleY:1,opacity:1,duration:1.05,ease:'back.out(2.6)',stagger:.045,delay:.15});
+    G.fromTo('#contactH .si',{scaleY:0},{scaleY:1,duration:.9,ease:'back.out(2.4)',stagger:.02,scrollTrigger:{trigger:'#contactH',start:'top 85%',once:true}});
+  }
+})();
+
+/* ---------- one scroll loop: velocity, hero dolly, gauge, nav ---------- */
+(function(){
+  const nav=$('#nav'),SEC=[['interstellar','Interstellar'],['ohive','O-Hive'],['fsae','Formula Electric'],['research','Research'],['projects','Projects'],['stack','Skills'],['contact','Contact']],secs=SEC.map(q=>$('#'+q[0])),hero=$('#top'),viewer=$('#viewer'),
+        gauge=$('#gauge'),gmk=$('#gmk'),gz=$('#gz'),sideEls=$$('.wave.side,.side-sch');
+  // section ticks on the depth gauge
+  const ticks=secs.map((s,i)=>{const t=document.createElement('a');t.className='sec';t.href='#'+SEC[i][0];t.dataset.n=SEC[i][1];t.textContent=String(i+1).padStart(2,'0');gauge.appendChild(t);return t});
+  function layoutTicks(){const H=document.documentElement.scrollHeight-innerHeight,gh=gauge.offsetHeight;
+    secs.forEach((s,i)=>{ticks[i].style.top=(clamp((s.offsetTop-70)/H,0,1)*gh)+'px'})}
+  addEventListener('resize',layoutTicks);addEventListener('load',layoutTicks);layoutTicks();
+  let lastY=scrollY,lastT=performance.now(),amt=0,act=-2;
+  function loop(now){
+    const y=scrollY,dt=Math.max(1,now-lastT),v=(y-lastY)/dt*1000;lastY=y;lastT=now;
+    SCR.vel+=(v-SCR.vel)*.2;
+    const H=document.documentElement.scrollHeight-innerHeight, p=H>0?y/H:0;
+    nav.classList.toggle('on',y>20);
+    // hero dolly + tilt
+    const hp=clamp(y/(hero.offsetHeight*.9),0,1);
+    if(Math.abs(hp-SCR.heroP)>.0005){SCR.heroP=hp;
+      if(!reduce)viewer.style.transform=hp>0?`rotateX(${hp*16}deg) rotateZ(${-hp*2.2}deg) scale(${1-hp*.08})`:''}
+    // side graphics draw as their section scrolls through
+    sideEls.forEach(el=>{const r=el.parentElement.getBoundingClientRect();el.style.setProperty('--p',reduce?1:clamp((innerHeight*.85-r.top)/(r.height*.55),0,1).toFixed(3))});
+    // gauge
+    if(gauge.offsetHeight){gmk.style.transform=`translateY(${p*gauge.offsetHeight}px)`;gz.textContent=(y/3779.5).toFixed(2)}
+    let a=-1;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<innerHeight*.4)a=i});
+    if(a!==act){act=a;ticks.forEach((t,i)=>t.classList.toggle('on',i===a))}
+    // stretch type
+    if(!reduce){
+      const tgt=Math.min(.34,Math.abs(SCR.vel)/7000);amt+=(tgt-amt)*.14;
+      const sk=clamp(-SCR.vel/900,-4,4);
+      stretchSets.forEach(s=>{const r=s.box.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
+        if(amt<.002&&s.idle)return;s.idle=amt<.002;
+        s.els.forEach((e,i)=>{e.style.transform=s.idle?'':`scaleY(${1+amt*s.w[i]}) skewX(${sk*s.w[i]*amt*3}deg)`})});
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ---------- pinhole cursor: live pixel coordinates over photos ---------- */
+(function(){
+  if(!finePtr)return;
+  const ph=$('#ph'),rd=$('#phr');
+  document.addEventListener('pointermove',e=>{
+    const host=e.target.closest&&e.target.closest('[data-ph]');
+    if(!host){ph.classList.remove('on');return}
+    const img=e.target.tagName==='IMG'?e.target:host.querySelector('img');
+    if(!img||!img.naturalWidth){ph.classList.remove('on');return}
+    const r=img.getBoundingClientRect(),fx=(e.clientX-r.left)/r.width,fy=(e.clientY-r.top)/r.height;
+    if(fx<0||fy<0||fx>1||fy>1){ph.classList.remove('on');return}
+    ph.classList.add('on');ph.style.transform=`translate(${e.clientX}px,${e.clientY}px)`;
+    rd.innerHTML=`u <b>${Math.round(fx*img.naturalWidth)}</b> · v <b>${Math.round(fy*img.naturalHeight)}</b> px`;
+  },{passive:true});
+  document.addEventListener('pointerleave',()=>ph.classList.remove('on'));
+})();
+addEventListener('load',()=>{if(G)ScrollTrigger.refresh()});
+(function(){const v=$('#viewer'),h=v&&v.querySelector('.orbit-hint');if(!h)return;const off=()=>h.classList.add('gone');['pointerdown'].forEach(e=>v.addEventListener(e,off,{passive:true,once:true}))})();
+</script>
+</body>
+</html>
