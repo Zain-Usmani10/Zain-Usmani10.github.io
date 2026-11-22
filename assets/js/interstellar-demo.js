@@ -204,7 +204,7 @@ function shuttle(THREE){
 /* ================= 3D launch view (laptop) ================= */
 function launchView(THREE){
   const box=$('#dl3d'),cv=box.querySelector('canvas'),tex=texLoader(THREE);
-  const R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.outputEncoding=THREE.sRGBEncoding;
+  const R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,1.5));R.outputEncoding=THREE.sRGBEncoding;
   const S=new THREE.Scene();S.background=new THREE.Color(0x070b16);
   const cam=new THREE.PerspectiveCamera(42,1,.1,3000);
   const ctl=new THREE.OrbitControls(cam,cv);ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.minDistance=2.5;ctl.maxDistance=400;
@@ -286,7 +286,7 @@ function launchView(THREE){
 /* ================= free-roam solar system ================= */
 function solarView(THREE){
   const box=$('#dsolar'),cv=box.querySelector('canvas'),tex=texLoader(THREE),lab=$('#dsolarLabels');
-  const R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.outputEncoding=THREE.sRGBEncoding;
+  const R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,1.5));R.outputEncoding=THREE.sRGBEncoding;
   const S=new THREE.Scene();S.background=new THREE.Color(0x060912);
   const cam=new THREE.PerspectiveCamera(45,1,.1,4000);cam.position.set(0,46,78);
   const ctl=new THREE.OrbitControls(cam,cv);ctl.enableDamping=true;ctl.dampingFactor=.07;ctl.minDistance=3;ctl.maxDistance=420;ctl.screenSpacePanning=true;

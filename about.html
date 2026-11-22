@@ -96,6 +96,7 @@ canvas.bits{position:absolute;left:0;right:0;top:0;bottom:34px;width:100%;height
 .hero h1 .l2{color:var(--wine);margin-top:.02em}
 .st,.si{display:inline-block;transform-origin:50% 88%}
 .st{will-change:transform}
+.anim-off,.anim-off *,.anim-off::after,.anim-off *::after{animation-play-state:paused!important}
 .lede{font-size:18px;color:var(--fg2);max-width:540px;line-height:1.6}
 .roles{margin-top:30px;border-top:1px solid var(--line)}
 .roles a{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line);text-decoration:none;transition:padding .35s var(--ease)}
@@ -127,7 +128,7 @@ canvas.bits{position:absolute;left:0;right:0;top:0;bottom:34px;width:100%;height
 .srcclip figcaption{white-space:nowrap;display:flex;justify-content:space-between;gap:6px;padding:6px 9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:#a29e93;background:#14120f}
 .srcclip .rec{color:#f2c46d;white-space:nowrap}.srcclip .rec i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#b4452f;margin-right:5px;vertical-align:1px}
 .srclink{position:absolute;left:calc(42% - 70px);bottom:150px;width:120px;height:72px;z-index:3;pointer-events:none;overflow:visible}
-.srclink path{fill:none;stroke:#f2c46d;stroke-width:1.2;stroke-dasharray:3 5;animation:flowdash 1.4s linear infinite;opacity:.85}
+.srclink path{fill:none;stroke:#f2c46d;stroke-width:1.2;stroke-dasharray:3 5;animation:flowdash 1.4s steps(16) infinite;opacity:.85}
 @keyframes flowdash{to{stroke-dashoffset:-16}}
 .scale{display:flex;align-items:center;gap:8px}
 .scale i{display:block;width:70px;height:5px;border-radius:3px;background:linear-gradient(90deg,#fcd28a,#fb8a4c,#d6457a,#8c2981,#4a1486)}
@@ -225,7 +226,7 @@ section{position:relative;padding:120px 0}
 /* fork diagram */
 .fork{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;display:grid;grid-template-columns:1fr 330px;gap:32px;align-items:center}
 .fork svg{width:100%;height:auto}
-.flow{stroke-dasharray:5 7;animation:flow 1.4s linear infinite}
+.flow{stroke-dasharray:5 7;animation:flow 1.4s steps(24) infinite}
 @keyframes flow{to{stroke-dashoffset:-24}}
 .fork h4{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:-.01em;margin-bottom:12px}
 .fork p{font-size:14.5px;color:var(--fg2);margin-bottom:10px}
@@ -259,7 +260,7 @@ section{position:relative;padding:120px 0}
 .dataflow .node em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--mut);text-align:right}
 .dataflow .wire{height:22px;margin-left:26px;border-left:1px dashed var(--line2);position:relative}
 .dataflow .wire:after{content:"";position:absolute;left:-3px;top:0;width:5px;height:5px;border-radius:50%;background:var(--ember);animation:drop 1.6s linear infinite}
-@keyframes drop{from{top:-2px;opacity:0}20%{opacity:1}to{top:20px;opacity:0}}
+@keyframes drop{from{transform:translateY(-2px);opacity:0}20%{opacity:1}to{transform:translateY(20px);opacity:0}}
 .dataflow .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .dataflow .title{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.06em;margin-bottom:12px;text-transform:uppercase}
 .tabpanel .stats,.mission .stats{grid-template-columns:repeat(2,1fr);margin-top:14px}
@@ -410,7 +411,7 @@ section>.wrap,.hero>.wrap{position:relative;z-index:1}
 .orbit-hint.gone{opacity:0;transform:translate(-50%,-50%) scale(.9);animation:none}
 @keyframes hintspin{to{transform:rotate(360deg)}}
 @keyframes hintmer{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.12)}}
-@keyframes hintfloat{0%,100%{margin-top:0}50%{margin-top:-6px}}
+@keyframes hintfloat{0%,100%{translate:0 0}50%{translate:0 -6px}}
 
 /* Interstellar mission and solar system views */
 .demo,.explore{margin-top:8px;margin-bottom:64px}
@@ -1212,18 +1213,21 @@ const SCR={heroP:0,vel:0};
     const c=stops[a].map((q,j)=>Math.round(q+(stops[b][j]-q)*m));cols.push(`rgb(${c[0]},${c[1]},${c[2]})`)}
   const buckets=Array.from({length:32},()=>[]);for(let i=0;i<N;i++)buckets[C[i]].push(i);
   $('#npts').textContent=N.toLocaleString();
-  let yaw=-0.4,pitch=0.16,tyaw=yaw,tpitch=pitch,drag=null,auto=!reduce,t0=performance.now(),vis=true,ft=.5,lastFz='';
+  let yaw=-0.4,pitch=0.16,tyaw=yaw,tpitch=pitch,drag=null,auto=!reduce,t0=performance.now(),vis=true,ft=.5,lastFz='',lastF=performance.now();
   let aS=1;function size(){const r=box.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);cv.width=r.width*d;cv.height=r.height*d;aS=Math.min(1,Math.max(.45,r.width/560))}
   size();addEventListener('resize',size);
   const BAND=.03;
   function frame(now){
     if(!vis){requestAnimationFrame(frame);return}
     const el=(now-t0)/1000, build=reduce?1:Math.min(1,el/2.2), e=1-Math.pow(1-build,3);
-    if(auto&&!drag)tyaw+=0.0022;
-    yaw+=(tyaw-yaw)*.08;pitch+=(tpitch-pitch)*.08;
+    // idle: about 30 fps is plenty for a slow drift; full rate while it builds, while dragging and while scrolling
+    if(!drag&&el>2.4&&Math.abs(SCR.vel)<5&&now-lastF<30){requestAnimationFrame(frame);return}
+    const fk=Math.min(3,(now-lastF)/16.67),lk=1-Math.pow(.92,fk);lastF=now;
+    if(auto&&!drag)tyaw+=0.0022*fk;
+    yaw+=(tyaw-yaw)*lk;pitch+=(tpitch-pitch)*lk;
     // focal plane: drifts gently at rest, sweeps near -> far as you scroll out of the hero
     const hp=SCR.heroP, idle=.5+.36*Math.sin(el*.32), k=Math.min(1,hp*3.5);
-    const tgt=reduce?.5:idle*(1-k)+(.04+hp*.92)*k; ft+=(tgt-ft)*.08;
+    const tgt=reduce?.5:idle*(1-k)+(.04+hp*.92)*k; ft+=(tgt-ft)*lk;
     const yw=yaw+hp*.9, D=2.6+hp*1.4;
     const w=cv.width,h=cv.height,sc=Math.min(w,h)*0.95,cy_=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pitch),sp=Math.sin(pitch);
     ctx.clearRect(0,0,w,h);ctx.globalCompositeOperation='lighter';
@@ -1296,12 +1300,16 @@ const SCR={heroP:0,vel:0};
   });
   // the strips glide: slowly on their own, and with the page while scrolling (down moves them left, up moves them right)
   if(reduce)return;
-  let lt=performance.now(),ly=scrollY;
-  (function tick(now){const dt=Math.min(60,now-lt),dy=scrollY-ly;lt=now;ly=scrollY;
-    for(const el of waves){const R=el._r,r=el.getBoundingClientRect();if(!r.height||r.bottom<0||r.top>innerHeight)continue;
+  let lt=performance.now(),ly=scrollY,on=false;const shown=new Set();
+  function tick(now){if(!shown.size){on=false;return}
+    const dt=Math.min(60,now-lt),dy=scrollY-ly;lt=now;ly=scrollY;
+    for(const el of shown){const R=el._r;if(!R)continue;
       if(!el.matches(':hover'))R.off+=dt*.02+dy*.9;
       const P=R.n*R.sw;R.o=((R.off%P)+P)%P;R.mv.setAttribute('transform',`translate(${(-R.o).toFixed(2)} 0)`)}
-    requestAnimationFrame(tick)})(lt);
+    requestAnimationFrame(tick)}
+  const wio=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?shown.add(e.target):shown.delete(e.target));
+    if(shown.size&&!on){on=true;lt=performance.now();ly=scrollY;requestAnimationFrame(tick)}});
+  waves.forEach(w=>wio.observe(w));
 })();
 
 /* ---------- a stream of bits drifting through the top bar ---------- */
@@ -1336,10 +1344,14 @@ const SCR={heroP:0,vel:0};
       for(let i=0;i<N;i++)if(L.hot[i]>0)L.hot[i]=Math.max(0,L.hot[i]-dt/1100)}
 }
   if(reduce){const once=()=>{zones();draw(0,0)};once();if(document.fonts)document.fonts.ready.then(once);addEventListener("load",once);addEventListener("resize",once);return}
+  let pend=0,spd=1;
   (function f(now){const dt=Math.min(100,now-lt),dy=Math.abs(scrollY-ly);lt=now;ly=scrollY;
     acc+=dt;if(acc>110){acc=0;const L=lanes[Math.random()*3|0],i=Math.random()*N|0;
       L.b[i]^=1;L.hot[i]=1}
-    if(!document.hidden)draw(dt,1+Math.min(6,dy/6));requestAnimationFrame(f)})(lt);
+    pend=Math.min(100,pend+dt);spd=Math.max(spd,1+Math.min(6,dy/6));
+    const faded=nav.classList.contains('hide')&&!nav.matches(':hover,:focus-within');
+    if(!document.hidden&&!faded&&(dy>0||pend>=32)){draw(pend,spd);pend=0;spd=1}
+    requestAnimationFrame(f)})(lt);
 })();
 
 /* ---------- pipeline stages ---------- */
@@ -1905,9 +1917,12 @@ const stretchSets=[];
   function layoutTicks(){const H=document.documentElement.scrollHeight-innerHeight,gh=gauge.offsetHeight;
     secs.forEach((s,i)=>{ticks[i].style.top=(clamp((s.offsetTop-70)/H,0,1)*gh)+'px'})}
   addEventListener('resize',layoutTicks);addEventListener('load',layoutTicks);layoutTicks();
-  let lastY=scrollY,lastT=performance.now(),amt=0,act=-2,navY=scrollY,navDn=0,navUp=0;
+  let lastY=scrollY,lastT=performance.now(),amt=0,act=-2,navY=scrollY,navDn=0,navUp=0,running=false,still=0;
+  // wakes on scroll or resize and goes back to sleep once everything has settled
+  function kick(){still=0;if(running)return;running=true;lastT=performance.now();lastY=scrollY;requestAnimationFrame(loop)}
+  addEventListener('scroll',kick,{passive:true});addEventListener('resize',kick);
   function loop(now){
-    const y=scrollY,dt=Math.max(1,now-lastT),v=(y-lastY)/dt*1000;lastY=y;lastT=now;
+    const y=scrollY,moved=y!==lastY,dt=Math.max(1,now-lastT),v=(y-lastY)/dt*1000;lastY=y;lastT=now;
     SCR.vel+=(v-SCR.vel)*.2;
     const H=document.documentElement.scrollHeight-innerHeight, p=H>0?y/H:0;
     nav.classList.toggle('on',y>20);
@@ -1934,9 +1949,10 @@ const stretchSets=[];
         if(amt<.002&&s.idle)return;s.idle=amt<.002;
         s.els.forEach((e,i)=>{e.style.transform=s.idle?'':`scaleY(${1+amt*s.w[i]}) skewX(${sk*s.w[i]*amt*3}deg)`})});
     }
+    if(!moved&&Math.abs(SCR.vel)<1&&amt<.002){if(++still>20){running=false;SCR.vel=0;return}}else still=0;
     requestAnimationFrame(loop);
   }
-  requestAnimationFrame(loop);
+  kick();
 })();
 
 /* ---------- pinhole cursor: live pixel coordinates over photos ---------- */
@@ -1956,6 +1972,10 @@ const stretchSets=[];
   document.addEventListener('pointerleave',()=>ph.classList.remove('on'));
 })();
 addEventListener('load',()=>{if(G)ScrollTrigger.refresh()});
+/* looping CSS animations pause while off screen */
+(function(){if(!('IntersectionObserver' in window))return;
+  const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('anim-off',!e.isIntersecting)),{rootMargin:'100px 0px'});
+  $$('.flow,.srclink,.dataflow,.orbit-hint').forEach(el=>io.observe(el))})();
 (function(){const v=$('#viewer'),h=v&&v.querySelector('.orbit-hint');if(!h)return;const off=()=>h.classList.add('gone');['pointerdown'].forEach(e=>v.addEventListener(e,off,{passive:true,once:true}))})();
 </script>
 </body>
