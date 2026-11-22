@@ -1581,21 +1581,42 @@ const runFX=(function(){
         for(let x=0;x<=x1;x+=3){const a=3+95*sc*Math.pow(x/W,1.6);c[x?'lineTo':'moveTo'](x,y0+dy+Math.sin(x/(20+10*sc)-e*.012)*a)}c.stroke()})});
   }
 
-  // fertilizer car: drives across, swerves around one obstacle on its ultrasonic ping, and lays an even row of granules behind it
+  // fertilizer: a tractor rolls across towing a spreader; granules arc out of the hopper and settle into furrows behind it
   function dispense(row){
-    const o=origin(row),yb=Math.min(H-60,o.y+70),ox=W*.56,path=x=>yb-34*Math.exp(-Math.pow((x-ox)/90,2));
-    play(950,e=>{const f=1-out(e,760,950),cx=-60+ease(out(e,0,760))*(W+120),cy=path(cx);
-      // obstacle
-      c.fillStyle=`rgba(${INK},${.55*f})`;c.fillRect(ox-9,yb-9,18,18);
-      // granules dropped every 16 px along the path already driven
-      for(let x=-40;x<cx-36;x+=16){const y=path(x)+11;c.fillStyle=`rgba(${(x/16|0)%3?BR:CU},${.8*f})`;c.fillRect(x-2,y-2,4,4)}
-      // ultrasonic ping ahead of the car
-      const ph=(e%260)/260;c.strokeStyle=`rgba(${HI},${(1-ph)*.7*f})`;c.lineWidth=1.3;
-      const ang=Math.atan2(path(cx+4)-path(cx-4),8);c.beginPath();c.arc(cx,cy,30+ph*34,ang-.42,ang+.42);c.stroke();
-      // car and trailer
-      c.translate(cx,cy);c.rotate(ang);c.fillStyle=`rgba(${INK},${.9*f})`;
-      c.beginPath();c.roundRect(-16,-9,32,18,4);c.fill();c.fillRect(-27,-1.5,11,3);c.beginPath();c.roundRect(-46,-8,20,16,3);c.fill();
-      c.fillStyle=`rgba(${CU},${f})`;c.fillRect(10,-6,4,12)});
+    const o=origin(row),k=Math.max(.7,Math.min(1.1,W/1300)),yg=Math.min(H-40,o.y+110),D=1000,T=860,X0=-140*k,X1=W+150*k;
+    const X=t=>X0+(X1-X0)*Math.min(1,t/T),rand=rng(9),G=[],P=[],SP=-60*k,GR=.0026;
+    for(let ts=0;ts<T;ts+=3.2){const x0=X(ts)+SP,vx=(rand()-.62)*.32,vy=-.05-rand()*.12,y0=yg-20*k,land=yg+rand()*18*k;
+      const tl=(-vy+Math.sqrt(vy*vy+2*GR*(land-y0)))/GR;G.push([ts,x0,y0,vx,vy,land,tl,rand()<.22?CU:rand()<.5?BR:INK,1.3+rand()*1.3])}
+    for(let ts=0;ts<T;ts+=55)P.push([ts,(rand()-.5)*6]);
+    const wheel=(cx,cy,r,ang,f)=>{c.fillStyle=`rgba(${INK},${f})`;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
+      c.strokeStyle=`rgba(${HI},${.55*f})`;c.lineWidth=Math.max(1,r*.09);
+      for(let q=0;q<6;q++){const a=ang+q*Math.PI/3;c.beginPath();c.moveTo(cx+Math.cos(a)*r*.32,cy+Math.sin(a)*r*.32);c.lineTo(cx+Math.cos(a)*r*.78,cy+Math.sin(a)*r*.78);c.stroke()}
+      c.fillStyle=`rgba(${CU},${f})`;c.beginPath();c.arc(cx,cy,r*.3,0,Math.PI*2);c.fill()};
+    play(D,e=>{const f=1-out(e,820,D),x=X(e);
+      // furrows already sown
+      c.strokeStyle=`rgba(${BR},${.28*f})`;c.lineWidth=1;
+      for(let q=0;q<3;q++){const y=yg+(3+q*7)*k;c.beginPath();c.moveTo(X0,y);c.lineTo(Math.max(X0,x+SP),y);c.stroke()}
+      // granules: arc out of the hopper, then rest where they land
+      for(const[ts,x0,y0,vx,vy,land,tl,col,sz]of G){const a=e-ts;if(a<0)break;const t=Math.min(a,tl);
+        const gx=x0+vx*t,gy=a>=tl?land:y0+vy*t+.5*GR*t*t;c.fillStyle=`rgba(${col},${(col===INK?.55:.9)*f})`;c.fillRect(gx-sz/2,gy-sz/2,sz,sz)}
+      // exhaust puffs
+      for(const[ts,dx]of P){const a=e-ts;if(a<0||a>520)continue;const q=a/520;
+        c.fillStyle=`rgba(158,128,98,${(1-q)*.26*f})`;c.beginPath();c.arc(X(ts)+(44+dx)*k-q*24*k,yg-(66+q*34)*k,(3+q*8)*k,0,Math.PI*2);c.fill()}
+      // tractor
+      c.save();c.translate(x,yg+Math.sin(e*.06)*.8);c.scale(k,k);const ink=`rgba(${INK},${f})`;
+      // spreader and hitch
+      c.strokeStyle=ink;c.lineWidth=3;c.beginPath();c.moveTo(-20,-18);c.lineTo(-46,-18);c.stroke();
+      c.fillStyle=ink;c.beginPath();c.moveTo(-80,-48);c.lineTo(-40,-48);c.lineTo(-52,-22);c.lineTo(-68,-22);c.closePath();c.fill();
+      c.fillStyle=`rgba(${CU},${f})`;c.fillRect(-80,-52,40,4);
+      wheel(-60,-9,9,x/9,f);
+      // body
+      c.fillStyle=ink;c.beginPath();c.roundRect(2,-44,68,22,5);c.fill();
+      c.fillStyle=`rgba(${CU},${f})`;c.fillRect(58,-40,10,6);
+      c.fillStyle=ink;c.fillRect(-16,-80,34,40);c.fillRect(-20,-84,42,5);
+      c.fillStyle=`rgba(${HI},${.5*f})`;c.fillRect(-11,-74,24,20);
+      c.fillStyle=ink;c.fillRect(42,-62,5,20);
+      wheel(0,-27,27,x/27,f);wheel(56,-14,14,x/14,f);
+      c.restore()});
   }
 
   // resume pipeline: a one-page resume typesets itself line by line, then the page leaves
