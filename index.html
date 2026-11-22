@@ -456,12 +456,30 @@ button.sw[aria-pressed=true]{background:#b4452f;border-color:#b4452f;color:#fff}
 .nogl-msg{display:none;position:absolute;inset:0;place-items:center;text-align:center;padding:20px;color:#b9a48b;font-size:14px}
 .nogl canvas,.nogl .orbit-hint,.nogl .shud{display:none}.nogl .nogl-msg{display:grid}
 .col-h{font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:-.01em;margin-bottom:16px}
-.photos{display:grid;grid-template-columns:2fr 2fr 1.25fr 2fr 1.25fr;grid-auto-rows:190px;gap:10px;margin-top:40px}
+
+/* Interstellar: the two hardware photos, same height, widths from their aspect ratios */
+.hwpair{display:grid;grid-template-columns:.562fr 1.779fr;gap:14px;margin:34px 0 40px}
+.hwpair figure{margin:0;cursor:zoom-in}
+.hwpair img{display:block;width:100%;aspect-ratio:var(--ar);object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.12)}
+.hwpair figcaption{margin-top:10px;font-size:13.5px;line-height:1.45;color:rgba(243,230,209,.62)}
+.hwpair figcaption b{display:block;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+/* the app screenshots as one block: a large frame and a 2x2, all 16:9, hairline gaps */
+.guiset{margin-top:48px;border:1px solid rgba(255,255,255,.14);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.14)}
+.gs-head{display:flex;justify-content:space-between;padding:11px 16px;background:#0d1322;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(243,230,209,.55)}
+.gs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px}
+.gs-grid figure{position:relative;margin:0;aspect-ratio:16/9;overflow:hidden;background:#000;cursor:zoom-in}
+.gs-grid .gs-main{grid-column:span 2;grid-row:span 2}
+.gs-grid img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.2s var(--ease)}
+.gs-grid figure:hover img{transform:scale(1.04)}
+.gs-grid figcaption{position:absolute;left:10px;bottom:9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:rgba(255,246,222,.86);background:rgba(10,14,24,.62);padding:3px 8px;border-radius:6px}
+.gs-grid figcaption{white-space:nowrap}
+@media (max-width:760px){.hwpair{gap:10px}.hwpair figcaption{font-size:12.5px}.gs-grid{grid-template-columns:1fr 1fr}.gs-grid figcaption{font-size:9.5px;left:6px;bottom:6px;padding:2px 6px}}
+@media (max-width:520px){.hwpair figcaption span{display:none}.hwpair figcaption b{font-size:10px;letter-spacing:.08em}}
 .photos figure{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000;cursor:zoom-in;margin:0}
 .photos img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
 .photos figure:hover img{transform:scale(1.04)}
-.photos .p-wide{grid-column:span 2;grid-row:span 2}
-.photos .p-tall{grid-row:span 2}
+
+
 
 .link{display:inline-flex;align-items:center;gap:7px;padding:3px 10px;border-radius:999px;border:1px solid var(--line2);font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;background:rgba(20,12,8,.55)}
 .link i{width:7px;height:7px;border-radius:50%;background:#6fd3a0;box-shadow:0 0 8px #6fd3a0}
@@ -583,7 +601,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
   .also,.beyond{grid-template-columns:1fr}
   .shots{grid-template-columns:1fr}
   .demo-grid,.mission{grid-template-columns:1fr}
-  .photos{grid-template-columns:1fr 1fr;grid-auto-rows:150px}
+
   .solar{aspect-ratio:4/3}
 }
 @media (max-width:640px){
@@ -620,7 +638,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
   .stats b{font-size:24px}
   .lanes{grid-template-columns:1fr 44px 1fr}
   .band:before,.band:after{display:none}
-  .photos .p-wide{grid-column:span 2;grid-row:span 1}
+
   .art-orbits{width:600px;right:-300px}
   .demo-state{font-size:19px}
 }
@@ -767,6 +785,11 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
    <p class="ocap">Left is what mission control knows: only what the board has reported, and during the blackout just a dashed estimate. Right is the board's own VGA cockpit, which always knows the real state: state, days to arrival, fuel cells, the three memory copies (A B C), the burn record and the tick counter in binary. Flip <b>SW1</b> during the blackout and only the cockpit sees it, until the link comes back. Recreated in Three.js and canvas from the real protocol and timing (flight compressed to 15 s); the hackathon app's 3D frontend was a teammate's.</p>
   </div>
 
+  <div class="hwpair rv">
+   <figure data-ph data-lb="Terasic DE10-Lite with the XIAO ESP32S3 bridge on header JP1 and the VGA cable." style="--ar:322/573"><img src="assets/img/inter_fpga_board.jpg" alt="DE10-Lite FPGA board with seven-segment digits lit and a VGA cable" loading="lazy"><figcaption><b>The flight computer</b><span>DE10-Lite with the XIAO ESP32S3 bridge</span></figcaption></figure>
+   <figure data-ph data-lb="Hackathon setup: DE10-Lite driving the VGA cockpit on the monitor, the laptop running mission control." style="--ar:806/453"><img src="assets/img/inter_setup.jpg" alt="Hackathon setup with the FPGA board, a VGA monitor showing the cockpit, and the laptop" loading="lazy"><figcaption><b>Both screens</b><span>VGA cockpit from the board on the left, mission control on the laptop on the right</span></figcaption></figure>
+  </div>
+
   <div class="explore rv">
    <div class="demo-head"><div><div class="tag">Solar system</div><div class="demo-state">Planet positions for today</div></div>
     <div class="planetbar" id="dsolarBar"><button data-p="Overview" aria-pressed="true">Overview</button><button data-p="Mercury">Mercury</button><button data-p="Venus">Venus</button><button data-p="Earth">Earth</button><button data-p="Mars">Mars</button><button data-p="Jupiter">Jupiter</button><button data-p="Saturn">Saturn</button></div></div>
@@ -809,12 +832,15 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
    <div><b>400+</b><span>backend tests; 38 flight options re-flown independently</span></div>
   </div>
 
-  <div class="photos rv">
-   <figure class="p-wide" data-ph data-lb="Hackathon setup: DE10-Lite driving the VGA cockpit on the monitor, the laptop running mission control."><img src="assets/img/inter_setup.jpg" alt="Hackathon setup with the FPGA board, a VGA monitor showing the cockpit, and the laptop" loading="lazy"><figcaption class="ov">board, VGA cockpit, mission control</figcaption></figure>
-   <figure class="p-tall" data-ph data-lb="Terasic DE10-Lite with the XIAO ESP32S3 bridge on header JP1 and the VGA cable."><img src="assets/img/inter_fpga_board.jpg" alt="DE10-Lite FPGA board with seven-segment digits lit and a VGA cable" loading="lazy"><figcaption class="ov">DE10-Lite + XIAO bridge</figcaption></figure>
-   <figure data-ph data-lb="Mission control overview: the solar system on 17 March 2027, link active."><img src="assets/img/inter_overview.jpg" alt="Interstellar app overview of the solar system with a transfer path" loading="lazy"><figcaption class="ov">overview · link active</figcaption></figure>
-   <figure data-ph data-lb="During the blackout: contact lost, dashed estimate behind the shuttle, link inactive."><img src="assets/img/inter_blackout.jpg" alt="Interstellar app during blackout with a dashed estimated path" loading="lazy"><figcaption class="ov">blackout · estimate only</figcaption></figure>
-   <figure class="p-tall" data-ph data-lb="Mars selected: NASA facts, the control station and the docked shuttles."><img src="assets/img/inter_mars_surface.jpg" alt="Interstellar app Mars surface view with docked shuttles" loading="lazy"><figcaption class="ov">Mars · docked fleet</figcaption></figure>
+  <div class="guiset rv">
+   <div class="gs-head"><span>Mission control app</span><span>5 screens</span></div>
+   <div class="gs-grid">
+    <figure class="gs-main" data-ph data-lb="Mission control overview: the solar system on 17 March 2027, link active."><img src="assets/img/inter_overview.jpg" alt="Interstellar app overview of the solar system with a transfer path" loading="lazy"><figcaption>overview · link active</figcaption></figure>
+    <figure data-ph data-lb="During the blackout: contact lost, dashed estimate behind the shuttle, link inactive."><img src="assets/img/inter_blackout.jpg" alt="Interstellar app during blackout with a dashed estimated path" loading="lazy"><figcaption>blackout · estimate only</figcaption></figure>
+    <figure data-ph data-lb="Arrived at Mars: the fastest route, fuel used and the option to start over."><img src="assets/img/inter_mars_arrival.jpg" alt="Interstellar app showing the shuttle arrived at Mars with route details" loading="lazy"><figcaption>arrived · Mars</figcaption></figure>
+    <figure data-ph data-lb="Mars selected: NASA facts, the control station and the docked shuttles."><img src="assets/img/inter_mars_surface.jpg" alt="Interstellar app Mars surface view with docked shuttles" loading="lazy"><figcaption>Mars · docked fleet</figcaption></figure>
+    <figure data-ph data-lb="Neptune selected, ready to prepare a mission."><img src="assets/img/inter_neptune_dock.jpg" alt="Interstellar app with Neptune selected and the launch panel open" loading="lazy"><figcaption>Neptune · ready to prepare</figcaption></figure>
+   </div>
   </div>
   <div class="cta rv" style="margin-top:22px">
    <a class="btn" href="https://github.com/Zain-Usmani10/Interstellar" target="_blank" rel="noopener">Source on GitHub ↗</a>
@@ -1442,14 +1468,31 @@ const runFX=(function(){
   const origin=row=>{const r=(row.querySelector('.glyph')||row).getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}};
   const rng=s=>()=>(s=(s*16807)%2147483647)/2147483647;
 
-  // LiDAR: a few pulse rings spread across a tilted ground plane from the rover, then fade
+  // RoadWatch: one LiDAR sweep from the rover maps the walls of a room as it passes, then two potholes are pinned to the map
   function lidar(row){
-    const o=origin(row),TI=.42,R=Math.hypot(W,H)*1.15;
-    play(850,e=>{const f=1-out(e,560,850),q=out(e,0,620),rad=q*(2-q)*R;
-      for(let k=0;k<4;k++){const rr=rad-k*70;if(rr<=0)continue;
-        c.strokeStyle=k?`rgba(${BR},${(.28-k*.06)*f})`:`rgba(${CU},${.5*f})`;c.lineWidth=k?1:1.6;
-        c.beginPath();c.ellipse(o.x,o.y,rr,rr*TI,0,0,Math.PI*2);c.stroke()}
-      c.fillStyle=`rgba(${CU},${.8*f})`;c.beginPath();c.arc(o.x,o.y,3.5,0,Math.PI*2);c.fill()});
+    const o=origin(row),x0=Math.max(8,o.x-110),x1=Math.min(W-8,o.x+W*.62),y0=Math.max(8,o.y-H*.3),y1=Math.min(H-8,o.y+H*.3);
+    const bx=o.x+(x1-o.x)*.45,by=o.y-(o.y-y0)*.55,ex=o.x+(x1-o.x)*.72,ey=o.y+(y1-o.y)*.35;
+    const S=[[x0,y0,x1,y0],[x1,y0,x1,y1],[x1,y1,x0,y1],[x0,y1,x0,y0],[bx,by,bx+70,by],[bx+70,by,bx+70,by+44],[bx+70,by+44,bx,by+44],[bx,by+44,bx,by],
+      [ex,ey-50,ex,ey+50]];
+    const N=300,hit=[];
+    for(let i=0;i<N;i++){const th=i/N*Math.PI*2,dx=Math.cos(th),dy=Math.sin(th);let best=1e9;
+      for(const[ax,ay,bx2,by2]of S){const sx=bx2-ax,sy=by2-ay,den=dx*sy-dy*sx;if(Math.abs(den)<1e-9)continue;
+        const t=((ax-o.x)*sy-(ay-o.y)*sx)/den,u=((ax-o.x)*dy-(ay-o.y)*dx)/den;if(t>0&&u>=0&&u<=1&&t<best)best=t}
+      hit.push([o.x+dx*best,o.y+dy*best,th])}
+    const pot=[[o.x+(x1-o.x)*.3,o.y+(y1-o.y)*.55],[o.x+(x1-o.x)*.86,o.y-(o.y-y0)*.4]];
+    play(950,e=>{const f=1-out(e,760,950),sw=ease(out(e,0,620))*Math.PI*2;
+      // beam
+      const g=c.createRadialGradient(o.x,o.y,0,o.x,o.y,Math.hypot(W,H)*.6);g.addColorStop(0,`rgba(${HI},${.22*f})`);g.addColorStop(1,`rgba(${HI},0)`);
+      if(sw<Math.PI*2){c.fillStyle=g;c.beginPath();c.moveTo(o.x,o.y);c.arc(o.x,o.y,Math.hypot(W,H),sw-.35,sw);c.closePath();c.fill()}
+      // mapped wall points
+      c.strokeStyle=`rgba(${CU},${.7*f})`;c.lineWidth=1.6;c.beginPath();let pv=null;
+      for(const[x,y,th]of hit){if(th>sw)break;if(pv&&Math.hypot(x-pv[0],y-pv[1])<60)c.lineTo(x,y);else c.moveTo(x,y);pv=[x,y]}c.stroke();
+      c.fillStyle=`rgba(${BR},${.9*f})`;for(const[x,y,th]of hit){if(th>sw)break;c.fillRect(x-1.25,y-1.25,2.5,2.5)}
+      c.fillStyle=`rgba(${CU},${.9*f})`;c.beginPath();c.arc(o.x,o.y,3.5,0,Math.PI*2);c.fill();
+      // potholes
+      const pk=ease(out(e,520,700));if(pk<=0)return;c.font='500 11px JetBrains Mono, monospace';
+      for(const[px,py]of pot){c.strokeStyle=`rgba(${CU},${f})`;c.lineWidth=1.6;c.beginPath();c.ellipse(px,py,14*pk,8*pk,0,0,Math.PI*2);c.stroke();
+        c.fillStyle=`rgba(${CU},${pk*f})`;c.fillText('pothole',px+20,py+4)}});
   }
 
   // rocket launch: ground flash, a plume that billows out, and a rocket that shrinks as it climbs away
@@ -1538,20 +1581,36 @@ const runFX=(function(){
         for(let x=0;x<=x1;x+=3){const a=3+95*sc*Math.pow(x/W,1.6);c[x?'lineTo':'moveTo'](x,y0+dy+Math.sin(x/(20+10*sc)-e*.012)*a)}c.stroke()})});
   }
 
-  // fertilizer: granules leave the row in a spray and fall
+  // fertilizer car: drives across, swerves around one obstacle on its ultrasonic ping, and lays an even row of granules behind it
   function dispense(row){
-    const o=origin(row),rand=rng(9),P=[];for(let i=0;i<190;i++)P.push([(rand()-.5)*2.6,-rand()*.7,rand()*300,rand()<.25,1.4+rand()*1.6]);
-    play(950,e=>{const f=1-out(e,700,950);for(const[vx,vy,d,cu,sz]of P){const t=(e-d)/1000;if(t<0)continue;
-      const x=o.x+40+vx*t*360,y=o.y+vy*t*380+t*t*1500;if(y>H)continue;c.fillStyle=`rgba(${cu?CU:BR},${.85*f})`;c.fillRect(x-sz,y-sz,sz*2,sz*2)}});
+    const o=origin(row),yb=Math.min(H-60,o.y+70),ox=W*.56,path=x=>yb-34*Math.exp(-Math.pow((x-ox)/90,2));
+    play(950,e=>{const f=1-out(e,760,950),cx=-60+ease(out(e,0,760))*(W+120),cy=path(cx);
+      // obstacle
+      c.fillStyle=`rgba(${INK},${.55*f})`;c.fillRect(ox-9,yb-9,18,18);
+      // granules dropped every 16 px along the path already driven
+      for(let x=-40;x<cx-36;x+=16){const y=path(x)+11;c.fillStyle=`rgba(${(x/16|0)%3?BR:CU},${.8*f})`;c.fillRect(x-2,y-2,4,4)}
+      // ultrasonic ping ahead of the car
+      const ph=(e%260)/260;c.strokeStyle=`rgba(${HI},${(1-ph)*.7*f})`;c.lineWidth=1.3;
+      const ang=Math.atan2(path(cx+4)-path(cx-4),8);c.beginPath();c.arc(cx,cy,30+ph*34,ang-.42,ang+.42);c.stroke();
+      // car and trailer
+      c.translate(cx,cy);c.rotate(ang);c.fillStyle=`rgba(${INK},${.9*f})`;
+      c.beginPath();c.roundRect(-16,-9,32,18,4);c.fill();c.fillRect(-27,-1.5,11,3);c.beginPath();c.roundRect(-46,-8,20,16,3);c.fill();
+      c.fillStyle=`rgba(${CU},${f})`;c.fillRect(10,-6,4,12)});
   }
 
-  // LLM: three lanes of tokens stream across at the row's height
+  // resume pipeline: a one-page resume typesets itself line by line, then the page leaves
   function tokens(row){
-    const y0=origin(row).y,T=['{','"role"',':','"FPGA intern"',',','"skills"',':','[','"Verilog"',',','"C"',',','"Python"',']','}','<eos>'],L=[[-38,1],[0,1.25],[38,.85]];
-    play(950,e=>{const f=1-out(e,700,950);c.font='500 13px JetBrains Mono, monospace';
-      L.forEach(([dy,v],li)=>{let x=ease(out(e,0,650))*(W+260)*v;
-        for(let k=0;k<40&&x>-80;k++){const tk=T[(k+li*5)%T.length];x-=c.measureText(tk).width+14;
-          c.fillStyle=`rgba(${k?BR:CU},${Math.max(0,1-k/18)*f})`;c.fillText(tk,x,y0+dy)}})});
+    const ph=Math.min(H*.72,560),pw=ph/1.294,px=W/2-pw/2,py=H/2-ph/2,rand=rng(21),L=[];
+    let y=py+ph*.09;L.push([px+pw*.3,y,pw*.4,7,CU]);y+=ph*.045;L.push([px+pw*.22,y,pw*.56,3,BR]);y+=ph*.07;
+    for(let sct=0;sct<4;sct++){L.push([px+pw*.09,y,pw*.24,5,CU]);L.push([px+pw*.09,y+9,pw*.82,1,BR]);y+=ph*.055;
+      for(let k=0;k<(sct?4:2)&&y<py+ph*.93;k++){L.push([px+pw*.09+(k?pw*.03:0),y,pw*(k?.55+rand()*.24:.82),3,INK]);y+=ph*.036}y+=ph*.022}
+    play(950,e=>{const f=1-out(e,760,950),k=ease(out(e,0,180)),lift=out(e,760,950)*-30;
+      c.translate(0,lift);c.globalAlpha=f;
+      c.fillStyle=`rgba(${WH},${.94*k})`;c.strokeStyle=`rgba(${BR},${.55*k})`;c.lineWidth=1;
+      c.fillRect(px,py+(1-k)*14,pw,ph);c.strokeRect(px+.5,py+.5+(1-k)*14,pw-1,ph-1);
+      const n=out(e,160,700)*L.length;
+      L.forEach(([x,yy,w,h,col],i)=>{const q=Math.min(1,Math.max(0,n-i));if(q<=0)return;c.fillStyle=`rgba(${col},${col===INK?.55:.85})`;c.fillRect(x,yy,w*q,h)});
+      c.font='500 11px JetBrains Mono, monospace';c.fillStyle=`rgba(${BR},${k})`;c.fillText(n>=L.length?'resume.pdf · 1 page':'pdflatex …',px,py+ph+20)});
   }
 
   // wildfire risk: uneven contour lines spread out from the row
