@@ -59,7 +59,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* the bar is solid sand; only a 34px tail below it fades out. The tail never takes clicks. */
 .nav{padding-bottom:34px;pointer-events:none}
 .nav .wrap{pointer-events:auto}
-.nav.on{background:linear-gradient(to bottom,var(--bg) 0,var(--bg) calc(100% - 34px),rgba(243,230,209,.75) calc(100% - 22px),rgba(243,230,209,0) 100%)}
+/* always: solid sand bar that fades into whatever is below. Scrolling down fades the whole header and hides the bits; scrolling up, hovering or the top of the page restores it */
+.nav{background:linear-gradient(to bottom,var(--bg) 0,var(--bg) calc(100% - 34px),rgba(243,230,209,.75) calc(100% - 22px),rgba(243,230,209,0) 100%)}
 canvas.bits{position:absolute;left:0;right:0;top:0;bottom:34px;width:100%;height:calc(100% - 34px);pointer-events:none;z-index:0}
 .nav .wrap{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;height:78px;gap:24px}
 .brand{font-family:var(--mono);font-size:16.5px;text-decoration:none;display:flex;align-items:center;gap:11px;white-space:nowrap;padding:8px 14px;margin-left:-14px;border-radius:999px}
