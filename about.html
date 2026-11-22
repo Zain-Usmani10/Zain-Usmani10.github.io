@@ -1619,19 +1619,17 @@ const runFX=(function(){
       c.restore()});
   }
 
-  // resume pipeline: a one-page resume typesets itself line by line, then the page leaves
+  // resume pipeline: a faint page outline behind the content quietly fills with lines, then dissolves
   function tokens(row){
-    const ph=Math.min(H*.72,560),pw=ph/1.294,px=W/2-pw/2,py=H/2-ph/2,rand=rng(21),L=[];
-    let y=py+ph*.09;L.push([px+pw*.3,y,pw*.4,7,CU]);y+=ph*.045;L.push([px+pw*.22,y,pw*.56,3,BR]);y+=ph*.07;
-    for(let sct=0;sct<4;sct++){L.push([px+pw*.09,y,pw*.24,5,CU]);L.push([px+pw*.09,y+9,pw*.82,1,BR]);y+=ph*.055;
-      for(let k=0;k<(sct?4:2)&&y<py+ph*.93;k++){L.push([px+pw*.09+(k?pw*.03:0),y,pw*(k?.55+rand()*.24:.82),3,INK]);y+=ph*.036}y+=ph*.022}
-    play(950,e=>{const f=1-out(e,760,950),k=ease(out(e,0,180)),lift=out(e,760,950)*-30;
-      c.translate(0,lift);c.globalAlpha=f;
-      c.fillStyle=`rgba(${WH},${.94*k})`;c.strokeStyle=`rgba(${BR},${.55*k})`;c.lineWidth=1;
-      c.fillRect(px,py+(1-k)*14,pw,ph);c.strokeRect(px+.5,py+.5+(1-k)*14,pw-1,ph-1);
-      const n=out(e,160,700)*L.length;
-      L.forEach(([x,yy,w,h,col],i)=>{const q=Math.min(1,Math.max(0,n-i));if(q<=0)return;c.fillStyle=`rgba(${col},${col===INK?.55:.85})`;c.fillRect(x,yy,w*q,h)});
-      c.font='500 11px JetBrains Mono, monospace';c.fillStyle=`rgba(${BR},${k})`;c.fillText(n>=L.length?'resume.pdf · 1 page':'pdflatex …',px,py+ph+20)});
+    const y0=origin(row).y,ph=Math.min(H*.62,480),pw=ph/1.294,px=Math.min(W-pw-24,W*.66-pw/2),py=Math.max(16,Math.min(H-ph-16,y0-ph/2)),rand=rng(21),L=[];
+    let y=py+ph*.09;L.push([px+pw*.3,y,pw*.4,5,CU]);y+=ph*.045;L.push([px+pw*.22,y,pw*.56,2,BR]);y+=ph*.07;
+    for(let sct=0;sct<4;sct++){L.push([px+pw*.09,y,pw*.24,3,CU]);L.push([px+pw*.09,y+7,pw*.82,1,BR]);y+=ph*.055;
+      for(let k=0;k<(sct?4:2)&&y<py+ph*.93;k++){L.push([px+pw*.09+(k?pw*.03:0),y,pw*(k?.55+rand()*.24:.82),2,BR]);y+=ph*.036}y+=ph*.022}
+    play(1000,e=>{const f=1-out(e,700,1000),k=out(e,0,260),a=Math.min(k,f);
+      c.translate(0,-out(e,0,1000)*12);
+      c.strokeStyle=`rgba(${BR},${.22*a})`;c.lineWidth=1;c.strokeRect(px+.5,py+.5,pw-1,ph-1);
+      const n=out(e,80,720)*L.length;
+      L.forEach(([x,yy,w,h,col],i)=>{const q=Math.min(1,Math.max(0,n-i));if(q<=0)return;c.fillStyle=`rgba(${col},${(col===CU?.26:.18)*f})`;c.fillRect(x,yy,w*q,h)})});
   }
 
   // wildfire risk: uneven contour lines spread out from the row
