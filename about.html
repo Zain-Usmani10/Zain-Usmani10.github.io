@@ -683,19 +683,19 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
    <div class="viewer" id="viewer" aria-label="Interactive 3D point cloud reconstructed from one depth frame. Drag to rotate.">
     <canvas id="cloud"></canvas>
     <span class="corner a"></span><span class="corner b"></span><span class="corner c"></span><span class="corner d"></span>
-    <div class="hud tl">O-HIVE · DEPTH NET (RTL-BOUND) → POINT CLOUD<br><b id="npts">0</b> points</div>
+    <div class="hud tl">3D MONOCULAR DEPTH PERCEPTION → POINT CLOUD<br><b id="npts">0</b> points</div>
     <div class="hud tr">frame 276<br><span class="fp">focal plane Z = <b id="fz" style="color:#f2c46d">1.30</b> m</span></div>
     <div class="hud br"><div class="scale"><span>0.79 m</span><i></i><span>1.81 m</span></div></div>
     <div class="orbit-hint small" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahA" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahA)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahA)"/></g></svg><span>360° · drag to orbit</span></div>
    </div>
    <figure class="srcclip" tabindex="0" role="button" aria-label="Source video the point cloud is computed from. Open the full video, all 706 frames">
-    <div class="vwrap"><video id="srcvid" src="assets/video/ohive_full.mp4" poster="assets/video/ohive_clip.jpg" muted loop playsinline autoplay preload="auto"></video>
+    <div class="vwrap"><video id="srcvid" src="assets/video/depth_full.mp4" poster="assets/video/depth_poster.jpg" muted loop playsinline autoplay preload="auto"></video>
      <span class="fc">frame <b id="fcn">0412</b> / 0705</span><span class="pg"><i id="fcp"></i></span></div>
-    <figcaption><span>O-HIVE · SOURCE</span><span class="hint">open ⤢</span></figcaption>
+    <figcaption><span>SOURCE VIDEO</span><span class="hint">open ⤢</span></figcaption>
    </figure>
    <svg class="srclink" viewBox="0 0 100 60" aria-hidden="true"><path d="M2 58 C30 58 40 10 98 4"/></svg>
    </div>
-   <p class="viewer-cap">The clip is the raw O-Hive capture it was reconstructed from. Frames go through the depth network (the one I quantized and compiled to RTL), are back-projected through the calibrated pinhole model, and stitched into a standalone cloud you can orbit. The gold slice is a focal plane sweeping through depth as you scroll.</p>
+   <p class="viewer-cap">3D monocular depth perception: one ordinary camera, no depth sensor. Each frame of the clip goes through a monocular depth network, is back-projected through the calibrated pinhole model, and the frames are stitched into one standalone point cloud you can orbit. The gold slice is a focal plane sweeping through depth as you scroll.</p>
   </div>
  </div>
 </header>
@@ -953,7 +953,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
 <div class="t-cv">
   <div class="sub-h">
    <h3 class="kerf">Vision pipeline</h3>
-   <p class="rv">Calibration to rendering. The point cloud at the top of the page is stage 04.</p>
+   <p class="rv">Calibration to rendering.</p>
   </div>
   <div class="pipe" role="tablist" aria-label="Pipeline stages" id="pipe">
    <span class="fill" id="pipefill"></span>
@@ -1163,12 +1163,12 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
 <footer><div class="wrap"><span>© 2026 Zain Usmani</span><span class="mono">Windsor, Ontario</span></div></footer>
 
 <div id="ph" aria-hidden="true"><div class="rt"></div><div class="rd" id="phr"></div></div>
-<dialog id="vp" aria-label="O-Hive source video, all frames">
- <video id="vpv" src="assets/video/ohive_full.mp4" muted loop playsinline preload="metadata"></video>
+<dialog id="vp" aria-label="Source video, all frames">
+ <video id="vpv" src="assets/video/depth_full.mp4" muted loop playsinline preload="metadata"></video>
  <div class="bar"><button class="vb" id="vpp">▶ play</button><button class="vb" id="vpb" aria-label="Previous frame">‹ 1</button><button class="vb" id="vpf" aria-label="Next frame">1 ›</button>
   <input type="range" id="vpr" min="0" max="705" value="0" aria-label="Frame">
   <span class="fr">frame <b id="vpn">0000</b> / 0705 · <span id="vpt">00.00 s</span></span><button class="vb" id="vpx" aria-label="Close">✕</button></div>
- <p class="vcap">O-Hive capture: 706 frames at 30 fps, the input to the depth network. Space plays or pauses; arrow keys step one frame.</p>
+ <p class="vcap">Source video: 706 frames at 30 fps from a single moving camera, the input to the monocular depth network. Space plays or pauses; arrow keys step one frame.</p>
 </dialog>
 <dialog id="lb"><button aria-label="Close" id="lbx">×</button><img id="lbimg" alt=""><p id="lbcap"></p></dialog>
 
