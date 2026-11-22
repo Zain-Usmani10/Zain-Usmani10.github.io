@@ -13,7 +13,7 @@ SRC = (ROOT / "index.html").read_text(encoding="utf-8")
 
 PAGES = {
     "hardware": ("hardware.html", "Hardware | Zain Usmani",
-                 "FPGA flight computer, depth network to RTL, board bring-up, power distribution and RTL projects, with live demos."),
+                 "FPGA flight computer, depth network to RTL, board bring-up, power distribution and RTL projects."),
     "robotics": ("robotics.html", "Robotics and vision | Zain Usmani",
                  "Monocular depth and point clouds, race-car autonomy and drivers, wearable sensing and robot projects."),
     "about": ("about.html", "About | Zain Usmani",
