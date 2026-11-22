@@ -50,8 +50,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .ember{color:var(--ember)}.gold{color:var(--gold)}
 
 /* nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:60;transition:transform .38s cubic-bezier(.3,.7,.2,1)}
-.nav.hide:not(:focus-within){transform:translateY(calc(-100% - 6px))}
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;transition:opacity .35s ease}
+/* always on screen: fades back while scrolling down, full strength again on any scroll up, hover or focus */
+.nav.hide:not(:focus-within):not(:hover){opacity:.42}
 /* the bar is solid sand; only a 34px tail below it fades out. The tail never takes clicks. */
 .nav{padding-bottom:34px;pointer-events:none}
 .nav .wrap{pointer-events:auto}
@@ -706,10 +707,10 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
    <div class="tag">About</div>
    <h1>Zain Usmani</h1>
    <p class="lead">Third-year Electrical and Computer Engineering student at the University of Windsor, minoring in Computer Science.</p>
-   <p>Most of what I build ends up on an FPGA. At Hack the Nest, my team flew a spacecraft from a DE10-Lite through a planned radio blackout. At O-Hive, I took a depth network that ran on a cloud GPU and worked it down to RTL and a Kria KV260. The part I enjoy most is when a design leaves simulation and has to work on a real board.</p>
-   <p>Cameras and sensors came in through that work. A depth model only helps a robot arm if it runs on the arm, so I learned the rest of the pipeline: calibration, point clouds and quantization. On Formula Electric I write sensor drivers and autonomy code for the car, and my research classifies gait from a wearable IMU over BLE.</p>
-   <p>I like joining things early, when the team is small and nothing is settled yet. Most of the projects on this site started that way.</p>
-   <p>Outside of engineering, I play soccer as often as I can.</p>
+   <p>I got hooked on engineering through hardware. Nothing beats the moment a design leaves the simulator and actually runs on a real board, and I've been chasing that feeling ever since: flying a spacecraft from an FPGA at Hack the Nest with three classmates, squeezing a depth network onto a chip during my co-op at O-Hive, and a lot of late nights in between.</p>
+   <p>Along the way I fell for robots and cameras too: machines that have to see the world and decide what to do about it. Some of my favourite memories are hackathons, like building a rover with three teammates in 24 hours at McGill, learning SLAM and ROS on the spot because the deadline wasn't moving. Now I get to lead the autonomy team on our Formula Electric car.</p>
+   <p>What excites me most is being early to something: a new team, a club finding its feet, an idea nobody has tried yet. I'd much rather help build it from nothing than show up once it's polished, and I'm at my best around people who feel the same way.</p>
+   <p>And when I'm not building something, good luck keeping me off the soccer field.</p>
    <div class="now"><b>Right now</b><ul><li>Designing a RISC-V matrix accelerator (4×4 INT8 systolic array)</li><li>Finishing an 8-bit pipelined CPU, with a live demo planned for this site</li><li>Formula Electric: autonomy lead and embedded developer</li></ul></div>
    <div class="cta"><a class="btn pri" href="mailto:zain.usmani10@gmail.com">Email</a><a class="btn" href="https://www.linkedin.com/in/zain-usmani-" target="_blank" rel="noopener">LinkedIn ↗</a><a class="btn" href="https://github.com/Zain-Usmani10" target="_blank" rel="noopener">GitHub ↗</a><a class="btn" href="https://devpost.com/zain-usmani10" target="_blank" rel="noopener">Devpost ↗</a></div>
   </div>
@@ -1907,7 +1908,7 @@ const stretchSets=[];
     SCR.vel+=(v-SCR.vel)*.2;
     const H=document.documentElement.scrollHeight-innerHeight, p=H>0?y/H:0;
     nav.classList.toggle('on',y>20);
-    // the header slides away while reading down the page and comes back on any scroll up
+    // the header fades back while reading down the page and returns to full strength on any scroll up
     {const d=y-navY;navY=y;
      if(y<90){navDn=navUp=0;nav.classList.remove('hide')}
      else if(d>0){navDn+=d;navUp=0;if(navDn>24)nav.classList.add('hide')}
