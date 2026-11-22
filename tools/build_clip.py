@@ -10,7 +10,7 @@ Outputs:
   assets/data/cloud_seq.bin     N frames x (W*H depth bytes + W*H luminance bytes)
   assets/data/cloud_seq.json    metadata, also printed so it can be inlined in index.html
 
-Run:  python tools/build_cloud_seq.py
+Run:  python tools/build_clip.py
 """
 import json, subprocess, shutil, sys
 from pathlib import Path
