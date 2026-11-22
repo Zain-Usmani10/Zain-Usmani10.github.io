@@ -288,7 +288,8 @@ figcaption.ov{position:absolute;left:10px;bottom:10px;font-family:var(--mono);fo
 .pbody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s var(--ease)}
 .prow.open .pbody{grid-template-rows:1fr}
 .pbody>div{overflow:hidden}
-.pinner{display:grid;grid-template-columns:1.15fr 1fr;gap:34px;padding:6px 4px 36px 76px}
+.pinner{position:relative;display:grid;grid-template-columns:1.15fr 1fr;gap:34px;padding:6px 4px 36px 76px}
+canvas.pix{position:absolute;left:0;top:0;pointer-events:none;z-index:2}
 .pinner.noimg{grid-template-columns:1fr 1fr}
 .pinner>*,.stage-panel>*,.tabpanel>*,.research>*,.fork>*{min-width:0}
 .gal .main{border-radius:12px;overflow:hidden;background:#14120f;aspect-ratio:16/10;position:relative;cursor:zoom-in}
@@ -1323,114 +1324,162 @@ const STAGES=[
   document.fonts&&document.fonts.ready.then(()=>place(0)); place(0);
 })();
 
-/* ---------- project-open effects: a full-screen overlay that never takes input ---------- */
+/* ---------- project-open effects: a full-screen overlay that never takes input, gone in under a second ---------- */
 const runFX=(function(){
   if(reduce)return()=>{};
   const cv=document.createElement('canvas');cv.id='fx';cv.setAttribute('aria-hidden','true');document.body.appendChild(cv);
   const c=cv.getContext('2d');let W=0,H=0,run=0;
   function size(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;c.setTransform(d,0,0,d,0,0)}
   size();addEventListener('resize',size);
-  const BR='184,137,47',CU='156,58,36',SA='243,230,209';
+  const BR='184,137,47',CU='156,58,36',HI='232,196,106',INK='34,23,15',WI='122,40,54',WH='255,246,222';
   function play(dur,draw){const id=++run,t0=performance.now();
     (function f(now){if(id!==run)return;const e=now-t0;c.clearRect(0,0,W,H);
-      if(e<dur){draw(e);requestAnimationFrame(f)}})(t0)}
-  const ease=t=>1-Math.pow(1-t,3);
-  const centre=el=>{const r=el.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}};
+      if(e<dur){c.save();draw(e);c.restore();requestAnimationFrame(f)}})(t0)}
+  addEventListener('visibilitychange',()=>{run++;c.clearRect(0,0,W,H)});
+  const ease=t=>1-Math.pow(1-t,3),out=(e,a,b)=>e<=a?0:e>=b?1:(e-a)/(b-a);
+  const origin=row=>{const r=(row.querySelector('.glyph')||row).getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}};
+  const rng=s=>()=>(s=(s*16807)%2147483647)/2147483647;
 
-  // LiDAR: one sweep around the glyph; returns trace the edges of what's on screen
+  // LiDAR: pulse rings spread across a tilted ground plane; page edges flash as returns when the pulse reaches them
   function lidar(row){
-    const o=centre(row.querySelector('.glyph')||row),pts=[];
-    document.querySelectorAll('h2,h3,.prow>button,.gal .main,.thumbs button,.diagram,.kv>div,.pgh,.list li,.stats>div').forEach(el=>{
+    const o=origin(row),TI=.42,pts=[];
+    document.querySelectorAll('h2,h3,.prow>button,.gal .main,.thumbs button,.kv>div,.list li,.stats>div,.pinner p').forEach(el=>{
       const r=el.getBoundingClientRect();if(r.bottom<0||r.top>H||r.width<8)return;
-      const step=16;for(let x=r.left;x<=r.right;x+=step){pts.push([x,r.top],[x,r.bottom])}
-      for(let y=r.top;y<=r.bottom;y+=step){pts.push([r.left,y],[r.right,y])}});
-    const P=pts.slice(0,1600).map(([x,y])=>{let a=Math.atan2(y-o.y,x-o.x)+Math.PI/2;if(a<0)a+=Math.PI*2;return[x+(Math.random()-.5)*2,y+(Math.random()-.5)*2,a]});
-    const SW=950,R=Math.hypot(W,H);
-    play(SW+750,e=>{const sw=Math.min(1,e/SW),A=sw*Math.PI*2-Math.PI/2,fade=e>SW?1-(e-SW)/750:1;
-      if(sw<1){c.save();c.beginPath();c.moveTo(o.x,o.y);c.arc(o.x,o.y,R,A-.55,A);c.closePath();
-        const g=c.createRadialGradient(o.x,o.y,0,o.x,o.y,R);g.addColorStop(0,`rgba(${BR},.16)`);g.addColorStop(1,`rgba(${BR},0)`);c.fillStyle=g;c.fill();
-        c.strokeStyle=`rgba(${BR},.55)`;c.lineWidth=1;c.beginPath();c.moveTo(o.x,o.y);c.lineTo(o.x+Math.cos(A)*R,o.y+Math.sin(A)*R);c.stroke();c.restore()}
-      c.strokeStyle=`rgba(${BR},${.18*fade})`;[90,200,340].forEach(r=>{c.beginPath();c.arc(o.x,o.y,r*ease(Math.min(1,e/500)),0,Math.PI*2);c.stroke()});
-      for(const [x,y,a] of P){const hit=a/(Math.PI*2)*SW;if(e<hit)continue;const age=e-hit,al=Math.max(0,1-age/900)*fade;if(al<=0)continue;
-        c.fillStyle=age<120?`rgba(${SA},${al})`:`rgba(${CU},${al*.9})`;c.fillRect(x-1.2,y-1.2,2.4,2.4)}
-      c.fillStyle=`rgba(${CU},${fade})`;c.beginPath();c.arc(o.x,o.y,3.5,0,Math.PI*2);c.fill()});
+      for(let x=r.left;x<=r.right;x+=14)pts.push([x,r.top],[x,r.bottom]);
+      for(let y=r.top;y<=r.bottom;y+=14)pts.push([r.left,y],[r.right,y])});
+    const P=pts.slice(0,2600).map(([x,y])=>[x,y,Math.hypot(x-o.x,(y-o.y)/TI)]);
+    const R=Math.max(400,...P.map(p=>p[2]))+30,T=560,qo=t=>t*(2-t);
+    play(900,e=>{const f=1-out(e,660,900),rad=qo(out(e,0,T))*R;
+      for(let k=0;k<6;k++){const rr=rad-k*55;if(rr<=0)continue;
+        c.strokeStyle=k?`rgba(${BR},${(.5-k*.07)*f})`:`rgba(${CU},${.95*f})`;c.lineWidth=k?1.2:2.6;
+        c.beginPath();c.ellipse(o.x,o.y,rr,rr*TI,0,0,Math.PI*2);c.stroke()}
+      if(rad>0){const g=c.createRadialGradient(o.x,o.y,0,o.x,o.y,rad);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.85,`rgba(${HI},0)`);g.addColorStop(1,`rgba(${HI},${.22*f})`);
+        c.save();c.translate(o.x,o.y);c.scale(1,TI);c.translate(-o.x,-o.y);c.fillStyle=g;c.beginPath();c.arc(o.x,o.y,rad,0,Math.PI*2);c.fill();c.restore()}
+      for(const[x,y,d]of P){if(d>rad)continue;const age=(rad-d)/R*T;
+        if(age<80){const a=f*(1-age/80);c.fillStyle=`rgba(${HI},${a*.55})`;c.fillRect(x-4,y-4,8,8);c.fillStyle=`rgba(${WH},${f})`;c.fillRect(x-2,y-2,4,4)}
+        else{c.fillStyle=`rgba(${CU},${.8*f})`;c.fillRect(x-1.4,y-1.4,2.8,2.8)}}
+      c.fillStyle=`rgba(${CU},${f})`;c.beginPath();c.arc(o.x,o.y,5,0,Math.PI*2);c.fill()});
   }
-  // systolic wavefront: cells light diagonally outward from the row, like operands entering the array
-  function systolic(row){
-    const o=centre(row.querySelector('.glyph')||row),cs=58,cols=Math.ceil(W/cs),rows=Math.ceil(H/cs),oi=Math.floor(o.x/cs),oj=Math.floor(o.y/cs),step=26,life=520;
-    let mx=0;for(let i=0;i<cols;i++)for(let j=0;j<rows;j++)mx=Math.max(mx,Math.abs(i-oi)+Math.abs(j-oj));
-    play(mx*step+life,e=>{for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const age=e-(Math.abs(i-oi)+Math.abs(j-oj))*step;if(age<0||age>life)continue;
-      const al=Math.sin(Math.PI*age/life);c.strokeStyle=`rgba(${(i+j)%3?BR:CU},${al*.42})`;c.lineWidth=1;c.strokeRect(i*cs+7,j*cs+7,cs-14,cs-14);
-      if((i*7+j*3)%5===0){c.fillStyle=`rgba(${BR},${al*.5})`;c.font='10px JetBrains Mono, monospace';c.fillText('×+',i*cs+cs/2-7,j*cs+cs/2+4)}}});
-  }
-  // CRT raster: one beam top to bottom with a fading scanline trail
-  function raster(){
-    play(900,e=>{const t=e/750,y=ease(Math.min(1,t))*H*1.04,fade=t>1?1-(e-750)/150:1;
-      for(let k=0;k<44;k++){const yy=y-k*4;if(yy<0)break;c.fillStyle=`rgba(${BR},${(1-k/44)*.10*fade})`;c.fillRect(0,yy,W,1)}
-      c.fillStyle=`rgba(${CU},${.55*fade})`;c.fillRect(0,y-1,W,1);c.fillStyle=`rgba(${SA},${.8*fade})`;c.fillRect(0,y,W,1.5)});
-  }
-  // clock + bus traces race across at the row's height
-  function clock(row){
-    const y0=centre(row.querySelector('.glyph')||row).y,per=34;
-    play(1150,e=>{const x=ease(Math.min(1,e/700))*W,fade=e>700?1-(e-700)/450:1;
-      c.lineWidth=1.3;c.strokeStyle=`rgba(${BR},${.7*fade})`;c.beginPath();c.moveTo(0,y0-30);
-      for(let k=0;k*per/2<x;k++){const xx=k*per/2,hi=k%2===0;c.lineTo(xx,y0-30);c.lineTo(xx,hi?y0-44:y0-30);c.lineTo(Math.min(x,xx+per/2),hi?y0-44:y0-30)}c.stroke();
-      c.strokeStyle=`rgba(${CU},${.6*fade})`;c.beginPath();
-      for(let k=0;k*per*2<x;k++){const a=k*per*2,b=Math.min(x,a+per*2);c.moveTo(a+4,y0+30);c.lineTo(b-4,y0+30);c.moveTo(a+4,y0+44);c.lineTo(b-4,y0+44);
-        if(b<x){c.moveTo(b-4,y0+30);c.lineTo(b+4,y0+44);c.moveTo(b-4,y0+44);c.lineTo(b+4,y0+30)}}c.stroke()});
-  }
-  // gain: a sine whose amplitude grows as it travels, like a signal through the 3 stages
-  function gain(row){
-    const y0=centre(row.querySelector('.glyph')||row).y;
-    play(1200,e=>{const x1=ease(Math.min(1,e/750))*W,fade=e>750?1-(e-750)/450:1;c.lineWidth=1.4;
-      c.strokeStyle=`rgba(${BR},${.65*fade})`;c.beginPath();for(let x=0;x<=x1;x+=3){const a=3+70*Math.pow(x/W,1.6);c[x?'lineTo':'moveTo'](x,y0+Math.sin(x/22)*a)}c.stroke()});
-  }
-  // rocket: a launch arc from the row off the top of the screen
+
+  // rocket launch: ground flash, a plume that billows out, and a rocket that shrinks as it climbs away
   function rocket(row){
-    const o=centre(row.querySelector('.glyph')||row),p1={x:o.x+(W-o.x)*.25,y:-H*.35},p2={x:W*.96,y:-40};
-    const B=t=>({x:(1-t)*(1-t)*o.x+2*(1-t)*t*p1.x+t*t*p2.x,y:(1-t)*(1-t)*o.y+2*(1-t)*t*p1.y+t*t*p2.y});
-    play(1300,e=>{const t=Math.min(1,e/850),fade=e>850?1-(e-850)/450:1;c.setLineDash([3,6]);c.lineWidth=1.3;c.strokeStyle=`rgba(${BR},${.7*fade})`;c.beginPath();
-      for(let k=0;k<=60;k++){const q=B(k/60*t);c[k?'lineTo':'moveTo'](q.x,q.y)}c.stroke();c.setLineDash([]);
-      const h=B(t);const g=c.createRadialGradient(h.x,h.y,0,h.x,h.y,16);g.addColorStop(0,`rgba(${SA},${fade})`);g.addColorStop(.4,`rgba(${CU},${.7*fade})`);g.addColorStop(1,`rgba(${CU},0)`);
-      c.fillStyle=g;c.beginPath();c.arc(h.x,h.y,16,0,Math.PI*2);c.fill()});
+    const o=origin(row),x0=Math.min(W-140,Math.max(140,o.x+W*.3)),rand=rng(11),S=[];let next=40;
+    play(950,e=>{const f=1-out(e,760,950),t=out(e,40,820),y=H+90-H*1.5*Math.pow(t,1.8),x=x0+60*t*t,s=2.1-1.3*t;
+      const gl=Math.max(0,1-e/450);
+      if(gl>0){const g=c.createRadialGradient(x0,H,0,x0,H,320);g.addColorStop(0,`rgba(${WH},${.7*gl})`);g.addColorStop(.3,`rgba(${HI},${.45*gl})`);g.addColorStop(1,`rgba(${HI},0)`);c.fillStyle=g;c.fillRect(x0-320,H-320,640,320)}
+      while(next<e&&next<780){const tt=out(next,40,820),yy=H+90-H*1.5*Math.pow(tt,1.8),ss=2.1-1.3*tt;
+        S.push([x0+60*tt*tt+(rand()-.5)*10*ss,yy+44*ss,(rand()-.5)*.3,.04+rand()*.1,next,(5+rand()*7)*ss]);next+=8}
+      for(const[px,py,vx,vy,b,r0]of S){const a=e-b,k=a/620;if(k<0||k>1)continue;
+        c.fillStyle=`rgba(158,128,98,${(1-k)*.34*f})`;c.beginPath();c.arc(px+vx*a,py+vy*a,r0+k*52,0,Math.PI*2);c.fill()}
+      if(y<-140)return;
+      c.translate(x,y);c.scale(s,s);c.rotate(.06*t);
+      const fl=38+Math.sin(e*.09)*7,g=c.createLinearGradient(0,34,0,34+fl);
+      g.addColorStop(0,`rgba(${WH},${f})`);g.addColorStop(.35,`rgba(${HI},${f})`);g.addColorStop(1,`rgba(${CU},0)`);
+      c.fillStyle=g;c.beginPath();c.moveTo(-7,34);c.quadraticCurveTo(0,34+fl*1.35,7,34);c.fill();
+      c.fillStyle=`rgba(${INK},${f})`;c.beginPath();c.moveTo(0,-42);c.quadraticCurveTo(9,-28,8,-10);c.lineTo(8,34);c.lineTo(-8,34);c.lineTo(-8,-10);c.quadraticCurveTo(-9,-28,0,-42);c.fill();
+      c.beginPath();c.moveTo(-8,16);c.lineTo(-18,36);c.lineTo(-8,31);c.closePath();c.moveTo(8,16);c.lineTo(18,36);c.lineTo(8,31);c.closePath();c.fill();
+      c.fillStyle=`rgba(${CU},${f})`;c.fillRect(-8,-6,16,4)});
   }
-  // YOLO: a detection box snaps onto the gallery as it opens
-  function yolo(row){
-    play(1500,e=>{const m=row.querySelector('.gal .main');if(!m)return;const r=m.getBoundingClientRect(),k=ease(Math.min(1,e/280)),s=1.18-.18*k,fade=e>1050?1-(e-1050)/450:1;
-      const w=r.width*s,h=r.height*s,x=r.left+(r.width-w)/2,y=r.top+(r.height-h)/2,L=Math.min(w,h)*.14;
-      c.strokeStyle=`rgba(${CU},${fade})`;c.lineWidth=2;c.beginPath();
+
+  // fire: flames surge up from the bottom edge and fall back, then a detection box locks onto the photo
+  function fire(row){
+    const rand=rng(5),F=[],E=[];for(let x=-20;x<W+40;x+=24)F.push([x+rand()*10,.55+rand()*.6,rand()*6.28,11+rand()*13]);
+    for(let i=0;i<80;i++)E.push([rand()*W,.5+rand(),rand()*6.28,rand()*250]);
+    play(950,e=>{const up=Math.sin(Math.PI*out(e,0,820)),f=1-out(e,820,950),top=H*(1-.66*up);
+      const g=c.createLinearGradient(0,H,0,top-120);g.addColorStop(0,`rgba(${CU},${.5*up})`);g.addColorStop(.6,`rgba(${HI},${.18*up})`);g.addColorStop(1,`rgba(${HI},0)`);
+      c.fillStyle=g;c.fillRect(0,top-120,W,H-top+120);
+      [[WI,1,0,.8],[CU,.8,1.7,.88],[HI,.55,3.1,.92],[WH,.26,4.4,.85]].forEach(([col,hk,ph,al])=>{c.fillStyle=`rgba(${col},${al*up})`;c.beginPath();c.moveTo(0,H);
+        for(let x=0;x<=W+4;x+=4){const n=.3+.08*Math.sin(x/110+e*.006+ph)+.62*Math.pow(Math.abs(Math.sin(x/(34+ph*3)+e*.003*(ph+1)+ph)),5)*(.55+.45*Math.sin(x/150-e*.008+ph*1.7));
+          c.lineTo(x,H-(H-top)*hk*n)}
+        c.lineTo(W,H);c.closePath();c.fill()});
+      for(const[x,v,p,d]of E){const a=e-d;if(a<0)continue;const yy=H-a*v*.9,al=Math.max(0,1-a/650)*f;if(al<=0||yy<0)continue;
+        c.fillStyle=`rgba(${HI},${al})`;c.fillRect(x+Math.sin(a*.01+p)*18,yy,2.4,2.4)}
+      const m=row.querySelector('.gal .main');if(!m||e<320)return;
+      const r=m.getBoundingClientRect(),k=ease(out(e,320,520)),sc=1.16-.16*k,fb=1-out(e,800,950);
+      const w=r.width*sc,h=r.height*sc,x=r.left+(r.width-w)/2,y=r.top+(r.height-h)/2,L=Math.min(w,h)*.14;
+      c.strokeStyle=`rgba(${CU},${fb})`;c.lineWidth=2.4;c.beginPath();
       [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]].forEach(([a,b,dx,dy])=>{c.moveTo(a+dx*L,b);c.lineTo(a,b);c.lineTo(a,b+dy*L)});c.stroke();
-      if(k>=1){c.strokeStyle=`rgba(${CU},${.5*fade})`;c.lineWidth=1;c.strokeRect(x,y,w,h);
-        c.font='600 11px JetBrains Mono, monospace';const lab='fire 0.91',tw=c.measureText(lab).width+12;c.fillStyle=`rgba(${CU},${fade})`;c.fillRect(x,y-18,tw,18);
-        c.fillStyle=`rgba(${SA},${fade})`;c.fillText(lab,x+6,y-5)}});
+      if(k>=1){c.font='600 12px JetBrains Mono, monospace';const lab='fire 0.91',tw=c.measureText(lab).width+12;
+        c.fillStyle=`rgba(${CU},${fb})`;c.fillRect(x,y-20,tw,20);c.fillStyle=`rgba(${WH},${fb})`;c.fillText(lab,x+6,y-6)}});
   }
+
+  // MAC array: an isometric 12x12 grid; the operand wavefront lifts each cell as it passes
+  function systolic(){
+    const n=12,cw=Math.min(W,H)*.058,ox=W/2,oy=H*.5,D=.1;
+    play(900,e=>{const f=1-out(e,690,900),ap=ease(out(e,0,180));
+      const P=(i,j,z)=>[ox+(i-j)*cw*ap,oy+(i+j-n)*cw*.5*ap-z];
+      for(let s=0;s<2*n-1;s++)for(let i=0;i<n;i++){const j=s-i;if(j<0||j>=n)continue;
+        const age=e-(i+j)*22,z=age>0&&age<380?Math.sin(Math.PI*age/380)*cw*1.3:0;
+        const[ax,ay]=P(i+D,j+D,z),[bx,by]=P(i+1-D,j+D,z),[cx,cy]=P(i+1-D,j+1-D,z),[dx,dy]=P(i+D,j+1-D,z);
+        if(z>1){c.fillStyle=`rgba(${CU},${.55*f})`;c.beginPath();c.moveTo(dx,dy);c.lineTo(cx,cy);c.lineTo(cx,cy+z);c.lineTo(dx,dy+z);c.fill();
+          c.fillStyle=`rgba(${WI},${.55*f})`;c.beginPath();c.moveTo(bx,by);c.lineTo(cx,cy);c.lineTo(cx,cy+z);c.lineTo(bx,by+z);c.fill()}
+        c.fillStyle=z>1?`rgba(${HI},${.85*f})`:`rgba(${BR},${.08*f})`;c.strokeStyle=`rgba(${BR},${.5*f})`;c.lineWidth=1;
+        c.beginPath();c.moveTo(ax,ay);c.lineTo(bx,by);c.lineTo(cx,cy);c.lineTo(dx,dy);c.closePath();c.fill();c.stroke()}});
+  }
+
+  // VGA: a CRT powering on: a bright line opens into a phosphor frame, one beam pass, then off
+  function raster(){
+    play(800,e=>{const a=ease(out(e,0,130)),b=ease(out(e,110,400)),f=1-out(e,540,800),cx=W/2,cy=H/2,hw=a*W/2,hh=Math.max(1.5,b*H/2);
+      c.fillStyle=`rgba(${HI},${(.42-.28*b)*f})`;c.fillRect(cx-hw,cy-hh,hw*2,hh*2);
+      c.fillStyle=`rgba(${INK},${.09*f})`;for(let y=cy-hh;y<cy+hh;y+=4)c.fillRect(cx-hw,y,hw*2,1.5);
+      if(b<1){c.fillStyle=`rgba(${WH},${f})`;c.fillRect(cx-hw,cy-2,hw*2,4)}
+      else{const y=cy-hh+out(e,400,700)*hh*2;c.fillStyle=`rgba(${WH},${.8*f})`;c.fillRect(0,y-1,W,3)}
+      c.strokeStyle=`rgba(${CU},${.55*f})`;c.lineWidth=2;c.strokeRect(cx-hw+1,cy-hh+1,hw*2-2,hh*2-2)});
+  }
+
+  // CPU: signals race out of the row along routed traces, like a bus fanning out across a board
+  function clock(row){
+    const o=origin(row),rand=rng(3),T=[];
+    for(let k=0;k<28;k++){let x=o.x,y=o.y+(rand()-.5)*18,hz=true;const pts=[[x,y]],dir=rand()<.5?1:-1;
+      for(let s=0;s<7;s++){if(hz)x+=dir*(70+rand()*260);else y+=(rand()-.5)*2*(40+rand()*170);pts.push([x,y]);hz=!hz}
+      const cl=[0];for(let i=1;i<pts.length;i++)cl.push(cl[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));
+      T.push({pts,cl,L:cl[cl.length-1],d:rand()*150,v:1.6+rand()*1.3})}
+    play(900,e=>{const f=1-out(e,660,900);c.lineWidth=1.5;
+      for(const t of T){const l=Math.min(t.L,Math.max(0,(e-t.d)*t.v));if(l<=0)continue;let i=1;while(i<t.pts.length-1&&t.cl[i]<l)i++;
+        const k=(l-t.cl[i-1])/((t.cl[i]-t.cl[i-1])||1),hx=t.pts[i-1][0]+(t.pts[i][0]-t.pts[i-1][0])*k,hy=t.pts[i-1][1]+(t.pts[i][1]-t.pts[i-1][1])*k;
+        c.strokeStyle=`rgba(${BR},${.6*f})`;c.beginPath();c.moveTo(t.pts[0][0],t.pts[0][1]);for(let q=1;q<i;q++)c.lineTo(t.pts[q][0],t.pts[q][1]);c.lineTo(hx,hy);c.stroke();
+        if(l<t.L){c.fillStyle=`rgba(${HI},${.3*f})`;c.beginPath();c.arc(hx,hy,9,0,Math.PI*2);c.fill();c.fillStyle=`rgba(${WH},${f})`;c.beginPath();c.arc(hx,hy,3,0,Math.PI*2);c.fill()}
+        else{c.fillStyle=`rgba(${CU},${f})`;c.fillRect(hx-3.5,hy-3.5,7,7)}}
+      c.fillStyle=`rgba(${CU},${f})`;c.fillRect(o.x-6,o.y-6,12,12)});
+  }
+
+  // amplifier: three stages of the same signal, each layer larger and closer
+  function gain(row){
+    const y0=origin(row).y;
+    play(900,e=>{const x1=ease(out(e,0,600))*W,f=1-out(e,650,900);
+      [[.3,-26,.45,BR],[.55,-12,.72,BR],[1,0,1,CU]].forEach(([al,dy,sc,col])=>{c.lineWidth=.8+sc*1.6;c.strokeStyle=`rgba(${col},${al*.9*f})`;c.beginPath();
+        for(let x=0;x<=x1;x+=3){const a=3+95*sc*Math.pow(x/W,1.6);c[x?'lineTo':'moveTo'](x,y0+dy+Math.sin(x/(20+10*sc)-e*.012)*a)}c.stroke()})});
+  }
+
   // fertilizer: granules leave the row in a spray and fall
   function dispense(row){
-    const o=centre(row.querySelector('.glyph')||row),P=[];for(let i=0;i<170;i++)P.push([(Math.random()-.5)*2.4,-Math.random()*.6,Math.random()*480,Math.random()<.22]);
-    play(1500,e=>{const fade=e>1050?1-(e-1050)/450:1;for(const[vx,vy,d,cu]of P){const t=(e-d)/1000;if(t<0)continue;
-      const x=o.x+40+vx*t*300,y=o.y+vy*t*320+t*t*1100;if(y>H)continue;c.fillStyle=`rgba(${cu?CU:BR},${.8*fade})`;c.fillRect(x-1.6,y-1.6,3.2,3.2)}});
+    const o=origin(row),rand=rng(9),P=[];for(let i=0;i<190;i++)P.push([(rand()-.5)*2.6,-rand()*.7,rand()*300,rand()<.25,1.4+rand()*1.6]);
+    play(950,e=>{const f=1-out(e,700,950);for(const[vx,vy,d,cu,sz]of P){const t=(e-d)/1000;if(t<0)continue;
+      const x=o.x+40+vx*t*360,y=o.y+vy*t*380+t*t*1500;if(y>H)continue;c.fillStyle=`rgba(${cu?CU:BR},${.85*f})`;c.fillRect(x-sz,y-sz,sz*2,sz*2)}});
   }
+
   // LLM: three lanes of tokens stream across at the row's height
   function tokens(row){
-    const y0=centre(row.querySelector('.glyph')||row).y,T=['{','"role"',':','"FPGA intern"',',','"skills"',':','[','"Verilog"',',','"C"',',','"Python"',']','}','<eos>'],L=[[-38,1],[0,1.25],[38,.85]];
-    play(1450,e=>{const fade=e>1000?1-(e-1000)/450:1;c.font='500 13px JetBrains Mono, monospace';
-      L.forEach(([dy,v],li)=>{const head=ease(Math.min(1,e/1000))*(W+260)*v;let x=head;
-        for(let k=0;k<40&&x>-80;k++){const tk=T[(k+li*5)%T.length],w=c.measureText(tk).width+14;x-=w;
-          c.fillStyle=`rgba(${k?BR:CU},${Math.max(0,1-k/18)*fade})`;c.fillText(tk,x,y0+dy)}})});
+    const y0=origin(row).y,T=['{','"role"',':','"FPGA intern"',',','"skills"',':','[','"Verilog"',',','"C"',',','"Python"',']','}','<eos>'],L=[[-38,1],[0,1.25],[38,.85]];
+    play(950,e=>{const f=1-out(e,700,950);c.font='500 13px JetBrains Mono, monospace';
+      L.forEach(([dy,v],li)=>{let x=ease(out(e,0,650))*(W+260)*v;
+        for(let k=0;k<40&&x>-80;k++){const tk=T[(k+li*5)%T.length];x-=c.measureText(tk).width+14;
+          c.fillStyle=`rgba(${k?BR:CU},${Math.max(0,1-k/18)*f})`;c.fillText(tk,x,y0+dy)}})});
   }
+
   // wildfire risk: uneven contour lines spread out from the row
   function contour(row){
-    const o=centre(row.querySelector('.glyph')||row),R=Math.hypot(W,H);
-    play(1450,e=>{const fade=e>1000?1-(e-1000)/450:1;c.lineWidth=1.2;
-      for(let k=0;k<6;k++){const r=ease(Math.min(1,Math.max(0,(e-k*80)/950)))*R*(.16+k*.11);if(r<=0)continue;
-        c.strokeStyle=`rgba(${k<2?CU:BR},${(.55-k*.06)*fade})`;c.beginPath();
+    const o=origin(row),R=Math.hypot(W,H);
+    play(950,e=>{const f=1-out(e,700,950);c.lineWidth=1.3;
+      for(let k=0;k<6;k++){const r=ease(out(e,k*60,k*60+650))*R*(.16+k*.11);if(r<=0)continue;
+        c.strokeStyle=`rgba(${k<2?CU:BR},${(.6-k*.06)*f})`;c.beginPath();
         for(let a=0;a<=72;a++){const th=a/72*Math.PI*2,rr=r*(1+.09*Math.sin(th*3+k)+.05*Math.sin(th*5-k*2));c[a?'lineTo':'moveTo'](o.x+Math.cos(th)*rr,o.y+Math.sin(th)*rr*.7)}
         c.closePath();c.stroke()}});
   }
-  const M={lidar,systolic,raster,clock,gain,rocket,yolo,dispense,tokens,contour};
+  const M={lidar,rocket,fire,systolic,raster,clock,gain,dispense,tokens,contour};
   return(name,row)=>{const f=M[name];if(f)f(row)};
 })();
-const FXMAP={rover:'lidar',mac:'systolic',vga:'raster',cpu:'clock',amp:'gain',avion:'rocket',fire:'yolo',fert:'dispense',llm:'tokens',wild:'contour'};
+const FXMAP={rover:'lidar',mac:'systolic',vga:'raster',cpu:'clock',amp:'gain',avion:'rocket',fire:'fire',fert:'dispense',llm:'tokens',wild:'contour'};
 
 /* ---------- projects ---------- */
 const GROUPS=[['rtl','Digital hardware','RTL, accelerators and analog design'],['emb','Robots and embedded','Firmware, power and the machines it runs'],['sw','Software','Web apps and automation']];
@@ -1619,14 +1668,25 @@ const DG={
 })();
 /* slash-open: a gold cut across the row, then a diagonal wipe reveals the body */
 function slashOpen(row){
+  // opening a project: the body resolves in dithered pixel blocks, and the title decodes from bits
   if(!anim)return;
-  const sl=row.querySelector('.slash'),pin=row.querySelector('.pinner'),btn=row.querySelector('button');
-  G.set(sl,{top:btn.offsetHeight/2});
-  G.timeline()
-   .fromTo(sl,{scaleX:0,rotation:-2.2,opacity:1},{scaleX:1,duration:.34,ease:'power3.in'})
-   .to(sl,{opacity:0,duration:.45,ease:'power1.out'},'+=.04')
-   .fromTo(pin,{clipPath:'polygon(0% 0%,0% 0%,-15% 100%,-15% 100%)'},{clipPath:'polygon(0% 0%,115% 0%,100% 100%,-15% 100%)',duration:.85,ease:'expo.out',clearProps:'clipPath'},.22)
-   .fromTo(btn.querySelector('h3'),{skewX:-8},{skewX:0,duration:.6,ease:'expo.out',clearProps:'transform'},.3);
+  const pin=row.querySelector('.pinner'),h3=row.querySelector('button h3');
+  const old=pin.querySelector('canvas.pix');if(old)old.remove();
+  const cv=document.createElement('canvas');cv.className='pix';cv.setAttribute('aria-hidden','true');pin.appendChild(cv);
+  const w=pin.offsetWidth,h=pin.scrollHeight,d=Math.min(devicePixelRatio||1,2),c=cv.getContext('2d');
+  cv.width=w*d;cv.height=h*d;cv.style.width=w+'px';cv.style.height=h+'px';c.scale(d,d);
+  let bg='rgb(243,230,209)';for(let el=row;el;el=el.parentElement){const v=getComputedStyle(el).backgroundColor;if(v&&v!=='transparent'&&!/rgba\(.*,\s*0\)$/.test(v)){bg=v;break}}
+  const S=14,cols=Math.ceil(w/S),rows=Math.ceil(h/S),B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5],T=[];
+  for(let i=0;i<cols;i++)for(let j=0;j<rows;j++)T.push(i/cols*300+j/rows*80+B[(j%4)*4+i%4]*12);
+  const t0=performance.now();
+  (function f(now){const e=now-t0;c.clearRect(0,0,w,h);
+    if(e>=660||!row.classList.contains('open')){cv.remove();return}
+    let k=0;for(let i=0;i<cols;i++)for(let j=0;j<rows;j++,k++){const t=T[k];if(e>=t+80)continue;
+      if(e<t){c.fillStyle=bg;c.fillRect(i*S,j*S,S,S)}else{c.fillStyle=`rgba(184,137,47,${.6*(1-(e-t)/80)})`;c.fillRect(i*S+1,j*S+1,S-2,S-2)}}
+    requestAnimationFrame(f)})(t0);
+  if(h3&&!h3.children.length){const txt=h3.dataset.t||(h3.dataset.t=h3.textContent),id=h3._dec=(h3._dec||0)+1,s0=performance.now();
+    (function g(now){if(h3._dec!==id)return;const e=now-s0;if(e>=360){h3.textContent=txt;return}
+      const n=Math.floor(txt.length*e/360);h3.textContent=txt.slice(0,n)+txt.slice(n).replace(/\S/g,()=>Math.random()<.5?'0':'1');requestAnimationFrame(g)})(s0)}
 }
 
 /* ---------- lightbox ---------- */
