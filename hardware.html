@@ -53,6 +53,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .nav{position:fixed;top:0;left:0;right:0;z-index:60;transition:opacity .35s ease}
 /* always on screen: fades back while scrolling down, full strength again on any scroll up, hover or focus */
 .nav.hide:not(:focus-within):not(:hover){opacity:.42}
+/* the bit stream only shows while the header is at full strength */
+.nav canvas.bits{transition:opacity .3s ease}
+.nav.hide:not(:focus-within):not(:hover) canvas.bits{opacity:0}
 /* the bar is solid sand; only a 34px tail below it fades out. The tail never takes clicks. */
 .nav{padding-bottom:34px;pointer-events:none}
 .nav .wrap{pointer-events:auto}
