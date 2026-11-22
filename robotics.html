@@ -666,7 +666,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
  <img class="art art-iso" src="assets/art/isodepth.svg" alt="" aria-hidden="true">
  <div class="wrap">
   <div>
-   <div class="tag rv">FPGA · Digital hardware · Embedded · Vision on silicon</div>
+   <div class="tag rv">FPGA · Digital hardware · Embedded · Computer vision</div>
    <h1 id="name" aria-label="Zain Usmani"><span class="l1">Zain</span><span class="l2">Usmani</span></h1>
    <p class="lede rv">Electrical and Computer Engineering, University of Windsor. I design and verify digital hardware on FPGAs, bring up boards, buses and power, and run computer vision on that hardware.</p>
    <div class="roles rv">
@@ -709,11 +709,11 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
   <div>
    <div class="tag">About</div>
    <h1>Zain Usmani</h1>
-   <p class="lead">Third-year Electrical and Computer Engineering student at the University of Windsor, minoring in Computer Science.</p>
-   <p>I got hooked on engineering through hardware. Nothing beats the moment a design leaves the simulator and actually runs on a real board, and I've been chasing that feeling ever since: flying a spacecraft from an FPGA at Hack the Nest with three classmates, squeezing a depth network onto a chip during my co-op at O-Hive, and a lot of late nights in between.</p>
-   <p>Along the way I fell for robots and cameras too: machines that have to see the world and decide what to do about it. Some of my favourite memories are hackathons, like building a rover with three teammates in 24 hours at McGill, learning SLAM and ROS on the spot because the deadline wasn't moving. Now I get to lead the autonomy team on our Formula Electric car.</p>
-   <p>What excites me most is being early to something: a new team, a club finding its feet, an idea nobody has tried yet. I'd much rather help build it from nothing than show up once it's polished, and I'm at my best around people who feel the same way.</p>
-   <p>And when I'm not building something, good luck keeping me off the soccer field.</p>
+   <p class="lead">Third-year Electrical and Computer Engineering student, minoring in Computer Science.</p>
+   <p>I fell in love with engineering through hardware. My favourite part of any project is the first time a design runs on a real board instead of in simulation. I got that at Hack the Nest, where three classmates and I flew a spacecraft from an FPGA, and during my co-op at O-Hive, where I worked on getting a depth network running on a chip.</p>
+   <p>Along the way I fell for robots and cameras too. Some of my best memories are from hackathons, like building a rover at McGill in 24 hours with three teammates when none of us had used SLAM or ROS before. These days I lead the autonomy team on our Formula Electric car.</p>
+   <p>I like joining things early, when a team is new and there's still a lot to figure out. Most of the projects on this site started that way.</p>
+   <p>And when I'm not building something, there's a 67% chance you'll find me on the soccer field. (67% ≈ 2/3, in case you were wondering.)</p>
    <div class="now"><b>Right now</b><ul><li>Designing a RISC-V matrix accelerator (4×4 INT8 systolic array)</li><li>Finishing an 8-bit pipelined CPU</li><li>Formula Electric: autonomy lead and embedded developer</li></ul></div>
    <div class="cta"><a class="btn pri" href="mailto:zain.usmani10@gmail.com">Email</a><a class="btn" href="https://www.linkedin.com/in/zain-usmani-" target="_blank" rel="noopener">LinkedIn ↗</a><a class="btn" href="https://github.com/Zain-Usmani10" target="_blank" rel="noopener">GitHub ↗</a><a class="btn" href="https://devpost.com/zain-usmani10" target="_blank" rel="noopener">Devpost ↗</a></div>
   </div>
@@ -762,7 +762,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
    </div>
    <div class="dtl"><div class="dbar" id="dBar"><i id="dFill"></i><span class="bo" style="left:calc(25% + 5%*.25);width:calc(75%*.6)"></span></div>
     <div class="dlab"><span>countdown 5 s</span><span>departure burn</span><span class="c">blackout · 25–85 % of flight</span><span>capture burn</span></div></div>
-   <p class="ocap">Left is what mission control knows: only what the board has reported, and during the blackout just a dashed estimate. Right is the board's own VGA cockpit, which always shows the truth: state, days to arrival, fuel cells, the three memory copies (A B C), the burn record and the tick counter in binary. Flip <b>SW1</b> during the blackout and only the right screen knows, until contact returns. Recreated in Three.js and canvas from the real protocol and timing (flight compressed to 15 s); the hackathon app's 3D frontend was a teammate's.</p>
+   <p class="ocap">Left is what mission control knows: only what the board has reported, and during the blackout just a dashed estimate. Right is the board's own VGA cockpit, showing its actual state: state, days to arrival, fuel cells, the three memory copies (A B C), the burn record and the tick counter in binary. Flipping <b>SW1</b> during the blackout changes only the right screen until the link comes back. Recreated in Three.js and canvas from the real protocol and timing (flight compressed to 15 s); the hackathon app's 3D frontend was a teammate's.</p>
   </div>
 
   <div class="explore rv">
@@ -783,7 +783,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
     <ul class="list rv">
      <li><b>Mission sequencer</b>: a 7-state machine (IDLE, LOADED, ARMED, RUNNING, SAFE, COMPLETE, ABORTED) on an Intel MAX 10, booting from its own flash. Each burn fires at most once, at or after its scheduled tick, and deducts from an integer fuel ledger in grams.</li>
      <li><b>Triple modular redundancy</b>: state, burn record, fuel and burn ticks stored three times and read through a majority voter. Proven on the real board: SW0 corrupted one copy, it was outvoted and the mission completed; SW1 made all three disagree and the board latched SAFE with no capture burn.</li>
-     <li><b>Autonomy</b>: nothing in flight depends on a message. A link watchdog calls the link lost after 2 s without the twice-a-second keep-alive, and only drives the displays.</li>
+     <li><b>Autonomy</b>: no flight step waits on a message from the laptop. A link watchdog calls the link lost after 2 s without the twice-a-second keep-alive, and only drives the displays.</li>
      <li><b>Fixed mission clock</b>: 100 ticks per second for every plan, 5 s countdown, 30 s of flight, 3 s tail. Days to arrival in integer-only arithmetic, so board and laptop agree to the day with no floating point on the FPGA.</li>
      <li><b>Cockpit</b>: six seven-segment digits plus the 640×480 VGA cockpit emulated above.</li>
     </ul>
@@ -801,9 +801,9 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
   </div>
 
   <div class="stats rv" style="margin-top:48px">
-   <div><b>28 B</b><span>mission plan: ticks and fuel only, no planets, no floats</span></div>
+   <div><b>28 B</b><span>mission plan: ticks and fuel, integers only</span></div>
    <div><b>100 Hz</b><span>mission tick, the same for every trip length</span></div>
-   <div><b>3 × 1</b><span>copies of every flight-critical value, one majority vote</span></div>
+   <div><b>3 × 1</b><span>copies of every flight-critical value, majority-voted</span></div>
    <div><b>400+</b><span>backend tests; 38 flight options re-flown independently</span></div>
   </div>
 
@@ -866,7 +866,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
    <div class="lk"><small>GENERATE</small><b>cgra4ml RTL</b><span>SystemVerilog accelerator for the network</span></div><div class="ar">→</div>
    <div class="lk hl"><small>SYNTHESIZE</small><b>Yosys netlist</b><span>461,920 cells, 162,188 flip-flops, 0 memories inferred</span></div><div class="ar">→</div>
    <div class="lk hl"><small>FIX</small><b>Buffers → BRAM</b><span>register arrays rewritten as synchronous-read memory macros</span></div><div class="ar">→</div>
-   <div class="lk"><small>ESTIMATE</small><b>UMC 22nm</b><span>credible gate-equivalent area estimate</span></div>
+   <div class="lk"><small>ESTIMATE</small><b>UMC 22nm</b><span>gate-equivalent area estimate</span></div>
   </div>
   <p class="cap rv" style="margin-top:12px">Root cause: the on-chip weight and activation buffers were written as register arrays Yosys could not infer as memory, so every bit became its own flip-flop.</p>
 
@@ -904,7 +904,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
     <h4>Shared NV12 buffer</h4>
     <p>Set up an Ubuntu 22.04 Docker workspace for the cross-compilation toolchain, then brought up the KV260 (quad-core Cortex-A53, 4 GB) and ran the cross-compiled binaries in its embedded Linux.</p>
     <p>Raw 4208×3120 NV12 frames from the AR1335 failed to capture at first; dmesg and GStreamer debug logs traced it to a mismatch between the format the pipeline requested and what the sensor driver output.</p>
-    <p>NV12 already stores luminance as its own plane, two thirds of every frame. My C++ fork sends that plane straight to the CPU for SVO, and only the FPGA's copy pays for RGB conversion.</p>
+    <p>NV12 already stores luminance as its own plane, two thirds of every frame. My C++ fork sends that plane straight to the CPU for SVO, and only the FPGA's copy is converted to RGB.</p>
     <div class="chips"><span>4208×3120 NV12</span><span>dmesg · GStreamer debug</span><span>C++ · CMake · Docker</span></div>
    </div>
   </div>
@@ -1042,7 +1042,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
      <div class="title">Perception → actuation</div>
      <div class="node"><span>Camera</span><em>30 fps · 33 ms budget</em></div>
      <div class="wire"></div>
-     <div class="node"><span>Ring buffer</span><em>newest frame wins</em></div>
+     <div class="node"><span>Ring buffer</span><em>keeps the newest frame</em></div>
      <div class="wire"></div>
      <div class="node"><span>Python CV</span><em>cones + obstacles</em></div>
      <div class="wire"></div>
@@ -1083,7 +1083,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
     <p class="intro rv" style="font-size:17px;color:var(--fg2);margin-bottom:22px">IMU firmware, data pipeline and classifier. Co-authoring the biomechanics paper.</p>
     <ul class="list rv">
      <li>ESP32 Bluetooth Low Energy firmware in C++ streaming 6-axis IMU data at 50 Hz, one sample every 20 ms.</li>
-     <li>Early recordings had gaps and bursts: when the radio was busy, notifications queued faster than connection events could send them. Added a firmware ring buffer to ride out latency spikes and a sequence number on every packet, so lost samples are detected, not silently stitched over.</li>
+     <li>Early recordings had gaps and bursts: when the radio was busy, notifications queued faster than connection events could send them. Added a firmware ring buffer to ride out latency spikes and a sequence number on every packet, so every lost sample is detected.</li>
      <li>Recorded 8 participants; Python sanitization used the sequence numbers to flag gaps and dropped readings saturated at full scale (about 5 %).</li>
      <li>Features from 16,000 samples with pandas and NumPy; XGBoost and KNN reached 78.9 F1 under 5-fold cross-validation, against 61 for a threshold baseline.</li>
     </ul>
@@ -1144,7 +1144,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
   <div class="beyond">
    <div class="rv"><b>Campus Tour Ambassador</b><em>University of Windsor · Dec 2024 – present</em><p>Weekly campus tours for groups of up to 50 prospective engineering students and families.</p></div>
    <div class="rv"><b>ECE Student Representative</b><em>Dept. of ECE · Sep 2024 – present</em><p>Advocates for undergraduate safety and academic interests at monthly departmental council meetings.</p></div>
-   <div class="rv"><b>Naval Reserve Sailor</b><em>Royal Canadian Navy · Feb – Nov 2024</em><p>Ten months of strict operational-security and physical-safety protocols in maritime environments.</p></div>
+   <div class="rv"><b>Naval Reserve Sailor</b><em>Royal Canadian Navy · Feb – Nov 2024</em><p>Ten months of operational-security and safety training in maritime settings.</p></div>
   </div>
  </div>
 </section>
@@ -1370,8 +1370,7 @@ const STAGES=[
    </svg></div><p class="cap">Schematic: frame-to-frame chaining drifts; keyframes with local bundle adjustment pull the trajectory back.</p>`},
  {k:'Stage 04 · Project',t:'Pinhole back-projection',
   l:['With metric depth Z and the intrinsics, every pixel (u, v) is back-projected with the pinhole model, then moved from camera space to world space by the pose matrix.',
-     'Each frame is voxel-downsampled at 2 cm and the merged map at 5 cm, with depth past 10 m discarded indoors.',
-     'The cloud at the top of this page is exactly this step, run on one frame.'],
+     'Each frame is voxel-downsampled at 2 cm and the merged map at 5 cm, with depth past 10 m discarded indoors.'],
   c:['Open3D','NumPy','pinhole model'],
   m:`<div class="formula">X = (u − <span class="h">c<sub>x</sub></span>) · Z / <span class="h">f<sub>x</sub></span><br>Y = (v − <span class="h">c<sub>y</sub></span>) · Z / <span class="h">f<sub>y</sub></span><br>Z = Z<br><span class="c">p<sub>world</sub> = T<sub>pose</sub> · p<sub>camera</sub></span></div><div class="mini-stats" style="margin-top:12px"><div><b>2 cm</b><span>per-frame voxel grid</span></div><div><b>5 cm</b><span>merged map voxel grid</span></div></div>`},
  {k:'Stage 05 · Render',t:'Gaussian splat rendering',
@@ -1557,7 +1556,7 @@ const runFX=(function(){
 const FXMAP={rover:'lidar',mac:'systolic',vga:'raster',cpu:'clock',amp:'gain',avion:'rocket',fire:'fire',fert:'dispense',llm:'tokens',wild:'contour'};
 
 /* ---------- projects ---------- */
-const GROUPS=[['rtl','Digital hardware','RTL, accelerators and analog design'],['emb','Robots and embedded','Firmware, power and the machines it runs'],['sw','Software','Web apps and automation']];
+const GROUPS=[['rtl','Digital hardware','RTL, accelerators and analog design'],['emb','Robots and embedded','Firmware, power electronics and robots'],['sw','Software','Web apps and automation']];
 const PROJ=[
  {ic:'mac',g:'rtl',t:'RISC-V Matrix Accelerator',d:'In progress',b:'MAC hardware',
   s:'A 4×4 INT8 systolic array of multiply-accumulate units, attached to a PicoRV32 RISC-V core.',
@@ -1606,7 +1605,7 @@ const PROJ=[
      'Flew to 10,000 ft at Launch Canada and was recovered with minimal damage and fully functional; the team placed 14th and earned the Boy Scout Award.'],
   kv:[['10,000 ft','launch altitude'],['14th','Launch Canada'],['2 altimeters','primary + backup']]},
  {ic:'rover',g:'emb',t:'RouteScout Rover',d:'Jan 2026',b:'McHacks 13',link:'https://devpost.com/software/the-holeymoley-routescout',
-  s:'Passive road inspection in miniature: pothole detection tagged onto a live LiDAR SLAM map.',
+  s:'A small rover that maps a room with LiDAR SLAM and marks potholes on the map.',
   tools:'ESP32, Raspberry Pi, ROS 2, micro-ROS, SLAM Toolbox, RPLIDAR, YOLOv4-Tiny, OpenCV, Flask, React',
   m:[['rover_side.jpg','The rover: Raspberry Pi, ESP32 and LiDAR on one chassis.'],['rover_dashboard.jpg','The RoadWatch console: live SLAM map, teleop and logged potholes.'],['rover_architecture.jpg','System architecture: ESP32 firmware, Raspberry Pi with ROS 2, laptop LAN server.'],['rover_front.jpg','Front view with the webcam used for pothole detection.'],['rover_top.jpg','Top-down wiring between the ESP32 layer and the Raspberry Pi.'],['rover_lidar.jpg','Slamtec RPLIDAR used for SLAM.'],['rover_slam_map.jpg','SLAM map streamed to the frontend.'],['rover_demo.jpg','Demo run at McGill.']],
   l:['Built in 24 hours by a team of four at McGill, coming in with no practical SLAM, ROS 2 or LiDAR experience. Indoors GPS was unreliable, so pose came from LiDAR SLAM, wheel odometry and IMU.',
@@ -1620,7 +1619,7 @@ const PROJ=[
   s:'A rover that confirms flames with on-board vision and actuates a suppression mechanism.',
   tools:'Raspberry Pi 4B, Arduino, L298N, RPi Camera, YOLOv4-tiny, power electronics, CAD',
   m:[['fire_rover.jpg','The rover: battery pack, Arduino and motor driver on the chassis.'],['fire_detect.jpg','YOLOv4-tiny flagging a flame on the Raspberry Pi.'],['fire_bench.jpg','Bench bring-up: battery packs, drivers and motors.'],['fire_cad_chassis.jpg','Chassis CAD.'],['fire_cad_motors.jpg','Drive motor and wheel CAD.']],
-  l:['Built with a teammate at MakeUofT: detect a flame, navigate to it, and actuate suppression, the full autonomy loop on consumer parts.',
+  l:['Built with a teammate at MakeUofT: it detects a flame, drives to it and triggers the suppression mechanism, using off-the-shelf parts.',
      'Main pack of 12 AA cells in 6S2P: 9 V with roughly 5000 mAh (about 45 Wh), sized from a load budget of about 35 W peak (RPi 4B at 15 W plus four drive motors at about 1 A stall each).',
      'With the Pi and motors on one 5 V rail, motor start-up dragged it low enough to reboot the Pi. Split the design into 3 isolated power domains: a Pi rail, a motor rail, and a separate 9 V battery through a buck converter for the Arduino.',
      'L298N dual H-bridge at 2 A per channel, two motors per channel inside the rating; CAD for an automated dispensing trailer within the payload limit.',
@@ -1642,7 +1641,7 @@ const PROJ=[
   l:['Python and PowerShell automation calling the Claude API in three stages: role analysis, resume generation, metadata extraction.',
      'Role analysis produces a JSON brief validated against 8 required fields, with a fallback so a bad brief never stops a run.',
      'Early outputs broke compilation on unescaped LaTeX characters; fixed at the source with prompt rules, a 27-line page budget and a 103-character line limit.',
-     'pdflatex sometimes hung forever: MiKTeX was waiting on an invisible install prompt. Running it with stdin closed and a 120 s timeout makes failures clean.',
+     'pdflatex sometimes hung forever: MiKTeX was waiting on an invisible install prompt. Running it with stdin closed and a 120 s timeout makes a failed compile exit instead of hang.',
      'A regex router sanitizes company names and files each PDF, source, listing and brief into an archive.']},
  {ic:'wild',g:'sw',t:'Canadian Wildfire Risk Tracker',
   s:'A web app that rates wildfire risk anywhere in Canada from live NASA fire data and wind.',
