@@ -1581,18 +1581,18 @@ const runFX=(function(){
         for(let x=0;x<=x1;x+=3){const a=3+95*sc*Math.pow(x/W,1.6);c[x?'lineTo':'moveTo'](x,y0+dy+Math.sin(x/(20+10*sc)-e*.012)*a)}c.stroke()})});
   }
 
-  // fertilizer: a tractor rolls across towing a spreader; granules arc out of the hopper and settle into furrows behind it
+  // fertilizer: along the bottom edge, a tractor rolls across towing a spreader; granules arc out of the hopper and settle into furrows behind it
   function dispense(row){
-    const o=origin(row),k=Math.max(.7,Math.min(1.1,W/1300)),yg=Math.min(H-40,o.y+110),D=1000,T=860,X0=-140*k,X1=W+150*k;
+    const k=Math.max(1.1,Math.min(1.8,W/800)),yg=H-24*k,D=1700,T=1480,X0=-140*k,X1=W+150*k;
     const X=t=>X0+(X1-X0)*Math.min(1,t/T),rand=rng(9),G=[],P=[],SP=-60*k,GR=.0026;
     for(let ts=0;ts<T;ts+=3.2){const x0=X(ts)+SP,vx=(rand()-.62)*.32,vy=-.05-rand()*.12,y0=yg-20*k,land=yg+rand()*18*k;
-      const tl=(-vy+Math.sqrt(vy*vy+2*GR*(land-y0)))/GR;G.push([ts,x0,y0,vx,vy,land,tl,rand()<.22?CU:rand()<.5?BR:INK,1.3+rand()*1.3])}
-    for(let ts=0;ts<T;ts+=55)P.push([ts,(rand()-.5)*6]);
+      const tl=(-vy+Math.sqrt(vy*vy+2*GR*(land-y0)))/GR;G.push([ts,x0,y0,vx,vy,land,tl,rand()<.22?CU:rand()<.5?BR:INK,(1.3+rand()*1.3)*Math.min(1.4,k)])}
+    for(let ts=0;ts<T;ts+=70)P.push([ts,(rand()-.5)*6]);
     const wheel=(cx,cy,r,ang,f)=>{c.fillStyle=`rgba(${INK},${f})`;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
       c.strokeStyle=`rgba(${HI},${.55*f})`;c.lineWidth=Math.max(1,r*.09);
       for(let q=0;q<6;q++){const a=ang+q*Math.PI/3;c.beginPath();c.moveTo(cx+Math.cos(a)*r*.32,cy+Math.sin(a)*r*.32);c.lineTo(cx+Math.cos(a)*r*.78,cy+Math.sin(a)*r*.78);c.stroke()}
       c.fillStyle=`rgba(${CU},${f})`;c.beginPath();c.arc(cx,cy,r*.3,0,Math.PI*2);c.fill()};
-    play(D,e=>{const f=1-out(e,820,D),x=X(e);
+    play(D,e=>{const f=1-out(e,1420,D),x=X(e);
       // furrows already sown
       c.strokeStyle=`rgba(${BR},${.28*f})`;c.lineWidth=1;
       for(let q=0;q<3;q++){const y=yg+(3+q*7)*k;c.beginPath();c.moveTo(X0,y);c.lineTo(Math.max(X0,x+SP),y);c.stroke()}
@@ -1600,7 +1600,7 @@ const runFX=(function(){
       for(const[ts,x0,y0,vx,vy,land,tl,col,sz]of G){const a=e-ts;if(a<0)break;const t=Math.min(a,tl);
         const gx=x0+vx*t,gy=a>=tl?land:y0+vy*t+.5*GR*t*t;c.fillStyle=`rgba(${col},${(col===INK?.55:.9)*f})`;c.fillRect(gx-sz/2,gy-sz/2,sz,sz)}
       // exhaust puffs
-      for(const[ts,dx]of P){const a=e-ts;if(a<0||a>520)continue;const q=a/520;
+      for(const[ts,dx]of P){const a=e-ts;if(a<0||a>650)continue;const q=a/650;
         c.fillStyle=`rgba(158,128,98,${(1-q)*.26*f})`;c.beginPath();c.arc(X(ts)+(44+dx)*k-q*24*k,yg-(66+q*34)*k,(3+q*8)*k,0,Math.PI*2);c.fill()}
       // tractor
       c.save();c.translate(x,yg+Math.sin(e*.06)*.8);c.scale(k,k);const ink=`rgba(${INK},${f})`;
@@ -1641,11 +1641,11 @@ const runFX=(function(){
         for(let a=0;a<=72;a++){const th=a/72*Math.PI*2,rr=r*(1+.09*Math.sin(th*3+k)+.05*Math.sin(th*5-k*2));c[a?'lineTo':'moveTo'](o.x+Math.cos(th)*rr,o.y+Math.sin(th)*rr*.7)}
         c.closePath();c.stroke()}});
   }
-  // Build Buddy: an engineer in a hard hat walks in with a pickaxe on one shoulder, holds up a permit, and it gets stamped
+  // Build Buddy: along the bottom edge, an engineer in a hard hat walks in with a pickaxe on one shoulder, holds up a permit, and it gets stamped
   function permit(row){
-    const o=origin(row),k=Math.max(.8,Math.min(1.15,W/1250)),yg=Math.min(H-24,o.y+130*k),xs=o.x-60,xt=Math.min(W-120,o.x+260*k),ink=a=>`rgba(${INK},${a})`;
-    play(1100,e=>{const f=1-out(e,860,1100),w=out(e,0,560),x=xs+(xt-xs)*(1-Math.pow(1-w,2)),ph=w<1?e*.028:0,sw=Math.sin(ph)*.5*(1-w*w),
-      r=ease(out(e,520,660)),st=out(e,660,780);
+    const k=Math.max(1.4,Math.min(2.3,W/650)),yg=H-10*k,xs=-40*k,xt=Math.min(W-60*k,Math.max(W*.3,origin(row).x+120)),ink=a=>`rgba(${INK},${a})`;
+    play(1800,e=>{const f=1-out(e,1480,1800),w=out(e,0,950),x=xs+(xt-xs)*(1-Math.pow(1-w,2)),ph=w<1?e*.028:0,sw=Math.sin(ph)*.5*(1-w*w),
+      r=ease(out(e,900,1080)),st=out(e,1080,1220);
       c.translate(x,yg-Math.abs(Math.sin(ph))*2*(1-w));c.scale(k,k);c.lineCap='round';c.lineJoin='round';
       // ground shadow
       c.fillStyle=ink(.12*f);c.beginPath();c.ellipse(0,1,22,4,0,0,Math.PI*2);c.fill();
