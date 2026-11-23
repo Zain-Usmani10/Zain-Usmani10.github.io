@@ -118,7 +118,7 @@ canvas.bits{position:absolute;left:0;right:0;top:0;bottom:34px;width:100%;height
 .hud{position:absolute;font-family:var(--mono);font-size:11px;color:#a29e93;letter-spacing:.04em;pointer-events:none;line-height:1.5}
 .hud.tl{top:16px;left:18px}.hud.tr{top:16px;right:18px;text-align:right}.hud.bl{bottom:14px;left:18px}.hud.br{bottom:14px;right:18px;text-align:right}
 .hud b{color:#f0eee7;font-weight:500}
-.hud .fp{color:#f2c46d}
+
 .corner{position:absolute;width:18px;height:18px;border-color:#3a3833;border-style:solid;pointer-events:none}
 .corner.a{top:8px;left:8px;border-width:1px 0 0 1px}.corner.b{top:8px;right:8px;border-width:1px 1px 0 0}.corner.c{bottom:8px;left:8px;border-width:0 0 1px 1px}.corner.d{bottom:8px;right:8px;border-width:0 1px 1px 0}
 .viewer-cap{font-size:12.5px;color:var(--mut);margin-top:14px;line-height:1.5}
@@ -707,7 +707,7 @@ body:not([data-page=home]) .sec-head h2{margin-top:0}
     <canvas id="cloud"></canvas>
     <span class="corner a"></span><span class="corner b"></span><span class="corner c"></span><span class="corner d"></span>
     <div class="hud tl">3D MONOCULAR DEPTH PERCEPTION → POINT CLOUD<br><b id="npts">0</b> points</div>
-    <div class="hud tr">frame 276<br><span class="fp">focal plane Z = <b id="fz" style="color:#f2c46d">1.30</b> m</span></div>
+    <div class="hud tr">frame 276</div>
     <div class="hud br"><div class="scale"><span>0.79 m</span><i></i><span>1.81 m</span></div></div>
     <div class="orbit-hint small" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><marker id="ahA" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><circle cx="60" cy="60" r="26"/><ellipse class="mer" cx="60" cy="60" rx="12" ry="26"/><ellipse cx="60" cy="60" rx="26" ry="8"/><g class="spin"><path d="M60 13 A47 47 0 0 1 105 48" marker-end="url(#ahA)"/><path d="M60 107 A47 47 0 0 1 15 72" marker-end="url(#ahA)"/></g></svg><span>360° · drag to orbit</span></div>
    </div>
@@ -1219,30 +1219,35 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const SCR={heroP:0,vel:0};
 
-/* ---------- point cloud + focal plane ---------- */
+/* ---------- point cloud ---------- */
 (function(){
-  const cv=$('#cloud'),ctx=cv.getContext('2d'),box=$('#viewer'),fzEl=$('#fz');
+  const cv=$('#cloud'),ctx=cv.getContext('2d'),box=$('#viewer');
   const W=CLOUD.w,H=CLOUD.h,zr=CLOUD.zmax-CLOUD.zmin;
   const zb=Uint8Array.from(atob(CLOUD.z),c=>c.charCodeAt(0)), lb=Uint8Array.from(atob(CLOUD.l),c=>c.charCodeAt(0));
   const f=W*0.82,cx=W/2,cy=H/2,N=W*H;
-  const P=new Float32Array(N*3),C=new Uint8Array(N),S=new Float32Array(N),T=new Float32Array(N),FX=new Float32Array(N*3);
+  const P=new Float32Array(N*3),C=new Uint8Array(N),S=new Float32Array(N),A=new Float32Array(N);
   let zm=0;
   for(let v=0,i=0;v<H;v++)for(let u=0;u<W;u++,i++){
     const t=zb[i]/255, Z=CLOUD.zmin+t*zr;
     const ju=u+(Math.random()-.5)*.9,jv=v+(Math.random()-.5)*.9;P[i*3]=(ju-cx)*Z/f; P[i*3+1]=(jv-cy)*Z/f; P[i*3+2]=Z; zm+=Z;
-    C[i]=Math.min(31,Math.floor((1-t)*31.99)); T[i]=t;
+    C[i]=Math.min(31,Math.floor((1-t)*31.99)); A[i]=0.36+lb[i]/255*0.55;
     S[i]=Math.random();
   }
   zm/=N; for(let i=0;i<N;i++)P[i*3+2]-=zm;
+  // static edge shading: the near side of a depth step is drawn a few shades lighter and fully opaque, the far side a touch dimmer
+  {const C0=C.slice();for(let v=1;v<H-1;v++)for(let u=1;u<W-1;u++){const i=v*W+u,z=zb[i];
+    let near=0,far=0;for(const n of[i-1,i+1,i-W,i+W]){const d=zb[n]-z;if(d>near)near=d;if(-d>far)far=-d}
+    if(near>=10){const k=Math.min(1,(near-10)/30);C[i]=Math.min(31,C0[i]+2+Math.round(3*k));A[i]=Math.min(1,A[i]+.25+.2*k)}
+    else if(far>=10)A[i]*=.6;
+    else{const g=Math.abs(lb[i+1]-lb[i-1])+Math.abs(lb[i+W]-lb[i-W]);if(g>60)A[i]=Math.min(1,A[i]+.12)}}}
   const stops=[[74,20,134],[140,41,129],[214,69,122],[251,138,76],[252,210,138]];
   const cols=[];for(let k=0;k<32;k++){const x=k/31*(stops.length-1),a=Math.floor(x),b=Math.min(a+1,stops.length-1),m=x-a;
     const c=stops[a].map((q,j)=>Math.round(q+(stops[b][j]-q)*m));cols.push(`rgb(${c[0]},${c[1]},${c[2]})`)}
   const buckets=Array.from({length:32},()=>[]);for(let i=0;i<N;i++)buckets[C[i]].push(i);
   $('#npts').textContent=N.toLocaleString();
-  let yaw=-0.4,pitch=0.16,tyaw=yaw,tpitch=pitch,drag=null,auto=!reduce,t0=performance.now(),vis=true,ft=.5,lastFz='',lastF=performance.now();
+  let yaw=-0.4,pitch=0.16,tyaw=yaw,tpitch=pitch,drag=null,auto=!reduce,t0=performance.now(),vis=true,lastF=performance.now();
   let aS=1;function size(){const r=box.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);cv.width=r.width*d;cv.height=r.height*d;aS=Math.min(1,Math.max(.45,r.width/560))}
   size();addEventListener('resize',size);
-  const BAND=.03;
   function frame(now){
     if(!vis){requestAnimationFrame(frame);return}
     const el=(now-t0)/1000, build=reduce?1:Math.min(1,el/2.2), e=1-Math.pow(1-build,3);
@@ -1251,13 +1256,10 @@ const SCR={heroP:0,vel:0};
     const fk=Math.min(3,(now-lastF)/16.67),lk=1-Math.pow(.92,fk);lastF=now;
     if(auto&&!drag)tyaw+=0.0022*fk;
     yaw+=(tyaw-yaw)*lk;pitch+=(tpitch-pitch)*lk;
-    // focal plane: drifts gently at rest, sweeps near -> far as you scroll out of the hero
-    const hp=SCR.heroP, idle=.5+.36*Math.sin(el*.32), k=Math.min(1,hp*3.5);
-    const tgt=reduce?.5:idle*(1-k)+(.04+hp*.92)*k; ft+=(tgt-ft)*lk;
-    const yw=yaw+hp*.9, D=2.6+hp*1.4;
+    const hp=SCR.heroP, yw=yaw+hp*.9, D=2.6+hp*1.4;
     const w=cv.width,h=cv.height,sc=Math.min(w,h)*0.95,cy_=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pitch),sp=Math.sin(pitch);
     ctx.clearRect(0,0,w,h);ctx.globalCompositeOperation='lighter';
-    const ps=Math.max(1.4,w/430);let fc=0;
+    const ps=Math.max(1.4,w/430);
     for(let kk=0;kk<32;kk++){
       ctx.fillStyle=cols[kk];const B=buckets[kk];
       for(let j=0;j<B.length;j++){const i=B[j];
@@ -1267,16 +1269,11 @@ const SCR={heroP:0,vel:0};
         const y1=y*cp-z1*sp, z2=y*sp+z1*cp;
         const q=D/(D+z2); if(q<=0)continue;
         const X=w/2+x1*sc*q*0.56, Y=h/2+y1*sc*q*0.56, s=ps*q;
-        const dd=Math.abs(T[i]-ft);
-        if(dd<BAND&&local>.95){FX[fc*3]=X;FX[fc*3+1]=Y;FX[fc*3+2]=s*(1.15+.5*(1-dd/BAND));fc++;continue}
-        ctx.globalAlpha=(0.36+lb[i]/255*0.55)*local*aS;
+        ctx.globalAlpha=A[i]*local*aS;
         ctx.fillRect(X,Y,s,s);
       }
     }
-    if(fc){ctx.fillStyle='#ffd98a';ctx.globalAlpha=.85*aS+.15;
-      for(let j=0;j<fc;j++){const s=FX[j*3+2];ctx.fillRect(FX[j*3],FX[j*3+1],s,s)}}
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
-    const fz=(CLOUD.zmin+ft*zr).toFixed(2);if(fz!==lastFz){fzEl.textContent=fz;lastFz=fz}
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
