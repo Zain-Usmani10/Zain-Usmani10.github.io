@@ -370,7 +370,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .srcclip .xp{position:absolute;right:6px;top:5px;font-size:12px;line-height:1;color:#e9e2d4;background:rgba(13,12,11,.74);padding:3px 5px;border-radius:4px;opacity:.75;transition:opacity .2s}
 .srcclip:hover .xp{opacity:1}
 .srcclip .pg{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.14)}
-.srcclip .pg i{display:block;height:100%;width:0;background:#f2c46d}
+.srcclip .pg i{display:block;height:100%;width:100%;background:#f2c46d;transform:scaleX(0);transform-origin:0 50%}
 .srcclip .hint{color:#f2c46d}
 dialog#vp{border:0;padding:0;background:transparent;width:min(96vw,1200px);max-width:none;max-height:96vh;margin:auto;color:#e9e2d4}
 dialog#vp::backdrop{background:rgba(20,15,10,.9);backdrop-filter:blur(4px)}
@@ -409,6 +409,9 @@ section>.wrap,.hero>.wrap{position:relative;z-index:1}
 .orbit-hint span{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-align:center;line-height:1.5;background:rgba(20,12,8,.5);padding:5px 10px;border-radius:999px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 .orbit-hint.small svg{width:74px;height:74px}
 .orbit-hint.gone{opacity:0;transform:translate(-50%,-50%) scale(.9);animation:none}
+/* the hero hint turns a few times and then rests; a solid backing instead of a live blur over the moving cloud */
+#viewer .orbit-hint,#viewer .orbit-hint .spin,#viewer .orbit-hint .mer{animation-iteration-count:3}
+#viewer .orbit-hint span{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(20,12,8,.74)}
 @keyframes hintspin{to{transform:rotate(360deg)}}
 @keyframes hintmer{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.12)}}
 @keyframes hintfloat{0%,100%{translate:0 0}50%{translate:0 -6px}}
@@ -1221,7 +1224,12 @@ const SCR={heroP:0,vel:0};
 
 /* ---------- point cloud ---------- */
 (function(){
-  const cv=$('#cloud'),ctx=cv.getContext('2d'),box=$('#viewer');
+  // WebGL draws all points in one call on the GPU; the 2D canvas path below is the fallback
+  let cv=$('#cloud');const box=$('#viewer');
+  let gl=null;try{gl=cv.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false,stencil:false,powerPreference:'low-power'})}catch(_){}
+  // a canvas keeps its first context, so a fresh one is needed to fall back to 2D
+  if(gl&&gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1]<16){gl=null;const c2=cv.cloneNode();cv.replaceWith(c2);cv=c2}
+  let ctx=gl?null:cv.getContext('2d');
   const W=CLOUD.w,H=CLOUD.h,zr=CLOUD.zmax-CLOUD.zmin;
   const zb=Uint8Array.from(atob(CLOUD.z),c=>c.charCodeAt(0)), lb=Uint8Array.from(atob(CLOUD.l),c=>c.charCodeAt(0));
   const f=W*0.82,cx=W/2,cy=H/2,N=W*H;
@@ -1245,6 +1253,35 @@ const SCR={heroP:0,vel:0};
     const c=stops[a].map((q,j)=>Math.round(q+(stops[b][j]-q)*m));cols.push(`rgb(${c[0]},${c[1]},${c[2]})`)}
   const buckets=Array.from({length:32},()=>[]);for(let i=0;i<N;i++)buckets[C[i]].push(i);
   $('#npts').textContent=N.toLocaleString();
+  // GPU path: the same build, rotation and projection as the 2D loop, done per point in the vertex shader.
+  // Additive blending matches 'lighter'. Points snap to whole pixels, so alpha is scaled by area to keep the brightness.
+  let U=null;
+  if(gl){
+    const sh=(t,src)=>{const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);return s};
+    const pr=gl.createProgram();
+    gl.attachShader(pr,sh(gl.VERTEX_SHADER,`attribute vec3 p;attribute vec3 c;attribute vec2 sa;
+uniform float e,cy,sy,cp,sp,D,sc,ps,aS,g;uniform vec2 R;varying vec4 v;
+void main(){float l=clamp(e*1.35-sa.x*.35,0.,1.);float z=p.z*l+(1.-l)*(sa.x-.5)*3.;
+float x1=p.x*cy+z*sy,z1=-p.x*sy+z*cy,y1=p.y*cp-z1*sp,z2=p.y*sp+z1*cp,q=D/(D+z2);
+if(q<=0.){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=0.;v=vec4(0.);return;}
+float s=ps*q,n=max(1.,floor(s+.5));vec2 X=R*.5+vec2(x1,y1)*sc*q*.56+s*.5;
+gl_Position=vec4(X.x/R.x*2.-1.,1.-X.y/R.y*2.,0.,1.);gl_PointSize=n;v=vec4(c,sa.y*l*aS*g*s*s/(n*n));}`));
+    gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,`precision mediump float;varying vec4 v;void main(){gl_FragColor=v;}`));
+    gl.linkProgram(pr);
+    if(!gl.getProgramParameter(pr,gl.LINK_STATUS))gl=null;
+    else{
+      gl.useProgram(pr);
+      const nc=cols.map(s=>s.match(/\d+/g).map(Number));
+      const buf=new Float32Array(N*8);
+      for(let i=0;i<N;i++){const o=i*8,k=nc[C[i]];buf[o]=P[i*3];buf[o+1]=P[i*3+1];buf[o+2]=P[i*3+2];
+        buf[o+3]=k[0]/255;buf[o+4]=k[1]/255;buf[o+5]=k[2]/255;buf[o+6]=S[i];buf[o+7]=A[i]}
+      gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,buf,gl.STATIC_DRAW);
+      [['p',3,0],['c',3,12],['sa',2,24]].forEach(([n,sz,off])=>{const l=gl.getAttribLocation(pr,n);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,sz,gl.FLOAT,false,32,off)});
+      U={};['e','cy','sy','cp','sp','D','sc','ps','aS','g','R'].forEach(n=>U[n]=gl.getUniformLocation(pr,n));
+      gl.enable(gl.BLEND);gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE,gl.ONE,gl.ONE);gl.clearColor(0,0,0,0);
+    }
+  }
+  if(!gl&&!ctx){const c2=cv.cloneNode();cv.replaceWith(c2);cv=c2;ctx=cv.getContext('2d')}
   let yaw=-0.4,pitch=0.16,tyaw=yaw,tpitch=pitch,drag=null,auto=!reduce,t0=performance.now(),vis=true,lastF=performance.now();
   let aS=1;function size(){const r=box.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);cv.width=r.width*d;cv.height=r.height*d;aS=Math.min(1,Math.max(.45,r.width/560))}
   size();addEventListener('resize',size);
@@ -1258,8 +1295,15 @@ const SCR={heroP:0,vel:0};
     yaw+=(tyaw-yaw)*lk;pitch+=(tpitch-pitch)*lk;
     const hp=SCR.heroP, yw=yaw+hp*.9, D=2.6+hp*1.4;
     const w=cv.width,h=cv.height,sc=Math.min(w,h)*0.95,cy_=Math.cos(yw),sy=Math.sin(yw),cp=Math.cos(pitch),sp=Math.sin(pitch);
-    ctx.clearRect(0,0,w,h);ctx.globalCompositeOperation='lighter';
     const ps=Math.max(1.4,w/430);
+    if(gl){
+      gl.viewport(0,0,w,h);gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform1f(U.e,e);gl.uniform1f(U.cy,cy_);gl.uniform1f(U.sy,sy);gl.uniform1f(U.cp,cp);gl.uniform1f(U.sp,sp);
+      gl.uniform1f(U.D,D);gl.uniform1f(U.sc,sc);gl.uniform1f(U.ps,ps);gl.uniform1f(U.aS,aS);gl.uniform1f(U.g,ps<2.2?1.09:1);gl.uniform2f(U.R,w,h);
+      gl.drawArrays(gl.POINTS,0,N);
+      requestAnimationFrame(frame);return;
+    }
+    ctx.clearRect(0,0,w,h);ctx.globalCompositeOperation='lighter';
     for(let kk=0;kk<32;kk++){
       ctx.fillStyle=cols[kk];const B=buckets[kk];
       for(let j=0;j<B.length;j++){const i=B[j];
@@ -1340,15 +1384,15 @@ const SCR={heroP:0,vel:0};
   const nav=$('#nav');if(!nav)return;
   const cv=document.createElement('canvas');cv.className='bits';cv.setAttribute('aria-hidden','true');nav.prepend(cv);
   const c=cv.getContext('2d');let W=0,H=0;
-  let holes=[];
+  let holes=[],ready=false;
   // clear zones: a padded pill around the name and each tab, so the bits never sit behind text
   function zones(){const nr=nav.getBoundingClientRect();holes=[...nav.querySelectorAll('.brand,.nav ul a')].map(el=>{const r=el.getBoundingClientRect();
-    return[r.left-nr.left-10,r.top-nr.top-4,r.width+20,r.height+8]}).filter(z=>z[2]>20)}
+    return[r.left-nr.left-10,r.top-nr.top-4,r.width+20,r.height+8]}).filter(z=>z[2]>20);if(ready)mask()}
   const FADE=30;
   // signed distance to a pill (rounded rect, radius h/2); 0 inside, rising to 1 over FADE px outside
   function clearK(px,py){let m=1e9;for(const[x,y,w,h]of holes){const r=h/2,cx=x+w/2,cy=y+h/2,qx=Math.abs(px-cx)-(w/2-r),qy=Math.abs(py-cy)-(h/2-r);
     const d=Math.hypot(Math.max(qx,0),Math.max(qy,0))+Math.min(Math.max(qx,qy),0)-r;if(d<m)m=d}return Math.max(0,Math.min(1,m/FADE))}
-  function size(){const d=Math.min(devicePixelRatio||1,2);W=nav.offsetWidth;H=cv.offsetHeight;cv.width=W*d;cv.height=H*d;c.setTransform(d,0,0,d,0,0);zones()}
+  function size(){const d=Math.min(devicePixelRatio||1,2);W=nav.offsetWidth;H=cv.offsetHeight;cv.width=W*d;cv.height=H*d;c.setTransform(d,0,0,d,0,0);zones();if(ready){sprites();mask()}}
   size();addEventListener('resize',size);if(document.fonts)document.fonts.ready.then(zones);setInterval(zones,1500);
   const N=360;
   // three rows crossing each other; the middle one slightly larger and closer
@@ -1356,16 +1400,25 @@ const SCR={heroP:0,vel:0};
     const t=new Uint8Array(N).fill(1),b=new Uint8Array(N);for(let i=0;i<N;i++)b[i]=Math.random()<.5?1:0;
     return{y,f,a,v,cw:Math.round(f*.95),t,b,hot:new Float32Array(N),o:Math.random()*N*f}});
   let lt=performance.now(),ly=scrollY,acc=0;
-  function draw(dt,boost){c.clearRect(0,0,W,H);c.textBaseline='middle';const sc=H/60;
-    for(const L of lanes){const fs=L.f*sc;L.cw=Math.round(fs*.95);const P=N*L.cw;L.o=(L.o+L.v*boost*dt/1000+P)%P;
-      const base=Math.floor(L.o/L.cw),fr=L.o%L.cw,y=L.y*H;c.font=`${fs.toFixed(1)}px JetBrains Mono, monospace`;
-      for(let k=-1;k*L.cw<W+L.cw;k++){const i=((base+k)%N+N)%N,x=k*L.cw-fr,tp=L.t[i];if(!tp)continue;
-        let edge=Math.min(1,x/(W*.14),(W-x)/(W*.14));if(edge<=0)continue;edge*=clearK(x+L.cw/2,y);if(edge<=0)continue;const h=L.hot[i];
-        c.fillStyle=h>0?`rgba(156,58,36,${Math.min(1,L.a+.65*h)*edge})`:`rgba(34,23,15,${L.a*edge})`;
-        if(tp===1)c.fillText(L.b[i],x,y);
-        else{const q=L.f*.42;c.fillRect(x+L.f*.1,y-q/2,q*(L.b[i]?1.6:1),q)}}
+  // each glyph is drawn once into a small sprite and the fade mask is precomputed per pixel column,
+  // so a frame is a few hundred image copies instead of text layout plus a distance test per glyph
+  let spr=[],masks=[];
+  function sprites(){const d=Math.min(devicePixelRatio||1,2),sc=H/60;
+    spr=lanes.map(L=>{const fs=L.f*sc;L.cw=Math.round(fs*.95);const pw=Math.ceil(L.cw+4),ph=Math.ceil(fs*1.5);
+      return['34,23,15','156,58,36'].map(col=>['0','1'].map(ch=>{const k=document.createElement('canvas');k.width=Math.ceil(pw*d);k.height=Math.ceil(ph*d);
+        const g=k.getContext('2d');g.scale(d,d);g.font=`${fs.toFixed(1)}px JetBrains Mono, monospace`;g.textBaseline='middle';g.fillStyle=`rgb(${col})`;g.fillText(ch,2,ph/2);return{k,pw,ph}}))})}
+  function mask(){masks=lanes.map(L=>{const n=Math.ceil(W)+1,m=new Float32Array(n),y=L.y*H;
+    for(let x=0;x<n;x++){const e=Math.min(1,x/(W*.14),(W-x)/(W*.14));m[x]=e>0?e*clearK(x+L.cw/2,y):0}return m})}
+  function draw(dt,boost){c.clearRect(0,0,W,H);
+    for(let li=0;li<lanes.length;li++){const L=lanes[li],S=spr[li],M=masks[li],P=N*L.cw;L.o=(L.o+L.v*boost*dt/1000+P)%P;
+      const base=Math.floor(L.o/L.cw),fr=L.o%L.cw,y=L.y*H;
+      for(let k=-1;k*L.cw<W+L.cw;k++){const i=((base+k)%N+N)%N,x=k*L.cw-fr,tp=L.t[i];if(!tp||x<0||x>=M.length)continue;
+        const edge=M[x|0];if(edge<=0)continue;const h=L.hot[i],al=h>0?Math.min(1,L.a+.65*h)*edge:L.a*edge;
+        if(tp===1){const g=S[h>0?1:0][L.b[i]];c.globalAlpha=al;c.drawImage(g.k,x-2,y-g.ph/2,g.pw,g.ph)}
+        else{c.globalAlpha=1;c.fillStyle=h>0?`rgba(156,58,36,${al})`:`rgba(34,23,15,${al})`;const q=L.f*.42;c.fillRect(x+L.f*.1,y-q/2,q*(L.b[i]?1.6:1),q)}}
       for(let i=0;i<N;i++)if(L.hot[i]>0)L.hot[i]=Math.max(0,L.hot[i]-dt/1100)}
-}
+    c.globalAlpha=1}
+  ready=true;sprites();mask();if(document.fonts)document.fonts.ready.then(()=>{sprites();mask()});
   if(reduce){const once=()=>{zones();draw(0,0)};once();if(document.fonts)document.fonts.ready.then(once);addEventListener("load",once);addEventListener("resize",once);return}
   let pend=0,spd=1;
   (function f(now){const dt=Math.min(100,now-lt),dy=Math.abs(scrollY-ly);lt=now;ly=scrollY;
@@ -1912,7 +1965,7 @@ function slashOpen(row,grp){
     else (function f(){if(!vid.paused)cb(vid.currentTime);requestAnimationFrame(f)})();
     vid.addEventListener('seeked',()=>cb(vid.currentTime))}
   const fcn=$('#fcn'),fcp=$('#fcp');
-  hook(v,t=>{const n=fr(t);fcn.textContent=pad(n);fcp.style.width=(n/LAST*100)+'%'});
+  hook(v,t=>{const n=fr(t);fcn.textContent=pad(n);fcp.style.transform=`scaleX(${(n/LAST).toFixed(4)})`});
   v.addEventListener('loadedmetadata',()=>{if(v.currentTime<.01)v.currentTime=(412+.5)/FPS},{once:true});
   const dlg=$('#vp'),pv=$('#vpv'),rng=$('#vpr'),num=$('#vpn'),tc=$('#vpt'),pp=$('#vpp');let scrub=false;
   hook(pv,t=>{const n=fr(t);num.textContent=pad(n);tc.textContent=t.toFixed(2).padStart(5,'0')+' s';if(!scrub)rng.value=n});
@@ -2027,9 +2080,15 @@ const stretchSets=[];
   function kick(){still=0;if(running)return;running=true;lastT=performance.now();lastY=scrollY;requestAnimationFrame(loop)}
   addEventListener('scroll',kick,{passive:true});addEventListener('resize',kick);
   function loop(now){
+    // read everything first, while layout is still clean from the last frame, then write; mixing the two forces a layout per read
     const y=scrollY,moved=y!==lastY,dt=Math.max(1,now-lastT),v=(y-lastY)/dt*1000;lastY=y;lastT=now;
     SCR.vel+=(v-SCR.vel)*.2;
-    const H=document.documentElement.scrollHeight-innerHeight, p=H>0?y/H:0;
+    const H=document.documentElement.scrollHeight-innerHeight, p=H>0?y/H:0, heroH=hero.offsetHeight, gh=gauge.offsetHeight, ih=innerHeight;
+    const sideR=sideEls.map(el=>el.parentElement.getBoundingClientRect());
+    let a=-1;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<ih*.4)a=i});
+    const tgt=reduce?0:Math.min(.34,Math.abs(SCR.vel)/7000);amt+=(tgt-amt)*.14;
+    const live=reduce?[]:stretchSets.filter(s=>{const r=s.box.getBoundingClientRect();return r.bottom>=0&&r.top<=ih});
+    // writes
     nav.classList.toggle('on',y>20);
     // the header fades back while reading down the page and returns to full strength on any scroll up
     {const d=y-navY;navY=y;
@@ -2037,21 +2096,18 @@ const stretchSets=[];
      else if(d>0){navDn+=d;navUp=0;if(navDn>24)nav.classList.add('hide')}
      else if(d<0){navUp-=d;navDn=0;if(navUp>6)nav.classList.remove('hide')}}
     // hero dolly + tilt
-    const hp=clamp(y/(hero.offsetHeight*.9),0,1);
+    const hp=clamp(y/(heroH*.9),0,1);
     if(Math.abs(hp-SCR.heroP)>.0005){SCR.heroP=hp;
       if(!reduce)viewer.style.transform=hp>0?`rotateX(${hp*16}deg) rotateZ(${-hp*2.2}deg) scale(${1-hp*.08})`:''}
-    // side graphics draw as their section scrolls through
-    sideEls.forEach(el=>{const r=el.parentElement.getBoundingClientRect();el.style.setProperty('--p',reduce?1:clamp((innerHeight*.85-r.top)/(r.height*.55),0,1).toFixed(3))});
+    // side graphics draw as their section scrolls through; only touch the style when the value changes
+    sideEls.forEach((el,i)=>{const r=sideR[i],q=reduce?'1':clamp((ih*.85-r.top)/(r.height*.55),0,1).toFixed(3);if(el._p!==q){el._p=q;el.style.setProperty('--p',q)}});
     // gauge
-    if(gauge.offsetHeight){gmk.style.transform=`translateY(${p*gauge.offsetHeight}px)`;gz.textContent=(y/3779.5).toFixed(2)}
-    let a=-1;secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<innerHeight*.4)a=i});
+    if(gh){gmk.style.transform=`translateY(${p*gh}px)`;gz.textContent=(y/3779.5).toFixed(2)}
     if(a!==act){act=a;ticks.forEach((t,i)=>t.classList.toggle('on',i===a))}
     // stretch type
     if(!reduce){
-      const tgt=Math.min(.34,Math.abs(SCR.vel)/7000);amt+=(tgt-amt)*.14;
       const sk=clamp(-SCR.vel/900,-4,4);
-      stretchSets.forEach(s=>{const r=s.box.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
-        if(amt<.002&&s.idle)return;s.idle=amt<.002;
+      live.forEach(s=>{if(amt<.002&&s.idle)return;s.idle=amt<.002;
         s.els.forEach((e,i)=>{e.style.transform=s.idle?'':`scaleY(${1+amt*s.w[i]}) skewX(${sk*s.w[i]*amt*3}deg)`})});
     }
     if(!moved&&Math.abs(SCR.vel)<1&&amt<.002){if(++still>20){running=false;SCR.vel=0;return}}else still=0;
